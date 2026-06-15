@@ -18,7 +18,11 @@ PACKAGES=(
     xdg-desktop-portal-wlr   # chia sẻ màn hình / hộp thoại chọn file (Zoom, Meet, OBS)
     thunar                   # file manager
     firefox                  # trình duyệt
+    imv                      # xem ảnh
     cliphist                 # quản lý lịch sử clipboard
+    # Mạng / Bluetooth / Âm thanh (GUI + khay hệ thống)
+    network-manager-gnome    # nm-applet (WiFi) + nm-connection-editor
+    blueman bluez            # quản lý Bluetooth (GUI)
     # Bộ gõ tiếng Việt
     fcitx5 fcitx5-unikey fcitx5-configtool
 )
@@ -26,6 +30,9 @@ PACKAGES=(
 echo "==> Cài package (cần sudo)..."
 sudo apt update
 sudo apt install -y "${PACKAGES[@]}"
+
+echo "==> Bật dịch vụ Bluetooth..."
+sudo systemctl enable --now bluetooth
 
 echo "==> Tạo symlink config..."
 mkdir -p "$HOME/.config" "$HOME/Pictures"

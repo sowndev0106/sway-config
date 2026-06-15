@@ -41,6 +41,9 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **cliphist** | Lịch sử clipboard (copy nhiều lần) | `Mod+Shift+v` |
 | **thunar** | File manager | từ launcher |
 | **firefox** | Trình duyệt | từ launcher |
+| **imv** | Xem ảnh | `imv <ảnh>` |
+| **nm-applet** | WiFi / mạng (GUI ở khay) | icon khay |
+| **blueman** | Bluetooth (GUI ở khay) | icon khay |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
 | **xdg-desktop-portal-wlr** | Chia sẻ màn hình / hộp thoại chọn file | (nền) |
 
