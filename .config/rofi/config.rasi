@@ -1,0 +1,70 @@
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus";
+    drun-display-format: "{name}";
+    display-drun: " Apps";
+    display-run: " Run";
+    display-window: " Window";
+    sidebar-mode: true;
+}
+
+* {
+    bg:       #1e1e2e;
+    bg-alt:   #313244;
+    fg:       #cdd6f4;
+    fg-alt:   #6c7086;
+    accent:   #89b4fa;
+    urgent:   #f38ba8;
+
+    background-color: transparent;
+    text-color: @fg;
+    font: "JetBrains Mono 12";
+}
+
+window {
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 8px;
+    width: 600px;
+    location: center;
+}
+
+mainbox {
+    padding: 12px;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius: 6px;
+    padding: 8px 12px;
+    spacing: 8px;
+    children: [ prompt, entry ];
+}
+
+prompt { text-color: @accent; }
+entry  { placeholder: "Tìm ứng dụng..."; placeholder-color: @fg-alt; }
+
+listview {
+    margin: 10px 0 0 0;
+    lines: 8;
+    columns: 1;
+    fixed-height: false;
+    scrollbar: false;
+}
+
+element {
+    padding: 8px;
+    spacing: 10px;
+    border-radius: 6px;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element-icon { size: 26px; }
+element-text { vertical-align: 0.5; }

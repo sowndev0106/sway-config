@@ -6,7 +6,8 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PACKAGES=(
     sway swaybg swayidle swaylock
-    waybar wofi foot mako-notifier
+    waybar rofi wofi foot mako-notifier
+    papirus-icon-theme
     grim slurp wl-clipboard
     brightnessctl playerctl
     wireplumber pavucontrol

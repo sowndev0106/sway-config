@@ -8,7 +8,8 @@ Cấu hình Sway WM (Wayland tiling) của sowndev0106, quản lý bằng git + 
 |---|---|
 | **sway** | Cửa sổ tiling (Wayland) |
 | **waybar** | Thanh trạng thái trên cùng |
-| **wofi** | Trình khởi chạy ứng dụng (`Mod+d`) |
+| **rofi** | Trình khởi chạy ứng dụng (`Mod+d`) |
+| **wofi** | Launcher dự phòng (`Mod+Shift+d`) |
 | **foot** | Terminal (`Mod+Enter`) |
 | **mako** | Thông báo |
 | **swaylock / swayidle** | Khóa & tự khóa màn hình |
@@ -30,7 +31,8 @@ Script sẽ cài package qua `apt` và tạo symlink từ `~/.config/*` vào rep
 | Phím | Hành động |
 |---|---|
 | `Mod+Enter` | Mở terminal |
-| `Mod+d` | Trình khởi chạy ứng dụng |
+| `Mod+d` | Trình khởi chạy ứng dụng (rofi) |
+| `Mod+Shift+d` | Launcher dự phòng (wofi) |
 | `Mod+q` | Đóng cửa sổ |
 | `Mod+1..0` | Chuyển workspace |
 | `Mod+Shift+1..0` | Chuyển cửa sổ sang workspace |
@@ -50,6 +52,7 @@ Script sẽ cài package qua `apt` và tạo symlink từ `~/.config/*` vào rep
 .config/
 ├── sway/config        # cấu hình chính
 ├── waybar/{config,style.css}
+├── rofi/config.rasi
 ├── wofi/{config,style.css}
 ├── foot/foot.ini
 └── mako/config
