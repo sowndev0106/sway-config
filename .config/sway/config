@@ -14,7 +14,9 @@ set $menu rofi -show drun
 set $menu_alt wofi --show drun
 
 ### Output (màn hình) - chạy `swaymsg -t get_outputs` để xem tên output
+# Nền màu trơn (mặc định). Muốn dùng ảnh thật: comment dòng dưới và bỏ comment dòng kế.
 output * bg #1e1e2e solid_color
+# output * bg ~/Pictures/wallpaper.jpg fill   # fill | fit | stretch | center | tile
 
 ### Idle / lock màn hình
 exec swayidle -w \
@@ -126,6 +128,9 @@ bindsym XF86AudioPrev exec playerctl previous
 bindsym Print exec grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
 bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
 
+### Lịch sử clipboard (cliphist) — chọn lại nội dung đã copy
+bindsym $mod+Shift+v exec cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
+
 ### Khóa màn hình thủ công
 bindsym $mod+Shift+x exec swaylock -f
 
@@ -149,5 +154,9 @@ bar {
 ### Autostart
 exec mako
 exec_always /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+# Bộ gõ tiếng Việt (Unikey qua fcitx5)
+exec fcitx5 -d --replace
+# Lưu lịch sử clipboard (xem lại bằng Mod+Shift+v)
+exec wl-paste --watch cliphist store
 
 include /etc/sway/config.d/*

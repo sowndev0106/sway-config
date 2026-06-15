@@ -14,6 +14,13 @@ PACKAGES=(
     policykit-1-gnome
     fonts-font-awesome fonts-jetbrains-mono
     xwayland
+    # Tiện ích desktop bổ sung
+    xdg-desktop-portal-wlr   # chia sẻ màn hình / hộp thoại chọn file (Zoom, Meet, OBS)
+    thunar                   # file manager
+    firefox                  # trình duyệt
+    cliphist                 # quản lý lịch sử clipboard
+    # Bộ gõ tiếng Việt
+    fcitx5 fcitx5-unikey fcitx5-configtool
 )
 
 echo "==> Cài package (cần sudo)..."

@@ -38,6 +38,11 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **brightnessctl** | Chỉnh độ sáng | phím độ sáng |
 | **playerctl** | Điều khiển nhạc/video | phím media |
 | **pavucontrol** | Quản lý âm thanh (GUI) | từ launcher |
+| **cliphist** | Lịch sử clipboard (copy nhiều lần) | `Mod+Shift+v` |
+| **thunar** | File manager | từ launcher |
+| **firefox** | Trình duyệt | từ launcher |
+| **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
+| **xdg-desktop-portal-wlr** | Chia sẻ màn hình / hộp thoại chọn file | (nền) |
 
 ---
 
@@ -98,6 +103,8 @@ mở terminal đầu tiên.
 | `Mod+Shift+c` | Nạp lại config (reload) |
 | `Mod+Shift+e` | Thoát Sway (có hỏi xác nhận) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
+| `Mod+Shift+v` | Lịch sử clipboard (cliphist) |
+| `Ctrl+Space` | Bật/tắt gõ tiếng Việt (fcitx5) |
 
 ### Di chuyển focus giữa các cửa sổ
 
@@ -220,6 +227,28 @@ Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình
 - `Print`: lưu file PNG vào `~/Pictures`.
 - `Shift+Print`: kéo chọn vùng → vào clipboard, dán bằng `Ctrl+V`.
 
+### Lịch sử clipboard (cliphist) — `Mod+Shift+v`
+Mọi nội dung bạn copy được lưu lại. Bấm `Mod+Shift+v` → rofi hiện danh sách
+đã copy → chọn để dán lại. Tiến trình ghi chạy nền (`wl-paste --watch`).
+
+### Bộ gõ tiếng Việt (fcitx5 + Unikey)
+fcitx5 tự chạy nền khi vào Sway. Biến môi trường nằm ở
+`.config/environment.d/im.conf` — **cần đăng xuất rồi đăng nhập lại một lần**
+để có hiệu lực.
+
+**Thiết lập lần đầu (chỉ làm một lần):**
+1. Mở cấu hình: chạy `fcitx5-configtool` (từ launcher hoặc terminal).
+2. Ở cột "Input Method", bấm `+`, bỏ chọn "Only Show Current Language",
+   tìm **Unikey** → Add.
+3. Đảm bảo danh sách có cả **Keyboard - English (US)** và **Unikey**.
+4. Bấm Apply.
+
+**Sử dụng:** bấm `Ctrl+Space` để chuyển qua lại Anh ↔ Việt (Unikey mặc định
+kiểu gõ Telex). Kiểu gõ (Telex/VNI) đổi trong `fcitx5-configtool` → Unikey.
+
+> Nếu một app (thường là app XWayland) không gõ được tiếng Việt, kiểm tra đã
+> đăng nhập lại sau khi cài chưa, và `pgrep fcitx5` có thấy tiến trình không.
+
 ---
 
 ## 7. Tùy biến
@@ -306,7 +335,8 @@ sway-config/
 │   ├── wofi/config            # launcher dự phòng
 │   ├── wofi/style.css
 │   ├── foot/foot.ini          # terminal
-│   └── mako/config            # thông báo
+│   ├── mako/config            # thông báo
+│   └── environment.d/im.conf  # biến môi trường bộ gõ tiếng Việt
 ├── install.sh                 # cài package + tạo symlink
 ├── .gitignore
 └── README.md                  # file này
