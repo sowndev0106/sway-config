@@ -3,6 +3,10 @@
 ignore-empty-password
 daemonize
 
+# Ảnh nền màn khóa (đổi đường dẫn tùy thích). scaling: fill|fit|center|tile|stretch
+image=/home/sown/Pictures/BG_4.png
+scaling=fill
+
 font=JetBrains Mono
 indicator-idle-visible
 indicator-radius=110
