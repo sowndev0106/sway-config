@@ -50,7 +50,7 @@ bindsym $mod+q kill
 bindsym $mod+d exec $menu
 bindsym $mod+Shift+d exec $menu_alt
 bindsym $mod+Shift+c reload
-bindsym $mod+Shift+e exec swaynag -t warning -m 'Thoát Sway?' -B 'Có' 'swaymsg exit'
+bindsym $mod+Shift+e exec wlogout -b 5 -m 8
 
 # Di chuyển focus
 bindsym $mod+$left focus left
@@ -131,11 +131,11 @@ bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
-### Screenshot (grim + slurp)
-bindsym Print exec grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
-bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
-# Chọn vùng -> copy vào clipboard (kiểu snip)
-bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy
+### Screenshot (grimshot — tự lưu/copy + thông báo)
+bindsym Print exec grimshot save screen          # toàn màn hình -> file
+bindsym Shift+Print exec grimshot copy area       # chọn vùng -> clipboard
+bindsym $mod+Print exec grimshot save area        # chọn vùng -> file
+bindsym $mod+Shift+s exec grimshot copy area       # snip -> clipboard
 # Quay màn hình: bấm lần 1 chọn vùng & quay, lần 2 dừng
 bindsym $mod+Shift+r exec ~/.config/sway/scripts/record.sh
 
@@ -186,5 +186,7 @@ exec nm-applet --indicator
 exec blueman-applet
 # OSD volume/độ sáng (wob) — tạo fifo rồi đọc vào wob
 exec rm -f $XDG_RUNTIME_DIR/wob.sock && mkfifo $XDG_RUNTIME_DIR/wob.sock && tail -f $XDG_RUNTIME_DIR/wob.sock | wob
+# Tự sắp xếp màn hình khi cắm/rút màn ngoài
+exec kanshi
 
 include /etc/sway/config.d/*

@@ -1,0 +1,30 @@
+{
+    "label" : "lock",
+    "action" : "swaylock",
+    "text" : "Khóa",
+    "keybind" : "l"
+}
+{
+    "label" : "logout",
+    "action" : "swaymsg exit",
+    "text" : "Đăng xuất",
+    "keybind" : "e"
+}
+{
+    "label" : "suspend",
+    "action" : "systemctl suspend",
+    "text" : "Ngủ",
+    "keybind" : "s"
+}
+{
+    "label" : "reboot",
+    "action" : "systemctl reboot",
+    "text" : "Khởi động lại",
+    "keybind" : "r"
+}
+{
+    "label" : "shutdown",
+    "action" : "systemctl poweroff",
+    "text" : "Tắt máy",
+    "keybind" : "p"
+}

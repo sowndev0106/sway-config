@@ -47,6 +47,9 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **wob** | Thanh OSD volume/độ sáng | tự hiện khi chỉnh |
 | **wf-recorder** | Quay màn hình | `Mod+Shift+r` |
 | **zathura** | Đọc PDF | `zathura <file>` |
+| **wlogout** | Menu nguồn (nút bấm) | `Mod+Shift+e` |
+| **grimshot** | Chụp màn hình (kèm thông báo) | `Print` |
+| **kanshi / wdisplays** | Đa màn hình (tự sắp xếp / GUI) | tự chạy / từ launcher |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
 | **xdg-desktop-portal-wlr** | Chia sẻ màn hình / hộp thoại chọn file | (nền) |
 
@@ -107,7 +110,7 @@ mở terminal đầu tiên.
 | `Mod+Shift+d` | Launcher dự phòng (wofi) |
 | `Mod+q` | Đóng cửa sổ đang focus |
 | `Mod+Shift+c` | Nạp lại config (reload) |
-| `Mod+Shift+e` | Thoát Sway (có hỏi xác nhận) |
+| `Mod+Shift+e` | Menu nguồn (khóa/đăng xuất/khởi động lại/tắt/ngủ) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
 | `Mod+Shift+v` | Lịch sử clipboard (cliphist) |
 | `Ctrl+Space` | Bật/tắt gõ tiếng Việt (fcitx5) |
@@ -183,8 +186,9 @@ mở terminal đầu tiên.
 
 | Phím | Hành động |
 |---|---|
-| `Print` | Chụp **toàn màn hình** → lưu `~/Pictures/screenshot-<thời gian>.png` |
-| `Shift+Print` | Chọn **vùng** bằng chuột → copy vào clipboard |
+| `Print` | Chụp **toàn màn hình** → lưu file (`~/Pictures`) |
+| `Shift+Print` | Chọn **vùng** → copy vào clipboard |
+| `Mod+Print` | Chọn **vùng** → lưu file |
 | `Mod+Shift+s` | Chọn **vùng** → copy vào clipboard (kiểu snip) |
 | `Mod+Shift+r` | Quay màn hình (bấm lần 2 để dừng) → lưu `~/Videos` |
 | Vuốt 3 ngón (touchpad) | Đổi workspace trái/phải |
@@ -341,6 +345,8 @@ sway-config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
 │   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình)
 │   ├── swaylock/config        # màn khóa (đồng hồ + theme)
+│   ├── wlogout/{layout,style.css}  # menu nguồn
+│   ├── kanshi/config          # bố cục đa màn hình
 │   ├── xdg-desktop-portal/    # cấu hình portal (chia sẻ màn hình)
 │   ├── waybar/config          # nội dung thanh trạng thái
 │   ├── waybar/style.css       # giao diện thanh trạng thái

@@ -33,6 +33,10 @@ PACKAGES=(
     libnotify-bin            # notify-send (thông báo từ script)
     xdg-desktop-portal-gtk   # backend hộp thoại chọn file
     yaru-theme-icon          # cursor/icon Yaru
+    # Học từ Archcraft
+    wlogout                  # menu nguồn (khóa/đăng xuất/tắt...)
+    grimshot                 # chụp màn hình tiện hơn (kèm thông báo)
+    kanshi wdisplays         # đa màn hình: tự sắp xếp + GUI kéo thả
 )
 
 echo "==> Cài package (cần sudo)..."
