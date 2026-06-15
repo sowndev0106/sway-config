@@ -18,4 +18,7 @@ devs="$igpu"
 [ -n "$dgpu" ] && devs="${devs:+$devs:}$dgpu"
 [ -n "$devs" ] && export WLR_DRM_DEVICES="$devs"
 
+# Nvidia không vẽ được con trỏ phần cứng -> ép dùng con trỏ phần mềm (chuột hiện lại)
+export WLR_NO_HARDWARE_CURSORS=1
+
 exec sway --unsupported-gpu "$@"
