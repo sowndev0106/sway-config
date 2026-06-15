@@ -179,6 +179,7 @@ mở terminal đầu tiên.
 |---|---|
 | `Print` | Chụp **toàn màn hình** → lưu `~/Pictures/screenshot-<thời gian>.png` |
 | `Shift+Print` | Chọn **vùng** bằng chuột → copy vào clipboard |
+| `Mod+Shift+s` | Chọn **vùng** → copy vào clipboard (kiểu snip) |
 
 ---
 

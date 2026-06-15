@@ -127,6 +127,8 @@ bindsym XF86AudioPrev exec playerctl previous
 ### Screenshot (grim + slurp)
 bindsym Print exec grim ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
 bindsym Shift+Print exec grim -g "$(slurp)" - | wl-copy
+# Chọn vùng -> copy vào clipboard (kiểu snip)
+bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy
 
 ### Lịch sử clipboard (cliphist) — chọn lại nội dung đã copy
 bindsym $mod+Shift+v exec cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
