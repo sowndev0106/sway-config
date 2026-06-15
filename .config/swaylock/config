@@ -1,11 +1,8 @@
 # swaylock — màn khóa (theme Catppuccin Mocha)
 # LƯU Ý: swaylock 1.7.x (Ubuntu 24.04) KHÔNG hỗ trợ clock/timestr/datestr (cần 1.8+).
 ignore-empty-password
-daemonize
-
-# Ảnh nền màn khóa (đổi đường dẫn tùy thích). scaling: fill|fit|center|tile|stretch
-image=/home/sown/Pictures/BG_4.png
-scaling=fill
+# (Không 'daemonize' và không 'image' ở đây: lock.sh tự lo nền blur + chạy foreground.
+#  Khi swaylock chạy không có nền sẽ dùng 'color' bên dưới làm fallback an toàn.)
 
 font=JetBrains Mono
 indicator-idle-visible

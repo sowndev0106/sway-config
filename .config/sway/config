@@ -23,7 +23,7 @@ output * bg #1e1e2e solid_color
 
 ### Idle / lock màn hình
 exec swayidle -w \
-    timeout 300 'swaylock -f' \
+    timeout 300 '~/.config/sway/scripts/lock.sh' \
     timeout 600 'swaymsg "output * power off"' \
     resume 'swaymsg "output * power on"' \
     before-sleep 'swaylock -f'
@@ -145,8 +145,8 @@ bindsym $mod+Shift+r exec ~/.config/sway/scripts/record.sh
 ### Lịch sử clipboard (cliphist) — chọn lại nội dung đã copy
 bindsym $mod+Shift+v exec cliphist list | rofi -dmenu -p "Clipboard" | cliphist decode | wl-copy
 
-### Khóa màn hình thủ công
-bindsym $mod+Shift+x exec swaylock -f
+### Khóa màn hình thủ công (nền blur desktop)
+bindsym $mod+Shift+x exec ~/.config/sway/scripts/lock.sh
 
 ### Gaps & viền
 gaps inner 6
