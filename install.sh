@@ -65,30 +65,14 @@ done
 ### nối qua card Nvidia rời (liệt kê Nvidia thứ hai trong WLR_DRM_DEVICES).
 if lsmod 2>/dev/null | grep -q '^nvidia'; then
     echo "==> Phát hiện Nvidia: tạo session 'Sway (Hybrid GPU)'"
-    igpu=""; dgpu=""
-    for p in /dev/dri/by-path/*-card; do
-        [ -e "$p" ] || continue
-        base=$(basename "$(readlink -f "$p")")
-        drv=$(basename "$(readlink -f "/sys/class/drm/$base/device/driver" 2>/dev/null)" 2>/dev/null)
-        case "$drv" in
-            i915|xe|amdgpu|radeon) [ -z "$igpu" ] && igpu="$p" ;;
-            nvidia)                dgpu="$p" ;;
-        esac
-    done
-    # Thứ tự: iGPU trước (renderer chính), Nvidia sau (xuất hình cổng rời)
-    devs="$igpu"; [ -n "$dgpu" ] && devs="${devs:+$devs:}$dgpu"
-    if [ -n "$devs" ]; then
-        exec_line="env WLR_DRM_DEVICES=$devs sway --unsupported-gpu"
-    else
-        exec_line="sway --unsupported-gpu"
-    fi
-    echo "   WLR_DRM_DEVICES=$devs"
+    # Dùng script launch.sh (tự dò card lúc chạy, dùng /dev/dri/cardN không có
+    # dấu ':' để khỏi xung đột ký tự ngăn cách của WLR_DRM_DEVICES).
     sudo mkdir -p /usr/local/share/wayland-sessions
     sudo tee /usr/local/share/wayland-sessions/sway-gpu.desktop >/dev/null <<EOF
 [Desktop Entry]
 Name=Sway (Hybrid GPU)
-Comment=Sway — render bằng iGPU, hỗ trợ cả màn hình nối qua Nvidia
-Exec=$exec_line
+Comment=Sway - render bang iGPU, ho tro ca man hinh noi qua Nvidia
+Exec=$HOME/.config/sway/scripts/launch.sh
 Type=Application
 EOF
     echo "   -> Ở màn hình đăng nhập chọn 'Sway (Hybrid GPU)'."
