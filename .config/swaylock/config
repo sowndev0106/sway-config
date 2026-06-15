@@ -1,13 +1,10 @@
 # swaylock — màn khóa (theme Catppuccin Mocha)
+# LƯU Ý: swaylock 1.7.x (Ubuntu 24.04) KHÔNG hỗ trợ clock/timestr/datestr (cần 1.8+).
 ignore-empty-password
 daemonize
 
-clock
-timestr=%H:%M
-datestr=%A, %d-%m-%Y
 font=JetBrains Mono
-
-indicator
+indicator-idle-visible
 indicator-radius=110
 indicator-thickness=8
 
