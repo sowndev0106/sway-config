@@ -16,7 +16,8 @@ PACKAGES=(
     xwayland
     # Tiện ích desktop bổ sung
     xdg-desktop-portal-wlr   # chia sẻ màn hình / hộp thoại chọn file (Zoom, Meet, OBS)
-    thunar                   # file manager
+    nautilus                 # file manager (GNOME Files)
+    file-roller              # giải nén zip/rar (chuột phải trong Nautilus)
     firefox                  # trình duyệt
     imv                      # xem ảnh
     cliphist                 # quản lý lịch sử clipboard
@@ -27,7 +28,6 @@ PACKAGES=(
     fcitx5 fcitx5-unikey fcitx5-configtool
     # Tiện ích thêm
     wob                      # OSD thanh volume/độ sáng
-    xarchiver                # giải nén trong Thunar
     zathura                  # đọc PDF
     wf-recorder              # quay màn hình
     libnotify-bin            # notify-send (thông báo từ script)
@@ -73,5 +73,8 @@ Type=Application
 EOF
     echo "   -> Ở màn hình đăng nhập chọn 'Sway (Nvidia)'. Từ TTY: sway --unsupported-gpu"
 fi
+
+echo "==> Đặt Nautilus làm trình quản lý file mặc định..."
+xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
 
 echo "==> Xong. Đăng xuất rồi chọn 'Sway' (hoặc 'Sway (Nvidia)') ở màn hình đăng nhập."

@@ -39,7 +39,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **playerctl** | Điều khiển nhạc/video | phím media |
 | **pavucontrol** | Quản lý âm thanh (GUI) | từ launcher |
 | **cliphist** | Lịch sử clipboard (copy nhiều lần) | `Mod+Shift+v` |
-| **thunar** | File manager | từ launcher |
+| **nautilus** | File manager (GNOME Files) | `Mod+E` |
 | **firefox** | Trình duyệt | từ launcher |
 | **imv** | Xem ảnh | `imv <ảnh>` |
 | **nm-applet** | WiFi / mạng (GUI ở khay) | icon khay |
@@ -109,6 +109,7 @@ mở terminal đầu tiên.
 | `Mod+d` | Trình khởi chạy ứng dụng (rofi) |
 | `Mod+Shift+d` | Launcher dự phòng (wofi) |
 | `Mod+q` | Đóng cửa sổ đang focus |
+| `Mod+E` | Mở file manager (Nautilus) |
 | `Mod+Shift+c` | Nạp lại config (reload) |
 | `Mod+Shift+e` | Menu nguồn (khóa/đăng xuất/khởi động lại/tắt/ngủ) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
@@ -148,7 +149,6 @@ mở terminal đầu tiên.
 | `Mod+v` | Chia dọc (cửa sổ mới nằm bên dưới) |
 | `Mod+s` | Layout **stacking** (xếp chồng, xem tiêu đề) |
 | `Mod+w` | Layout **tabbed** (dạng tab) |
-| `Mod+e` | Đổi qua lại split ngang/dọc |
 | `Mod+f` | Bật/tắt **toàn màn hình** |
 | `Mod+a` | Focus lên container cha |
 

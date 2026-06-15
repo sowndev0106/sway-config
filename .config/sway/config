@@ -99,7 +99,7 @@ bindsym $mod+b splith
 bindsym $mod+v splitv
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
+bindsym $mod+e exec nautilus
 bindsym $mod+f fullscreen
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
@@ -163,7 +163,7 @@ for_window [app_id="blueman-manager"] floating enable
 for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="fcitx5-config-qt"] floating enable
 for_window [app_id="org.fcitx.fcitx5-config-qt"] floating enable
-for_window [app_id="thunar" title="(?i)(progress|confirm|rename|properties)"] floating enable
+for_window [app_id="org.gnome.Nautilus" title="(?i)(properties|preferences)"] floating enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="bubble"] floating enable
 for_window [window_role="dialog"] floating enable
