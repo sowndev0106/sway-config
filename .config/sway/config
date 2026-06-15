@@ -10,6 +10,9 @@ set $right l
 
 set $term foot
 set $menu rofi -show drun
+
+# Giữ Super + kéo chuột để DI CHUYỂN cửa sổ nổi (Super + chuột phải để đổi kích thước)
+floating_modifier $mod normal
 # Launcher dự phòng (wofi): bind Super+Shift+d
 set $menu_alt wofi --show drun
 
