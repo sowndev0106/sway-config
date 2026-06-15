@@ -44,6 +44,9 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **imv** | Xem ảnh | `imv <ảnh>` |
 | **nm-applet** | WiFi / mạng (GUI ở khay) | icon khay |
 | **blueman** | Bluetooth (GUI ở khay) | icon khay |
+| **wob** | Thanh OSD volume/độ sáng | tự hiện khi chỉnh |
+| **wf-recorder** | Quay màn hình | `Mod+Shift+r` |
+| **zathura** | Đọc PDF | `zathura <file>` |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
 | **xdg-desktop-portal-wlr** | Chia sẻ màn hình / hộp thoại chọn file | (nền) |
 
@@ -183,6 +186,8 @@ mở terminal đầu tiên.
 | `Print` | Chụp **toàn màn hình** → lưu `~/Pictures/screenshot-<thời gian>.png` |
 | `Shift+Print` | Chọn **vùng** bằng chuột → copy vào clipboard |
 | `Mod+Shift+s` | Chọn **vùng** → copy vào clipboard (kiểu snip) |
+| `Mod+Shift+r` | Quay màn hình (bấm lần 2 để dừng) → lưu `~/Videos` |
+| Vuốt 3 ngón (touchpad) | Đổi workspace trái/phải |
 
 ---
 
@@ -312,6 +317,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Triệu chứng | Cách xử lý |
 |---|---|
 | Sway không khởi động | Chạy `sway` từ TTY để xem log lỗi; kiểm tra dòng `swaymsg -t get_outputs` |
+| **Máy Nvidia: vào Sway bị màn đen / văng ra** | Sway từ chối GPU Nvidia độc quyền. Chọn session **"Sway (Nvidia)"** ở màn hình đăng nhập (install.sh tự tạo nếu có Nvidia), hoặc từ TTY: `sway --unsupported-gpu` |
 | Phím tắt không ăn | `Mod+Shift+c` reload; xem log: `journalctl --user -b -u sway` hoặc chạy `swaymsg -t get_config` |
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
 | Volume/độ sáng không đổi | Kiểm tra `wpctl status` (audio), `brightnessctl info` |
@@ -333,6 +339,9 @@ Mỗi dòng phải trỏ về `~/sway-config/.config/...`.
 sway-config/
 ├── .config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
+│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình)
+│   ├── swaylock/config        # màn khóa (đồng hồ + theme)
+│   ├── xdg-desktop-portal/    # cấu hình portal (chia sẻ màn hình)
 │   ├── waybar/config          # nội dung thanh trạng thái
 │   ├── waybar/style.css       # giao diện thanh trạng thái
 │   ├── rofi/config.rasi       # launcher chính

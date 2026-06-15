@@ -1,0 +1,30 @@
+# swaylock — màn khóa (theme Catppuccin Mocha)
+ignore-empty-password
+daemonize
+
+clock
+timestr=%H:%M
+datestr=%A, %d-%m-%Y
+font=JetBrains Mono
+
+indicator
+indicator-radius=110
+indicator-thickness=8
+
+color=1e1e2e
+inside-color=1e1e2e
+inside-clear-color=313244
+inside-ver-color=89b4fa
+inside-wrong-color=f38ba8
+ring-color=89b4fa
+ring-clear-color=f9e2af
+ring-ver-color=89b4fa
+ring-wrong-color=f38ba8
+key-hl-color=a6e3a1
+bs-hl-color=f38ba8
+line-color=00000000
+separator-color=00000000
+text-color=cdd6f4
+text-clear-color=1e1e2e
+text-ver-color=1e1e2e
+text-wrong-color=1e1e2e

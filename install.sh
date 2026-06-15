@@ -25,6 +25,14 @@ PACKAGES=(
     blueman bluez            # quản lý Bluetooth (GUI)
     # Bộ gõ tiếng Việt
     fcitx5 fcitx5-unikey fcitx5-configtool
+    # Tiện ích thêm
+    wob                      # OSD thanh volume/độ sáng
+    xarchiver                # giải nén trong Thunar
+    zathura                  # đọc PDF
+    wf-recorder              # quay màn hình
+    libnotify-bin            # notify-send (thông báo từ script)
+    xdg-desktop-portal-gtk   # backend hộp thoại chọn file
+    yaru-theme-icon          # cursor/icon Yaru
 )
 
 echo "==> Cài package (cần sudo)..."
@@ -35,7 +43,7 @@ echo "==> Bật dịch vụ Bluetooth..."
 sudo systemctl enable --now bluetooth
 
 echo "==> Tạo symlink config..."
-mkdir -p "$HOME/.config" "$HOME/Pictures"
+mkdir -p "$HOME/.config" "$HOME/Pictures" "$HOME/Videos"
 for dir in "$REPO_DIR"/.config/*/; do
     name="$(basename "$dir")"
     target="$HOME/.config/$name"
@@ -48,4 +56,18 @@ for dir in "$REPO_DIR"/.config/*/; do
     echo "   linked ~/.config/$name -> $dir"
 done
 
-echo "==> Xong. Đăng xuất rồi chọn 'Sway' ở màn hình đăng nhập, hoặc gõ 'sway' từ TTY."
+### GPU lai Nvidia: Sway từ chối khởi động với driver độc quyền -> cần --unsupported-gpu
+if lsmod 2>/dev/null | grep -q '^nvidia'; then
+    echo "==> Phát hiện driver Nvidia: tạo session 'Sway (Nvidia)' với cờ --unsupported-gpu"
+    sudo mkdir -p /usr/local/share/wayland-sessions
+    sudo tee /usr/local/share/wayland-sessions/sway-gpu.desktop >/dev/null <<'EOF'
+[Desktop Entry]
+Name=Sway (Nvidia)
+Comment=Sway tiling WM trên GPU độc quyền (render bằng Intel iGPU)
+Exec=sway --unsupported-gpu
+Type=Application
+EOF
+    echo "   -> Ở màn hình đăng nhập chọn 'Sway (Nvidia)'. Từ TTY: sway --unsupported-gpu"
+fi
+
+echo "==> Xong. Đăng xuất rồi chọn 'Sway' (hoặc 'Sway (Nvidia)') ở màn hình đăng nhập."
