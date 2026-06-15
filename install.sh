@@ -60,21 +60,41 @@ for dir in "$REPO_DIR"/.config/*/; do
     echo "   linked ~/.config/$name -> $dir"
 done
 
-### GPU lai Nvidia: Sway từ chối khởi động với driver độc quyền -> cần --unsupported-gpu
+### GPU lai Nvidia: Sway từ chối khởi động với driver độc quyền -> cần --unsupported-gpu.
+### Chạy đa GPU: render bằng iGPU (Intel/AMD) làm chính, nhưng vẫn dùng được màn hình
+### nối qua card Nvidia rời (liệt kê Nvidia thứ hai trong WLR_DRM_DEVICES).
 if lsmod 2>/dev/null | grep -q '^nvidia'; then
-    echo "==> Phát hiện driver Nvidia: tạo session 'Sway (Nvidia)' với cờ --unsupported-gpu"
+    echo "==> Phát hiện Nvidia: tạo session 'Sway (Hybrid GPU)'"
+    igpu=""; dgpu=""
+    for p in /dev/dri/by-path/*-card; do
+        [ -e "$p" ] || continue
+        base=$(basename "$(readlink -f "$p")")
+        drv=$(basename "$(readlink -f "/sys/class/drm/$base/device/driver" 2>/dev/null)" 2>/dev/null)
+        case "$drv" in
+            i915|xe|amdgpu|radeon) [ -z "$igpu" ] && igpu="$p" ;;
+            nvidia)                dgpu="$p" ;;
+        esac
+    done
+    # Thứ tự: iGPU trước (renderer chính), Nvidia sau (xuất hình cổng rời)
+    devs="$igpu"; [ -n "$dgpu" ] && devs="${devs:+$devs:}$dgpu"
+    if [ -n "$devs" ]; then
+        exec_line="env WLR_DRM_DEVICES=$devs sway --unsupported-gpu"
+    else
+        exec_line="sway --unsupported-gpu"
+    fi
+    echo "   WLR_DRM_DEVICES=$devs"
     sudo mkdir -p /usr/local/share/wayland-sessions
-    sudo tee /usr/local/share/wayland-sessions/sway-gpu.desktop >/dev/null <<'EOF'
+    sudo tee /usr/local/share/wayland-sessions/sway-gpu.desktop >/dev/null <<EOF
 [Desktop Entry]
-Name=Sway (Nvidia)
-Comment=Sway tiling WM trên GPU độc quyền (render bằng Intel iGPU)
-Exec=sway --unsupported-gpu
+Name=Sway (Hybrid GPU)
+Comment=Sway — render bằng iGPU, hỗ trợ cả màn hình nối qua Nvidia
+Exec=$exec_line
 Type=Application
 EOF
-    echo "   -> Ở màn hình đăng nhập chọn 'Sway (Nvidia)'. Từ TTY: sway --unsupported-gpu"
+    echo "   -> Ở màn hình đăng nhập chọn 'Sway (Hybrid GPU)'."
 fi
 
 echo "==> Đặt Nautilus làm trình quản lý file mặc định..."
 xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
 
-echo "==> Xong. Đăng xuất rồi chọn 'Sway' (hoặc 'Sway (Nvidia)') ở màn hình đăng nhập."
+echo "==> Xong. Đăng xuất rồi chọn 'Sway (Hybrid GPU)' ở màn hình đăng nhập (máy Nvidia)."

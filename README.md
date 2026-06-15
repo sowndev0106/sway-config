@@ -321,7 +321,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Triệu chứng | Cách xử lý |
 |---|---|
 | Sway không khởi động | Chạy `sway` từ TTY để xem log lỗi; kiểm tra dòng `swaymsg -t get_outputs` |
-| **Máy Nvidia: vào Sway bị màn đen / văng ra** | Sway từ chối GPU Nvidia độc quyền. Chọn session **"Sway (Nvidia)"** ở màn hình đăng nhập (install.sh tự tạo nếu có Nvidia), hoặc từ TTY: `sway --unsupported-gpu` |
+| **Máy Nvidia: vào Sway bị văng về login** | Sway từ chối GPU Nvidia độc quyền nên thoát ngay. Chọn session **"Sway (Hybrid GPU)"** ở màn hình đăng nhập (install.sh tự tạo nếu có Nvidia — render bằng iGPU, vẫn dùng được màn hình nối qua Nvidia). Từ TTY: `WLR_DRM_DEVICES=<iGPU>:<Nvidia> sway --unsupported-gpu` |
 | Phím tắt không ăn | `Mod+Shift+c` reload; xem log: `journalctl --user -b -u sway` hoặc chạy `swaymsg -t get_config` |
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
 | Volume/độ sáng không đổi | Kiểm tra `wpctl status` (audio), `brightnessctl info` |
