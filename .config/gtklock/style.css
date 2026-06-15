@@ -1,0 +1,56 @@
+/* gtklock — theme Catppuccin Mocha */
+
+window {
+    background-color: #1e1e2e;
+}
+
+/* Lớp hộp chứa ô nhập */
+#window-box {
+    background-color: rgba(30, 30, 46, 0.55);
+    border-radius: 18px;
+    padding: 28px;
+}
+
+label {
+    color: #cdd6f4;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+}
+
+/* Ô nhập mật khẩu */
+entry {
+    background-color: #313244;
+    color: #cdd6f4;
+    border: 2px solid #45475a;
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin: 8px;
+    font-size: 16px;
+    min-width: 280px;
+    caret-color: #89b4fa;
+}
+
+entry:focus {
+    border-color: #89b4fa;
+}
+
+/* Nút mở khóa */
+button {
+    background-color: #89b4fa;
+    color: #1e1e2e;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 18px;
+    margin: 6px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #b4befe;
+}
+
+/* Báo sai mật khẩu */
+#error-label {
+    color: #f38ba8;
+    font-weight: bold;
+}

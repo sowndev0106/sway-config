@@ -35,6 +35,7 @@ PACKAGES=(
     yaru-theme-icon          # cursor/icon Yaru
     # Học từ Archcraft
     wlogout                  # menu nguồn (khóa/đăng xuất/tắt...)
+    gtklock                  # màn khóa đẹp (ô nhập mật khẩu thật, theme CSS)
     grimshot                 # chụp màn hình tiện hơn (kèm thông báo)
     kanshi wdisplays         # đa màn hình: tự sắp xếp + GUI kéo thả
 )
