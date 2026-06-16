@@ -99,12 +99,18 @@ case "${1:-}" in
         ;;
     set-vol)
         wpctl set-volume @DEFAULT_AUDIO_SINK@ "${2}"%
+        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
+        [ -x "$EWW" ] || EWW="$(command -v eww)"
+        "$EWW" --config "$HOME/.config/eww" update vol_level="${2}"
         ;;
     bri-level)
         brightnessctl -m | cut -d, -f4 | tr -d '%'
         ;;
     set-bri)
         brightnessctl set "${2}"%
+        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
+        [ -x "$EWW" ] || EWW="$(command -v eww)"
+        "$EWW" --config "$HOME/.config/eww" update bri_level="${2}"
         ;;
     refresh)
         # Cập nhật ngay tất cả biến trạng thái vào eww để nút phản hồi tức thì,

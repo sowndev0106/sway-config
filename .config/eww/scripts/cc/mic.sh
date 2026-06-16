@@ -45,6 +45,9 @@ case "${1:-}" in
         ;;
     set-level)
         wpctl set-volume @DEFAULT_AUDIO_SOURCE@ "${2}%"
+        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
+        [ -x "$EWW" ] || EWW="$(command -v eww)"
+        "$EWW" --config "$HOME/.config/eww" update mic_level="${2}"
         ;;
     *)
         echo "Unknown: ${1:-}" >&2; exit 1 ;;

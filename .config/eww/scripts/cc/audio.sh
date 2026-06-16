@@ -80,6 +80,9 @@ case "${1:-}" in
     set-app-vol)
         # set-app-vol <sink-input-id> <volume-percent>
         pactl set-sink-input-volume "${2}" "${3}%" >/dev/null 2>&1
+        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
+        [ -x "$EWW" ] || EWW="$(command -v eww)"
+        "$EWW" --config "$HOME/.config/eww" update audio_apps="$("$0" apps)"
         ;;
     *)
         echo "Unknown: ${1:-}" >&2; exit 1 ;;
