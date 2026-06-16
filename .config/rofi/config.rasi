@@ -1,11 +1,14 @@
 configuration {
-    modi: "drun,run,window";
+    modi: "drun,run,window,filebrowser,power:~/.config/sway/scripts/rofi-power.sh";
     show-icons: true;
     icon-theme: "Papirus";
     drun-display-format: "{name}";
     display-drun: " Apps";
     display-run: " Run";
     display-window: " Window";
+    display-filebrowser: " Files";
+    window-format: "{w}   {c}   {t}";
+    click-to-exit: true;
     sidebar-mode: true;
 }
 
@@ -59,9 +62,26 @@ element {
     padding: 8px;
     spacing: 10px;
     border-radius: 6px;
+    background-color: transparent;
+    text-color: @fg;
 }
 
-element selected {
+/* Item chưa chọn: ép trong suốt cho mọi trạng thái (normal/urgent/active +
+   alternate) để khử màu kem/vàng từ theme mặc định của rofi */
+element normal.normal,
+element normal.urgent,
+element normal.active,
+element alternate.normal,
+element alternate.urgent,
+element alternate.active {
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element selected,
+element selected.normal,
+element selected.urgent,
+element selected.active {
     background-color: @accent;
     text-color: @bg;
 }
