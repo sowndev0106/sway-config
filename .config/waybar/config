@@ -71,7 +71,7 @@
         "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
         "tooltip-format-ethernet": "{ifname}: {ipaddr}",
         "tooltip-format-disconnected": "Disconnected",
-        "on-click": "nm-connection-editor"
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh"
     },
     "bluetooth": {
         "format": "",
@@ -81,7 +81,7 @@
         "tooltip-format": "{controller_alias}\t{status}",
         "tooltip-format-connected": "{controller_alias}\t{status}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}",
-        "on-click": "blueman-manager"
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh"
     },
     "battery": {
         "states": { "warning": 30, "critical": 15 },
