@@ -326,4 +326,289 @@
   color: #1e1e2e; /* Base */
 }
 
+/* ── Panel chi tiết (router-view pages) ── */
+
+.cc-page {
+  padding: 4px 0;
+}
+
+.cc-page-header {
+  padding: 8px 4px 16px 4px;
+  border-bottom: 1px solid #313244;
+  margin-bottom: 12px;
+}
+
+.cc-back-btn {
+  font-size: 13px;
+  color: #89b4fa;
+  padding: 4px 10px;
+  border-radius: 8px;
+  min-width: 80px;
+}
+
+.cc-back-btn:hover {
+  background: #313244;
+}
+
+.cc-page-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #cdd6f4;
+}
+
+.cc-rescan-btn {
+  font-size: 16px;
+  color: #a6adc8;
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 32px;
+}
+
+.cc-rescan-btn:hover {
+  background: #313244;
+  color: #89b4fa;
+}
+
+/* Hàng công tắc on/off trong panel */
+.cc-section-row {
+  padding: 8px 4px;
+  margin-bottom: 8px;
+}
+
+.cc-section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cdd6f4;
+}
+
+.cc-subsection-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a6adc8;
+  padding: 8px 4px 4px 4px;
+}
+
+/* Nút switch on/off nhỏ */
+.cc-switch {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.cc-switch.on {
+  background: #89b4fa;
+  color: #1e1e2e;
+}
+
+.cc-switch.off {
+  background: #313244;
+  color: #a6adc8;
+}
+
+/* Danh sách cuộn */
+.cc-list {
+  min-height: 160px;
+  margin-bottom: 8px;
+}
+
+.cc-list-short {
+  min-height: 80px;
+}
+
+/* Từng hàng trong danh sách */
+.cc-list-row {
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.cc-list-row:hover {
+  background: #313244;
+}
+
+.cc-list-row.active {
+  background: rgba(137, 180, 250, 0.15);
+  border: 1px solid #89b4fa;
+}
+
+/* Icon sóng wifi */
+.cc-signal {
+  font-size: 16px;
+  color: #a6adc8;
+  margin-right: 10px;
+  min-width: 20px;
+}
+
+.cc-list-row.active .cc-signal {
+  color: #89b4fa;
+}
+
+/* Tên mạng / thiết bị */
+.cc-net-name {
+  font-size: 13px;
+  color: #cdd6f4;
+}
+
+/* Icon khóa */
+.cc-lock {
+  font-size: 12px;
+  color: #a6adc8;
+  margin-left: 6px;
+}
+
+/* Dấu chấm active */
+.cc-active-dot {
+  font-size: 10px;
+  color: #a6e3a1;
+  margin-left: 6px;
+}
+
+/* Pin bluetooth */
+.cc-battery {
+  font-size: 11px;
+  color: #a6adc8;
+  margin-left: 6px;
+}
+
+/* Bluetooth icon */
+.cc-bt-icon {
+  font-size: 16px;
+  color: #89b4fa;
+  margin-right: 10px;
+  min-width: 20px;
+}
+
+/* Ô nhập mật khẩu */
+.cc-pass-row {
+  padding: 8px 12px;
+  background: #181825;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.cc-pass-input {
+  font-size: 13px;
+  color: #cdd6f4;
+  background: transparent;
+  border-bottom: 1px solid #45475a;
+  padding: 4px;
+  min-width: 160px;
+}
+
+.cc-connect-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e1e2e;
+  background: #89b4fa;
+  border-radius: 8px;
+  padding: 4px 12px;
+  margin-left: 8px;
+}
+
+.cc-connect-btn:hover {
+  background: #b4befe;
+}
+
+/* Nhãn lỗi */
+.cc-error-label {
+  font-size: 12px;
+  color: #f38ba8;
+  padding: 4px 12px;
+}
+
+/* Card thông tin mạng dây */
+.cc-info-card {
+  background: #181825;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.cc-info-row {
+  padding: 6px 0;
+  border-bottom: 1px solid #313244;
+}
+
+.cc-info-key {
+  font-size: 12px;
+  color: #a6adc8;
+  min-width: 80px;
+}
+
+.cc-info-val {
+  font-size: 13px;
+  color: #cdd6f4;
+  font-weight: 600;
+}
+
+/* Nút connect/disconnect mạng dây */
+.cc-wired-btn {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.cc-wired-btn.connect {
+  background: #89b4fa;
+  color: #1e1e2e;
+}
+
+.cc-wired-btn.disconnect {
+  background: #f38ba8;
+  color: #1e1e2e;
+}
+
+.cc-wired-btn:hover {
+  opacity: 0.85;
+}
+
+/* Nút nâng cao ở chân panel */
+.cc-advanced-btn {
+  font-size: 12px;
+  color: #6c7086;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.cc-advanced-btn:hover {
+  background: #313244;
+  color: #a6adc8;
+}
+
+/* Slider âm lượng từng app */
+.app-vol-row {
+  padding: 6px 4px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.app-vol-row:hover {
+  background: #313244;
+}
+
+.slider.app-vol {
+  min-width: 120px;
+}
+
+.slider.app-vol scale trough highlight {
+  background: #a6e3a1;
+}
+
+/* Mic volume slider */
+.slider.mic-vol scale trough highlight {
+  background: #cba6f7;
+}
+
+/* Nút mute mic nhỏ */
+.cc-mute-btn {
+  font-size: 18px;
+  color: #cdd6f4;
+  min-width: 28px;
+  margin-right: 12px;
+}
+
 
