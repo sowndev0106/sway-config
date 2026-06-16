@@ -160,7 +160,7 @@
         ;; Nút bật/tắt Wifi
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
           (box :class {wifi_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wifi-toggle"
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wifi-toggle && ~/.config/eww/scripts/control_center.sh refresh"
               (label :text {wifi_state == "on" ? "" : "󰖪"}))
             (box :class "toggle-divider")
             (button :class "toggle-arrow" :onclick "nm-connection-editor &" "›"))
@@ -169,7 +169,7 @@
         ;; Nút bật/tắt Bluetooth
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
           (box :class {bt_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh bt-toggle"
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh bt-toggle && ~/.config/eww/scripts/control_center.sh refresh"
               (label :text ""))
             (box :class "toggle-divider")
             (button :class "toggle-arrow" :onclick "blueman-manager &" "›"))
@@ -178,7 +178,7 @@
         ;; Nút bật/tắt Chế độ máy bay
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
           (box :class {airplane_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh airplane-toggle"
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh airplane-toggle && ~/.config/eww/scripts/control_center.sh refresh"
               (label :text ""))
             (box :class "toggle-divider")
             (button :class "toggle-arrow" :onclick "" "›"))
@@ -188,7 +188,7 @@
         ;; Nút bật/tắt Mạng dây (Ethernet)
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
           (box :class {wired_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wired-toggle"
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wired-toggle && ~/.config/eww/scripts/control_center.sh refresh"
               (label :text ""))
             (box :class "toggle-divider")
             (button :class "toggle-arrow" :onclick "nm-connection-editor &" "›"))
@@ -197,7 +197,7 @@
         ;; Nút bật/tắt Âm lượng (Volume)
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
           (box :class {vol_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh vol-toggle"
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh vol-toggle && ~/.config/eww/scripts/control_center.sh refresh"
               (label :text {vol_muted == "on" ? "󰝟" : ""}))
             (box :class "toggle-divider")
             (button :class "toggle-arrow" :onclick "pavucontrol &" "›"))
@@ -206,7 +206,7 @@
         ;; Nút bật/tắt Micro
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
           (box :class {mic_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh mic-toggle"
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh mic-toggle && ~/.config/eww/scripts/control_center.sh refresh"
               (label :text {mic_muted == "on" ? "" : ""}))
             (box :class "toggle-divider")
             (button :class "toggle-arrow" :onclick "pavucontrol &" "›"))

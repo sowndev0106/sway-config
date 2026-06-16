@@ -106,6 +106,21 @@ case "${1:-}" in
     set-bri)
         brightnessctl set "${2}"%
         ;;
+    refresh)
+        # Cập nhật ngay tất cả biến trạng thái vào eww để nút phản hồi tức thì,
+        # không phải đợi nhịp defpoll (1-3s) => hết cảm giác bật/tắt bị chậm.
+        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
+        [ -x "$EWW" ] || EWW="$(command -v eww)"
+        "$EWW" --config "$HOME/.config/eww" update \
+            wifi_state="$("$0" wifi-state)" \
+            wifi_ssid="$("$0" wifi-ssid)" \
+            bt_state="$("$0" bt-state)" \
+            airplane_state="$("$0" airplane-state)" \
+            wired_state="$("$0" wired-state)" \
+            vol_muted="$("$0" vol-muted)" \
+            vol_level="$("$0" vol-level)" \
+            mic_muted="$("$0" mic-muted)"
+        ;;
     *)
         echo "Unknown command: ${1:-}" >&2
         exit 1
