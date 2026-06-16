@@ -98,10 +98,11 @@ case "${1:-}" in
         wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
         ;;
     set-vol)
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
         wpctl set-volume @DEFAULT_AUDIO_SINK@ "${2}"%
         EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
         [ -x "$EWW" ] || EWW="$(command -v eww)"
-        "$EWW" --config "$HOME/.config/eww" update vol_level="${2}"
+        "$EWW" --config "$HOME/.config/eww" update vol_muted="off" vol_level="${2}"
         ;;
     bri-level)
         brightnessctl -m | cut -d, -f4 | tr -d '%'

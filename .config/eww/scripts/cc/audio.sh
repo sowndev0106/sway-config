@@ -36,12 +36,12 @@ case "${1:-}" in
     set-sink)
         pactl set-default-sink "${2}" >/dev/null 2>&1
         # Di chuyển tất cả sink-input sang sink mới
-        pactl list sink-inputs 2>/dev/null \
-            | grep 'Sink Input #' \
-            | grep -oP '\d+' \
-            | while read -r input_id; do
+        inputs=$(pactl list sink-inputs short 2>/dev/null | cut -f1) || true
+        if [ -n "$inputs" ]; then
+            for input_id in $inputs; do
                 pactl move-sink-input "$input_id" "${2}" >/dev/null 2>&1 || true
-              done
+            done
+        fi
         ;;
     apps)
         # JSON mảng ứng dụng đang phát âm thanh (sink-inputs).
@@ -65,7 +65,7 @@ case "${1:-}" in
                     sub(/^.*application\.name = "/, "", name)
                     sub(/"$/, "", name)
                 }
-                /Volume:/ && /front-left/ {
+                /Volume:/ {
                     if (match($0, /[0-9]+%/)) {
                         vol = substr($0, RSTART, RLENGTH - 1)
                     }
