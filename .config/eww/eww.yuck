@@ -120,7 +120,7 @@
     :anchor "top right")
   :stacking "overlay"
   :exclusive false
-  :focusable true
+  :focusable false
   :namespace "eww-control-center"
   (control-center-card))
 
@@ -134,7 +134,9 @@
     :width "100%"
     :height "100%"
     :anchor "top left")
-  :stacking "overlay"
+  ;; closer ở "foreground" (DƯỚI popup ở "overlay" vì overlay vẽ trên foreground)
+  ;; để bắt click ngoài mà không đè lên popup
+  :stacking "foreground"
   :focusable false
   (closer :window "control-center-popup"))
 

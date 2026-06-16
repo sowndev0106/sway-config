@@ -53,7 +53,11 @@ if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^$WINDOW"; then
     "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
     "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER_WINDOW" || true
 else
-    # Mở closer trước (nếu được định nghĩa), sau đó mở popup chính
-    "$EWW_BIN" --config "$CONFIG_DIR" open "$CLOSER_WINDOW" --arg monitor="$MONITOR" || true
+    # Mở popup chính TRƯỚC, rồi mới mở closer.
+    # Thứ tự này quan trọng: nếu mở closer trước, lớp closer toàn màn hình sẽ
+    # chiếm sự kiện chuột và mọi cú click (kể cả lên nút) đều đóng popup —
+    # khiến các nút bật/tắt vô hiệu. Mở popup trước thì nút bấm hoạt động,
+    # closer mở sau vẫn bắt được click ở vùng ngoài popup để đóng.
     "$EWW_BIN" --config "$CONFIG_DIR" open "$WINDOW" --arg monitor="$MONITOR"
+    "$EWW_BIN" --config "$CONFIG_DIR" open "$CLOSER_WINDOW" --arg monitor="$MONITOR" || true
 fi
