@@ -138,7 +138,7 @@ bindsym $mod+b splith
 bindsym $mod+v splitv
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+Shift+e exec nautilus
+bindsym $mod+e exec nautilus
 bindsym $mod+f fullscreen
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
@@ -154,33 +154,18 @@ bindsym $mod+slash exec ~/.config/sway/scripts/show-shortcuts.py
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
-# Khởi động Alt+Tab Switcher (nhấn Alt+Tab lần đầu)
-bindsym Mod1+Tab exec python3 ~/.config/eww/scripts/alt_tab.py start
+# Alt+Tab Switcher — không cần mode riêng, tất cả ở global scope
+# Lý do: bindsym --release Alt_L chỉ fire được trong default mode.
+# toggle_next/toggle_prev tự xử lý: nếu switcher chưa mở → start; nếu đã mở → navigate
+bindsym Mod1+Tab         exec python3 ~/.config/eww/scripts/alt_tab.py toggle_next
+bindsym Mod1+Shift+Tab   exec python3 ~/.config/eww/scripts/alt_tab.py toggle_prev
 
-# FALLBACK: Nhả phím Alt ở chế độ default (phòng khi mode reset bất ngờ)
-bindsym --release Alt_L exec python3 ~/.config/eww/scripts/alt_tab.py check_and_select
-bindsym --release Alt_R exec python3 ~/.config/eww/scripts/alt_tab.py check_and_select
+# Nhả Alt → tự động focus cửa sổ đang chọn (không cần Enter)
+bindsym --release Alt_L  exec python3 ~/.config/eww/scripts/alt_tab.py check_and_select
+bindsym --release Alt_R  exec python3 ~/.config/eww/scripts/alt_tab.py check_and_select
 
-# Chế độ điều khiển Alt+Tab Switcher tạm thời
-mode "switcher" {
-    # Tab / Shift+Tab để đi tới/lui cửa sổ trong khi giữ Alt
-    bindsym Mod1+Tab         exec python3 ~/.config/eww/scripts/alt_tab.py next
-    bindsym Mod1+Shift+Tab   exec python3 ~/.config/eww/scripts/alt_tab.py prev
-    bindsym Tab              exec python3 ~/.config/eww/scripts/alt_tab.py next
-    bindsym Shift+Tab        exec python3 ~/.config/eww/scripts/alt_tab.py prev
-
-    # Nhả phím Alt → chọn cửa sổ ngay lập tức (không cần Enter)
-    # Ghi chú: phải là bare Alt_L không kèm Mod1, vì nhả Alt_L đồng thời xoá Mod1 mask
-    bindsym --release Alt_L  exec python3 ~/.config/eww/scripts/alt_tab.py select
-    bindsym --release Alt_R  exec python3 ~/.config/eww/scripts/alt_tab.py select
-
-    # Xác nhận bằng Enter / Space (tuỳ chọn, để hỗ trợ bàn phím keyboard-only)
-    bindsym Return exec python3 ~/.config/eww/scripts/alt_tab.py select
-    bindsym Space  exec python3 ~/.config/eww/scripts/alt_tab.py select
-
-    # Hủy → trở về cửa sổ ban đầu
-    bindsym Escape exec python3 ~/.config/eww/scripts/alt_tab.py close
-}
+# Hủy bằng Alt+Escape (nếu muốn cancel mà không chọn)
+bindsym Mod1+Escape      exec python3 ~/.config/eww/scripts/alt_tab.py close
 
 ### Resize mode
 mode "resize" {

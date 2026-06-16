@@ -4,3 +4,7 @@
 # File tạm
 *.swp
 *~
+
+# Python cache (do eww scripts/*.py tạo ra khi chạy)
+__pycache__/
+*.pyc
