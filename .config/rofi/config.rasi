@@ -1,73 +1,90 @@
 configuration {
-    modi: "drun,run,window,filebrowser,power:~/.config/sway/scripts/rofi-power.sh";
+    modi: "drun,run,filebrowser";
     show-icons: true;
     icon-theme: "Papirus";
     drun-display-format: "{name}";
-    display-drun: " Apps";
-    display-run: " Run";
-    display-window: " Window";
-    display-filebrowser: " Files";
+    display-drun: "󰀻  Apps";
+    display-run: "  Run";
+    display-filebrowser: "󰉋  Files";
     window-format: "{w}   {c}   {t}";
     click-to-exit: true;
     sidebar-mode: true;
+    terminal: "foot";
 }
 
 * {
-    bg:       #1e1e2e;
-    bg-alt:   #313244;
-    fg:       #cdd6f4;
-    fg-alt:   #6c7086;
-    accent:   #89b4fa;
-    urgent:   #f38ba8;
+    /* Catppuccin Mocha theme colors */
+    bg:           #1e1e2ee6; /* 90% opacity for premium transparent feel */
+    bg-alt:       #313244b3; /* 70% opacity for inputs and buttons */
+    fg:           #cdd6f4;   /* Text */
+    fg-alt:       #a6adc8;   /* Dimmed text */
+    accent:       #cba6f7;   /* Mauve for navigation tabs */
+    accent-alt:   #89b4fa;   /* Blue for selected items */
+    urgent:       #f38ba8;   /* Red for urgent actions */
 
     background-color: transparent;
     text-color: @fg;
-    font: "JetBrains Mono 12";
+    font: "JetBrainsMono Nerd Font 11";
 }
 
 window {
     background-color: @bg;
     border: 2px;
     border-color: @accent;
-    border-radius: 8px;
-    width: 600px;
+    border-radius: 12px;
+    width: 650px;
     location: center;
+    anchor: center;
 }
 
 mainbox {
-    padding: 12px;
-    children: [ inputbar, listview ];
+    padding: 16px;
+    spacing: 12px;
+    children: [ inputbar, listview, bottom-bar ];
 }
 
 inputbar {
     background-color: @bg-alt;
-    border-radius: 6px;
-    padding: 8px 12px;
-    spacing: 8px;
-    children: [ prompt, entry ];
+    border-radius: 8px;
+    padding: 10px 14px;
+    spacing: 10px;
+    text-color: @fg;
+    children: [ textbox-search-icon, entry ];
 }
 
-prompt { text-color: @accent; }
-entry  { placeholder: "Search apps..."; placeholder-color: @fg-alt; }
+textbox-search-icon {
+    expand: false;
+    str: "";
+    text-color: @accent;
+    font: "JetBrainsMono Nerd Font 13";
+    vertical-align: 0.5;
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: @fg-alt;
+    text-color: @fg;
+    vertical-align: 0.5;
+}
 
 listview {
-    margin: 10px 0 0 0;
+    margin: 4px 0px;
     lines: 8;
     columns: 1;
     fixed-height: false;
     scrollbar: false;
+    spacing: 6px;
 }
 
 element {
-    padding: 8px;
-    spacing: 10px;
-    border-radius: 6px;
+    padding: 8px 12px;
+    spacing: 12px;
+    border-radius: 8px;
     background-color: transparent;
     text-color: @fg;
 }
 
-/* Item chưa chọn: ép trong suốt cho mọi trạng thái (normal/urgent/active +
-   alternate) để khử màu kem/vàng từ theme mặc định của rofi */
+/* Base styles for list items to avoid fallback theme background clashes */
 element normal.normal,
 element normal.urgent,
 element normal.active,
@@ -78,13 +95,108 @@ element alternate.active {
     text-color: @fg;
 }
 
-element selected,
-element selected.normal,
-element selected.urgent,
-element selected.active {
-    background-color: @accent;
+/* Normal item selection */
+element selected.normal {
+    background-color: @accent-alt; /* Blue for selection highlight */
     text-color: @bg;
 }
 
-element-icon { size: 26px; }
-element-text { vertical-align: 0.5; }
+/* Active item selection (running/active tasks) */
+element normal.active,
+element alternate.active {
+    text-color: @accent-alt;
+}
+element selected.active {
+    background-color: @accent-alt;
+    text-color: @bg;
+}
+
+/* Urgent item selection (power options, alerts) */
+element normal.urgent,
+element alternate.urgent {
+    text-color: @urgent;
+}
+element selected.urgent {
+    background-color: @urgent;
+    text-color: @bg;
+}
+
+element-icon {
+    size: 28px;
+    cursor: inherit;
+    background-color: transparent;
+    text-color: inherit;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color: inherit;
+    cursor: inherit;
+    background-color: transparent;
+}
+
+bottom-bar {
+    expand: false;
+    orientation: horizontal;
+    spacing: 16px;
+    margin: 6px 0px 0px 0px;
+    children: [ mode-switcher, powerbar ];
+}
+
+mode-switcher {
+    expand: true;
+    spacing: 10px;
+}
+
+button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: @bg-alt;
+    text-color: @fg-alt;
+    cursor: pointer;
+}
+
+button selected {
+    background-color: @accent; /* Mauve for selected tab */
+    text-color: @bg;
+}
+
+powerbar {
+    expand: false;
+    orientation: horizontal;
+    spacing: 8px;
+    children: [ button-lock, button-logout, button-reboot, button-shutdown ];
+}
+
+button-lock, button-logout, button-reboot, button-shutdown {
+    expand: false;
+    width: 36px;
+    border-radius: 8px;
+    background-color: @bg-alt;
+    text-color: @fg-alt;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+    font: "JetBrainsMono Nerd Font 12";
+    cursor: pointer;
+}
+
+button-lock {
+    content: "";
+    action: "kb-custom-1";
+}
+
+button-logout {
+    content: "";
+    action: "kb-custom-2";
+}
+
+button-reboot {
+    content: "";
+    action: "kb-custom-3";
+}
+
+button-shutdown {
+    content: "";
+    action: "kb-custom-4";
+    text-color: @urgent; /* Red shutdown icon */
+}

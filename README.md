@@ -1,7 +1,6 @@
 # sway-config
 
-Cấu hình **Sway** (trình quản lý cửa sổ tiling cho Wayland) của `sowndev0106`,
-quản lý bằng **git + symlink** để đồng bộ giữa nhiều máy.
+Cấu hình **Sway** (trình quản lý cửa sổ tiling cho Wayland) của `sowndev0106`, quản lý bằng **git + symlink** để đồng bộ giữa nhiều máy.
 
 Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 
@@ -28,7 +27,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **sway** | Quản lý cửa sổ tiling (Wayland) | — |
 | **waybar** | Thanh trạng thái trên cùng | tự chạy |
 | **nwg-dock** | Dock app dưới màn hình, tự ẩn | rê chuột xuống đáy màn hình |
-| **rofi** | Trình khởi chạy ứng dụng (chính) | `Mod+d` |
+| **rofi** | Trình khởi chạy ứng dụng & nút nguồn ghim trực tiếp (cải tiến) | `Mod+d` |
 | **wofi** | Launcher dự phòng (native Wayland) | `Mod+Shift+d` |
 | **foot** | Terminal | `Mod+Enter` |
 | **mako** | Thông báo (notification) | tự chạy |
@@ -40,7 +39,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **playerctl** | Điều khiển nhạc/video | phím media |
 | **pavucontrol** | Quản lý âm thanh (GUI) | từ launcher |
 | **cliphist** | Lịch sử clipboard (copy nhiều lần) | `Mod+Shift+v` |
-| **nautilus** | File manager (GNOME Files) | `Mod+E` |
+| **thunar** | Trình quản lý file (nhẹ, hỗ trợ USB/nén) | `Mod+E` |
 | **firefox** | Trình duyệt | từ launcher |
 | **imv** | Xem ảnh | `imv <ảnh>` |
 | **nm-applet** | WiFi / mạng (GUI ở khay) | icon khay |
@@ -48,7 +47,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **wob** | Thanh OSD volume/độ sáng | tự hiện khi chỉnh |
 | **wf-recorder** | Quay màn hình | `Mod+Shift+r` |
 | **zathura** | Đọc PDF | `zathura <file>` |
-| **wlogout** | Menu nguồn (nút bấm) | `Mod+Shift+e` |
+| **wlogout** | Menu nguồn toàn màn hình (dự phòng) | `Mod+Shift+e` |
 | **grimshot** | Chụp màn hình (kèm thông báo) | `Print` |
 | **kanshi / wdisplays** | Đa màn hình (tự sắp xếp / GUI) | tự chạy / từ launcher |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
@@ -68,14 +67,10 @@ cd ~/sway-config
 
 `install.sh` sẽ:
 1. `apt install` toàn bộ package cần thiết.
-2. Cài `nwg-dock` bằng Cargo; nếu Ubuntu chưa có `gtk4-layer-shell`, script tự
-   build thư viện này từ source.
-3. Tạo **symlink** từ `~/.config/<tên>` trỏ vào thư mục trong repo.
-   Config cũ (nếu có) được đổi tên thành `<tên>.bak` để sao lưu.
+2. Cài `nwg-dock` bằng Cargo; nếu Ubuntu chưa có `gtk4-layer-shell`, script tự build thư viện này từ source.
+3. Tạo **symlink** từ `~/.config/<tên>` trỏ vào thư mục trong repo. Config cũ (nếu có) được đổi tên thành `<tên>.bak` để sao lưu.
 
-> **Symlink là gì?** Là một "lối tắt": file thật nằm trong `~/sway-config`,
-> còn `~/.config/sway` chỉ là con trỏ trỏ tới đó. Nhờ vậy bạn sửa file →
-> `git commit` là xong, không phải copy qua lại. Một nguồn duy nhất.
+> **Symlink là gì?** Là một "lối tắt": file thật nằm trong `~/sway-config`, còn `~/.config/sway` chỉ là con trỏ trỏ tới đó. Nhờ vậy bạn sửa file → `git commit` là xong, không phải copy qua lại. Một nguồn duy nhất.
 
 ### Cập nhật trên máy đã cài
 
@@ -88,15 +83,13 @@ Sau đó bấm `Mod+Shift+c` trong Sway để nạp lại config.
 
 ## 3. Khởi động Sway
 
-- **Từ màn hình đăng nhập (GDM):** đăng xuất phiên hiện tại → ở góc dưới phải
-  bấm biểu tượng bánh răng ⚙ → chọn **"Sway"** → đăng nhập.
+- **Từ màn hình đăng nhập (GDM):** đăng xuất phiên hiện tại → ở góc dưới phải bấm biểu tượng bánh răng ⚙ → chọn **"Sway"** → đăng nhập.
 - **Từ TTY:** chuyển sang một console (`Ctrl+Alt+F3`), đăng nhập rồi gõ:
   ```bash
   sway
   ```
 
-Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `Mod+Enter`
-mở terminal đầu tiên.
+Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `Mod+Enter` mở terminal đầu tiên.
 
 ---
 
@@ -112,9 +105,9 @@ mở terminal đầu tiên.
 | `Mod+d` | Trình khởi chạy ứng dụng (rofi) |
 | `Mod+Shift+d` | Launcher dự phòng (wofi) |
 | `Mod+q` | Đóng cửa sổ đang focus |
-| `Mod+E` | Mở file manager (Nautilus) |
+| `Mod+E` | Mở file manager (Thunar) |
 | `Mod+Shift+c` | Nạp lại config (reload) |
-| `Mod+Shift+e` | Menu nguồn (khóa/đăng xuất/khởi động lại/tắt/ngủ) |
+| `Mod+Shift+e` | Menu nguồn toàn màn hình (wlogout) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
 | `Mod+Shift+v` | Lịch sử clipboard (cliphist) |
 | `Ctrl+Space` | Bật/tắt gõ tiếng Việt (fcitx5) |
@@ -164,8 +157,7 @@ mở terminal đầu tiên.
 | `Mod+Shift+-` | Cất cửa sổ vào **scratchpad** (ẩn) |
 | `Mod+-` | Hiện cửa sổ trong scratchpad |
 
-> **Scratchpad** = ngăn chứa ẩn. Cất một cửa sổ (vd terminal, máy tính) vào đó
-> rồi gọi ra bất cứ workspace nào — tiện cho thứ dùng thoáng qua.
+> **Scratchpad** = ngăn chứa ẩn. Cất một cửa sổ (vd terminal, máy tính) vào đó rồi gọi ra bất cứ workspace nào — tiện cho thứ dùng thoáng qua.
 
 ### Đổi kích thước (resize mode)
 
@@ -200,84 +192,68 @@ mở terminal đầu tiên.
 
 ## 5. Khái niệm cơ bản
 
-- **Tiling:** cửa sổ tự xếp kín màn hình, không chồng lên nhau. Mở cửa sổ mới
-  → màn hình tự chia ô.
-- **Workspace:** 10 không gian làm việc ảo (`Mod+1..0`). Mỗi workspace chứa
-  bộ cửa sổ riêng — gom việc theo nhóm (vd 1=code, 2=trình duyệt, 3=chat).
-- **Layout:** cách sắp xếp các cửa sổ trong một vùng — chia đôi (split),
-  xếp chồng (stacking), hoặc dạng tab (tabbed).
-- **Floating:** cửa sổ "nổi" tự do như trên desktop thường (hợp cho hộp thoại,
-  máy tính bỏ túi). Bật bằng `Mod+Shift+Space`.
-- **Focus:** cửa sổ đang nhận bàn phím (viền sáng màu xanh). Đổi bằng
-  `Mod+h/j/k/l`.
+- **Tiling:** cửa sổ tự xếp kín màn hình, không chồng lên nhau. Mở cửa sổ mới → màn hình tự chia ô.
+- **Workspace:** 10 không gian làm việc ảo (`Mod+1..0`). Mỗi workspace chứa bộ cửa sổ riêng — gom việc theo nhóm (vd 1=code, 2=trình duyệt, 3=chat).
+- **Layout:** cách sắp xếp các cửa sổ trong một vùng — chia đôi (split), xếp chồng (stacking), hoặc dạng tab (tabbed).
+- **Floating:** cửa sổ "nổi" tự do như trên desktop thường (hợp cho hộp thoại, máy tính bỏ túi). Bật bằng `Mod+Shift+Space`.
+- **Focus:** cửa sổ đang nhận bàn phím (viền sáng màu xanh). Đổi bằng `Mod+h/j/k/l`.
 
 ---
 
 ## 6. Từng thành phần & cách dùng
 
 ### foot (terminal) — `Mod+Enter`
-Terminal nhẹ, native Wayland. Cấu hình: `.config/foot/foot.ini`
-(font JetBrains Mono cỡ 11, theme Catppuccin, cuộn 10.000 dòng).
+Terminal nhẹ, native Wayland. Cấu hình: `.config/foot/foot.ini` (font JetBrains Mono cỡ 11, theme Catppuccin, cuộn 10.000 dòng).
 
-### rofi / wofi (launcher)
-- `Mod+d` mở **rofi** → gõ tên app → `Enter` để mở. Có icon, có chế độ
-  chuyển cửa sổ. Cấu hình: `.config/rofi/config.rasi`.
-- `Mod+Shift+d` mở **wofi** (dự phòng, native Wayland).
+### rofi (launcher cải tiến) — `Mod+d`
+Trình khởi chạy chính của hệ thống, được thiết kế lại theo phong cách kính mờ (glassmorphism) hiện đại:
+* **Giao diện tab tinh gọn**: Có 3 tab điều hướng nằm dưới đáy cửa sổ:
+  * **Apps (`󰀻  Apps`)**: Tìm và mở nhanh các ứng dụng đồ họa.
+  * **Run (`  Run`)**: Chạy trực tiếp các lệnh hệ thống.
+  * **Files (`󰉋  Files`)**: Duyệt và mở nhanh tệp tin trực tiếp (Enter vào thư mục để truy cập, Backspace để quay lại, Enter vào tệp tin để mở bằng phần mềm mặc định).
+* **Shortcut Shift + Enter**: Trong tab **Run**, khi chọn một lệnh dòng lệnh (như `htop`, `btop`), bạn chỉ cần nhấn **`Shift+Enter`**, Rofi sẽ tự động mở terminal `foot` và chạy lệnh đó bên trong.
+* **Cụm nút nguồn ghim trực tiếp (Bottom-Right Powerbar)**:
+  * 4 nút nguồn: Khóa màn (``), Đăng xuất (``), Khởi động lại (``) và Tắt máy (``) luôn nằm cố định ở góc dưới bên phải cửa sổ Rofi.
+  * **Xác nhận an toàn**: Nhấn Khóa màn sẽ khóa máy ngay lập tức. Nhấn các nút khác sẽ hiển thị một cửa sổ pop-up nhỏ hỏi lại *Có / Huỷ* để đảm bảo an toàn.
 
 ### waybar (thanh trạng thái)
-Hiện workspace (trái), tên cửa sổ (giữa), và bên phải: âm lượng, mạng, CPU,
-RAM, pin, đồng hồ, khay hệ thống (tray). Cấu hình:
-`.config/waybar/config` (nội dung) và `style.css` (giao diện).
+Hiện workspace (trái), tên cửa sổ (giữa), và bên phải: âm lượng, mạng, CPU, RAM, pin, đồng hồ, khay hệ thống (tray). Cấu hình: `.config/waybar/config` (nội dung) và `style.css` (giao diện).
 
 ### nwg-dock (dock app tự ẩn)
-Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện tích. Rê chuột xuống
-đáy màn hình để dock trồi lên; rời chuột thì dock tự ẩn lại. Cấu hình:
-`.config/nwg-dock-hyprland/config.toml` và `style.css`. Script khởi động:
-`.config/sway/scripts/dock.sh`.
+Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện tích. Rê chuột xuống đáy màn hình để dock trồi lên; rời chuột thì dock tự ẩn lại. Cấu hình: `.config/nwg-dock-hyprland/config.toml` và `style.css`. Script khởi động: `.config/sway/scripts/dock.sh`.
 
 ### mako (thông báo)
-Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình:
-`.config/mako/config`. Lệnh hữu ích: `makoctl dismiss` (đóng), `makoctl restore`.
+Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình: `.config/mako/config`. Lệnh hữu ích: `makoctl dismiss` (đóng), `makoctl restore`.
 
 ### swaylock + swayidle (khóa màn hình)
-- Khóa thủ công: `Mod+Shift+x`.
-- Tự động (cấu hình trong `sway/config`): **5 phút** không hoạt động → khóa;
-  **10 phút** → tắt màn hình; khi mở nắp/đánh thức → bật lại. Khi máy ngủ
-  (suspend) cũng tự khóa.
+- Khóa thủ công: `Mod+Shift+x` hoặc click nút khóa ở góc dưới phải Rofi.
+- Tự động (cấu hình trong `sway/config`): **5 phút** không hoạt động → khóa; **10 phút** → tắt màn hình; khi mở nắp/đánh thức → bật lại. Khi máy ngủ (suspend) cũng tự khóa.
 
 ### Chụp màn hình (grim + slurp)
 - `Print`: lưu file PNG vào `~/Pictures`.
 - `Shift+Print`: kéo chọn vùng → vào clipboard, dán bằng `Ctrl+V`.
 
 ### Lịch sử clipboard (cliphist) — `Mod+Shift+v`
-Mọi nội dung bạn copy được lưu lại. Bấm `Mod+Shift+v` → rofi hiện danh sách
-đã copy → chọn để dán lại. Tiến trình ghi chạy nền (`wl-paste --watch`).
+Mọi nội dung bạn copy được lưu lại. Bấm `Mod+Shift+v` → rofi hiện danh sách đã copy → chọn để dán lại. Tiến trình ghi chạy nền (`wl-paste --watch`).
 
 ### Bộ gõ tiếng Việt (fcitx5 + Unikey)
-fcitx5 tự chạy nền khi vào Sway. Biến môi trường nằm ở
-`.config/environment.d/im.conf` — **cần đăng xuất rồi đăng nhập lại một lần**
-để có hiệu lực.
+fcitx5 tự chạy nền khi vào Sway. Biến môi trường nằm ở `.config/environment.d/im.conf` — **cần đăng xuất rồi đăng nhập lại một lần** để có hiệu lực.
 
 **Thiết lập lần đầu (chỉ làm một lần):**
 1. Mở cấu hình: chạy `fcitx5-configtool` (từ launcher hoặc terminal).
-2. Ở cột "Input Method", bấm `+`, bỏ chọn "Only Show Current Language",
-   tìm **Unikey** → Add.
+2. Ở cột "Input Method", bấm `+`, bỏ chọn "Only Show Current Language", tìm **Unikey** → Add.
 3. Đảm bảo danh sách có cả **Keyboard - English (US)** và **Unikey**.
 4. Bấm Apply.
 
-**Sử dụng:** bấm `Ctrl+Space` để chuyển qua lại Anh ↔ Việt (Unikey mặc định
-kiểu gõ Telex). Kiểu gõ (Telex/VNI) đổi trong `fcitx5-configtool` → Unikey.
+**Sử dụng:** bấm `Ctrl+Space` để chuyển qua lại Anh ↔ Việt (Unikey mặc định kiểu gõ Telex). Kiểu gõ (Telex/VNI) đổi trong `fcitx5-configtool` → Unikey.
 
-> Nếu một app (thường là app XWayland) không gõ được tiếng Việt, kiểm tra đã
-> đăng nhập lại sau khi cài chưa, và `pgrep fcitx5` có thấy tiến trình không.
+> Nếu một app (thường là app XWayland) không gõ được tiếng Việt, kiểm tra đã đăng nhập lại sau khi cài chưa, và `pgrep fcitx5` có thấy tiến trình không.
 
 ---
 
 ## 7. Tùy biến
 
-Mọi file nằm trong `~/sway-config/.config/` (đã symlink vào `~/.config`).
-Sửa xong bấm `Mod+Shift+c` để áp dụng (riêng waybar/mako cần khởi động lại
-tiến trình hoặc reload Sway).
+Mọi file nằm trong `~/sway-config/.config/` (đã symlink vào `~/.config`). Sửa xong bấm `Mod+Shift+c` để áp dụng (riêng waybar/mako cần khởi động lại tiến trình hoặc reload Sway).
 
 | Muốn đổi | Sửa file |
 |---|---|
@@ -292,8 +268,7 @@ tiến trình hoặc reload Sway).
 | Font / màu terminal | `.config/foot/foot.ini` |
 | Kiểu thông báo | `.config/mako/config` |
 
-**Đặt hình nền ảnh thật:** trong `sway/config` đổi dòng
-`output * bg #1e1e2e solid_color` thành:
+**Đặt hình nền ảnh thật:** trong `sway/config` đổi dòng `output * bg #1e1e2e solid_color` thành:
 ```
 output * bg ~/Pictures/wallpaper.jpg fill
 ```
@@ -355,7 +330,7 @@ Mỗi dòng phải trỏ về `~/sway-config/.config/...`.
 sway-config/
 ├── .config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
-│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình)
+│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi)
 │   ├── swaylock/config        # màn khóa (đồng hồ + theme)
 │   ├── wlogout/{layout,style.css}  # menu nguồn
 │   ├── kanshi/config          # bố cục đa màn hình

@@ -135,7 +135,6 @@
     :x "15px"
     :y "45px"
     :width "360px"
-    :height "450px"
     :anchor "top right")
   :stacking "overlay"
   :exclusive false
@@ -167,26 +166,26 @@
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
               :onclick "eww --config ~/.config/eww update cc_view=home cc_pass='' cc_pass_ssid='' cc_wifi_error=''"
-              "‹ Quay lại")
+              "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Wi-Fi")
       (button :class "cc-rescan-btn"
               :onclick "~/.config/eww/scripts/cc/wifi.sh rescan & sleep 1 && eww --config ~/.config/eww update wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\""
               "⟳"))
-    ;; Công tắc Wi-Fi on/off
+    ;; Wi-Fi Switch
     (box :class "cc-section-row" :orientation "horizontal" :space-evenly false
       (label :class "cc-section-label" :hexpand true :text "Wi-Fi")
       (button :class {wifi_state == "on" ? "cc-switch on" : "cc-switch off"}
               :onclick "~/.config/eww/scripts/cc/wifi.sh toggle && ~/.config/eww/scripts/control_center.sh refresh"
-              {wifi_state == "on" ? "Bật" : "Tắt"}))
-    ;; Thông báo lỗi (nếu có)
+              {wifi_state == "on" ? "On" : "Off"}))
+    ;; Error Message (if any)
     (revealer :reveal {cc_wifi_error != ""} :transition "slidedown"
       (label :class "cc-error-label" :text cc_wifi_error))
-    ;; Danh sách mạng (scroll)
+    ;; Network List (scroll)
     (scroll :vscroll true :class "cc-list"
       (box :orientation "vertical" :space-evenly false
         (for net in wifi_list
           (box :orientation "vertical" :space-evenly false
-            ;; Hàng mạng
+            ;; Network row
             (button :class {net.active ? "cc-list-row active" : "cc-list-row"}
                     :onclick {net.active
                         ? "~/.config/eww/scripts/cc/wifi.sh disconnect && sleep 0.5 && eww --config ~/.config/eww update wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\" && ~/.config/eww/scripts/control_center.sh refresh"
@@ -199,17 +198,17 @@
                 (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 20 :text {net.ssid})
                 (label :class "cc-lock" :visible {net.secured} :text "󰌾")
                 (label :class "cc-active-dot" :visible {net.active} :text "●")))
-            ;; Ô nhập mật khẩu (chỉ hiện khi bấm vào mạng này)
+            ;; Password Input Row
             (revealer :reveal {cc_pass_ssid == net.ssid} :transition "slidedown"
               (box :class "cc-pass-row" :orientation "horizontal" :space-evenly false
                 (input :class "cc-pass-input" :hexpand true
-                       :placeholder "Mật khẩu Wi-Fi"
+                       :placeholder "Password"
                        :onchange "eww --config ~/.config/eww update cc_pass={}")
                 (button :class "cc-connect-btn"
-                        :onclick "result=$(~/.config/eww/scripts/cc/wifi.sh connect-pass '${net.ssid}' \"$cc_pass\"); if [ \"$result\" = 'error:wrong_password' ]; then eww --config ~/.config/eww update cc_wifi_error='Sai mật khẩu, thử lại'; else eww --config ~/.config/eww update cc_pass_ssid='' cc_pass='' cc_wifi_error=''; sleep 1; eww --config ~/.config/eww update wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\"; ~/.config/eww/scripts/control_center.sh refresh; fi"
-                        "Nối")))))))
-    ;; Nâng cao
-    (button :class "cc-advanced-btn" :onclick "nm-connection-editor &" "Cài đặt nâng cao…")))
+                        :onclick "result=$(~/.config/eww/scripts/cc/wifi.sh connect-pass '${net.ssid}' '${cc_pass}'); if [ \"$result\" = 'error:wrong_password' ]; then eww --config ~/.config/eww update cc_wifi_error='Wrong password, try again'; else eww --config ~/.config/eww update cc_pass_ssid='' cc_pass='' cc_wifi_error=''; sleep 1; eww --config ~/.config/eww update wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\"; ~/.config/eww/scripts/control_center.sh refresh; fi"
+                        "Connect")))))))
+    ;; Advanced
+    (button :class "cc-advanced-btn" :onclick "nm-connection-editor &" "Advanced Settings…")))
 
 ;; ── Panel: Bluetooth ──
 (defwidget bluetooth-page []
@@ -217,7 +216,7 @@
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
               :onclick "~/.config/eww/scripts/cc/bluetooth.sh scan-off; eww --config ~/.config/eww update cc_view=home"
-              "‹ Quay lại")
+              "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Bluetooth")
       (button :class "cc-rescan-btn"
               :onclick "eww --config ~/.config/eww update bt_list=\"$(~/.config/eww/scripts/cc/bluetooth.sh list)\""
@@ -226,7 +225,7 @@
       (label :class "cc-section-label" :hexpand true :text "Bluetooth")
       (button :class {bt_state == "on" ? "cc-switch on" : "cc-switch off"}
               :onclick "~/.config/eww/scripts/cc/bluetooth.sh toggle && ~/.config/eww/scripts/control_center.sh refresh"
-              {bt_state == "on" ? "Bật" : "Tắt"}))
+              {bt_state == "on" ? "On" : "Off"}))
     (scroll :vscroll true :class "cc-list"
       (box :orientation "vertical" :space-evenly false
         (for dev in bt_list
@@ -239,18 +238,18 @@
               (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 22 :text {dev.name})
               (label :class "cc-battery" :visible {dev.battery >= 0} :text {"🔋" + dev.battery + "%"})
               (label :class "cc-active-dot" :visible {dev.connected} :text "●"))))))
-    (button :class "cc-advanced-btn" :onclick "blueman-manager &" "Nâng cao…")))
+    (button :class "cc-advanced-btn" :onclick "blueman-manager &" "Advanced Settings…")))
 
-;; ── Panel: Âm thanh ──
+;; ── Panel: Audio ──
 (defwidget audio-page []
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
               :onclick "eww --config ~/.config/eww update cc_view=home"
-              "‹ Quay lại")
-      (label :class "cc-page-title" :hexpand true :halign "center" :text "Âm thanh"))
-    ;; Thiết bị ra (sinks)
-    (label :class "cc-subsection-label" :halign "start" :text "Thiết bị ra")
+              "‹ Back")
+      (label :class "cc-page-title" :hexpand true :halign "center" :text "Audio"))
+    ;; Output devices (sinks)
+    (label :class "cc-subsection-label" :halign "start" :text "Output Devices")
     (scroll :vscroll true :class "cc-list cc-list-short"
       (box :orientation "vertical" :space-evenly false
         (for sink in audio_sinks
@@ -259,15 +258,15 @@
             (box :orientation "horizontal" :space-evenly false
               (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 25 :text {sink.name})
               (label :class "cc-active-dot" :visible {sink.default} :text "●"))))))
-    ;; Âm lượng tổng
-    (label :class "cc-subsection-label" :halign "start" :text "Âm lượng")
+    ;; Master Volume
+    (label :class "cc-subsection-label" :halign "start" :text "Volume")
     (box :class "slider-row" :orientation "horizontal" :space-evenly false
       (label :class "slider-icon vol" :text {vol_muted == "on" ? "󰝟" : ""})
       (scale :class "slider vol" :value {vol_muted == "on" ? 0 : vol_level}
              :min 0 :max 100
              :onchange "~/.config/eww/scripts/control_center.sh set-vol {}"))
-    ;; Âm lượng từng app
-    (label :class "cc-subsection-label" :halign "start" :text "Ứng dụng")
+    ;; Applications Volume
+    (label :class "cc-subsection-label" :halign "start" :text "Applications")
     (scroll :vscroll true :class "cc-list cc-list-short"
       (box :orientation "vertical" :space-evenly false
         (for app in audio_apps
@@ -276,18 +275,18 @@
             (scale :class "slider app-vol" :value {app.volume}
                    :min 0 :max 100
                    :onchange "~/.config/eww/scripts/cc/audio.sh set-app-vol '${app.id}' {}")))))
-    (button :class "cc-advanced-btn" :onclick "pavucontrol &" "Nâng cao…")))
+    (button :class "cc-advanced-btn" :onclick "pavucontrol &" "Advanced Settings…")))
 
-;; ── Panel: Micro ──
+;; ── Panel: Microphone ──
 (defwidget mic-page []
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
               :onclick "eww --config ~/.config/eww update cc_view=home"
-              "‹ Quay lại")
-      (label :class "cc-page-title" :hexpand true :halign "center" :text "Micro"))
-    ;; Thiết bị thu (sources)
-    (label :class "cc-subsection-label" :halign "start" :text "Thiết bị thu")
+              "‹ Back")
+      (label :class "cc-page-title" :hexpand true :halign "center" :text "Microphone"))
+    ;; Input devices (sources)
+    (label :class "cc-subsection-label" :halign "start" :text "Input Devices")
     (scroll :vscroll true :class "cc-list cc-list-short"
       (box :orientation "vertical" :space-evenly false
         (for src in mic_sources
@@ -296,8 +295,8 @@
             (box :orientation "horizontal" :space-evenly false
               (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 25 :text {src.name})
               (label :class "cc-active-dot" :visible {src.default} :text "●"))))))
-    ;; Mức micro + mute
-    (label :class "cc-subsection-label" :halign "start" :text "Mức micro")
+    ;; Microphone level
+    (label :class "cc-subsection-label" :halign "start" :text "Microphone Level")
     (box :class "slider-row" :orientation "horizontal" :space-evenly false
       (button :class "cc-mute-btn"
               :onclick "~/.config/eww/scripts/control_center.sh mic-toggle && ~/.config/eww/scripts/control_center.sh refresh"
@@ -305,151 +304,145 @@
       (scale :class "slider mic-vol" :value {mic_muted == "on" ? 0 : mic_level}
              :min 0 :max 100
              :onchange "~/.config/eww/scripts/cc/mic.sh set-level {}"))
-    (button :class "cc-advanced-btn" :onclick "pavucontrol &" "Nâng cao…")))
+    (button :class "cc-advanced-btn" :onclick "pavucontrol &" "Advanced Settings…")))
 
-;; ── Panel: Mạng dây ──
+;; ── Panel: Wired Network ──
 (defwidget wired-page []
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
               :onclick "eww --config ~/.config/eww update cc_view=home"
-              "‹ Quay lại")
-      (label :class "cc-page-title" :hexpand true :halign "center" :text "Mạng dây"))
-    ;; Thông tin thiết bị
+              "‹ Back")
+      (label :class "cc-page-title" :hexpand true :halign "center" :text "Wired Network"))
+    ;; Device Info
     (box :class "cc-info-card" :orientation "vertical" :space-evenly false
       (box :class "cc-info-row" :orientation "horizontal"
-        (label :class "cc-info-key" :text "Trạng thái")
+        (label :class "cc-info-key" :text "Status")
         (label :class "cc-info-val" :hexpand true :halign "end" :text {wired_info.state}))
       (box :class "cc-info-row" :orientation "horizontal"
-        (label :class "cc-info-key" :text "Thiết bị")
+        (label :class "cc-info-key" :text "Device")
         (label :class "cc-info-val" :hexpand true :halign "end" :text {wired_info.device}))
       (box :class "cc-info-row" :orientation "horizontal"
-        (label :class "cc-info-key" :text "IP")
+        (label :class "cc-info-key" :text "IP Address")
         (label :class "cc-info-val" :hexpand true :halign "end" :text {wired_info.ip == "" ? "—" : wired_info.ip}))
       (box :class "cc-info-row" :orientation "horizontal"
         (label :class "cc-info-key" :text "Gateway")
         (label :class "cc-info-val" :hexpand true :halign "end" :text {wired_info.gateway == "" ? "—" : wired_info.gateway}))
       (box :class "cc-info-row" :orientation "horizontal"
-        (label :class "cc-info-key" :text "Tốc độ")
+        (label :class "cc-info-key" :text "Speed")
         (label :class "cc-info-val" :hexpand true :halign "end"
                :text {wired_info.speed != "" ? wired_info.speed + " Mbps" : "—"})))
-    ;; Nút connect/disconnect
+    ;; Connect/Disconnect button
     (button :class {wired_state == "on" ? "cc-wired-btn disconnect" : "cc-wired-btn connect"}
             :onclick "~/.config/eww/scripts/cc/wired.sh toggle && sleep 0.5 && eww --config ~/.config/eww update wired_info=\"$(~/.config/eww/scripts/cc/wired.sh info)\" && ~/.config/eww/scripts/control_center.sh refresh"
-            {wired_state == "on" ? "Ngắt kết nối" : "Kết nối"})
-    (button :class "cc-advanced-btn" :onclick "nm-connection-editor &" "Cài đặt nâng cao…")))
+            {wired_state == "on" ? "Disconnect" : "Connect"})
+    (button :class "cc-advanced-btn" :onclick "nm-connection-editor &" "Advanced Settings…")))
 
 (defwidget control-center-card []
   (box :class "control-center-card" :orientation "vertical" :space-evenly false
-    ;; Router: chọn trang theo cc_view
-    (revealer :reveal {cc_view == "home"} :transition "none" :duration "0s"
-      (box :orientation "vertical" :space-evenly false
-        ;; Phần đầu (Header): Đồng hồ lớn & Ngày tháng & Icon trạng thái mạng dây ở bên phải
-        (box :class "cc-header" :orientation "horizontal" :space-evenly true
-          (box :class "cc-header-left" :orientation "vertical" :space-evenly false :halign "start"
-            (box :class "cc-clock" :orientation "horizontal" :space-evenly false
-              (label :class "cc-time" :text time_hour)
-              (label :class "cc-sep" :text "|")
-              (label :class "cc-time" :text time_min))
-            (label :class "cc-date" :text time_date))
-          (box :class "cc-header-right" :halign "end" :valign "start"
-            (label :class {wired_state == "on" ? "cc-moon active" : "cc-moon"} :text "")))
+    ;; Home page
+    (box :orientation "vertical" :space-evenly false :visible {cc_view == "home"}
+      ;; Header: clock, date, wired status icon
+      (box :class "cc-header" :orientation "horizontal" :space-evenly true
+        (box :class "cc-header-left" :orientation "vertical" :space-evenly false :halign "start"
+          (box :class "cc-clock" :orientation "horizontal" :space-evenly false
+            (label :class "cc-time" :text time_hour)
+            (label :class "cc-sep" :text "|")
+            (label :class "cc-time" :text time_min))
+          (label :class "cc-date" :text time_date))
+        (box :class "cc-header-right" :halign "end" :valign "start"
+          (label :class {wired_state == "on" ? "cc-moon active" : "cc-moon"} :text "")))
 
-        ;; Lưới nút bật/tắt nhanh (3 cột x 2 hàng)
-        (box :class "cc-grid" :orientation "vertical" :space-evenly true
-          (box :orientation "horizontal" :space-evenly true
-            ;; Nút bật/tắt Wifi
-            (box :class "toggle-container" :orientation "vertical" :space-evenly false
-              (box :class {wifi_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-                (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wifi-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                  (label :text {wifi_state == "on" ? "" : "󰖪"}))
-                (box :class "toggle-divider")
-                (button :class "toggle-arrow"
-                        :onclick "eww --config ~/.config/eww update cc_view=wifi wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\""
-                        "›"))
-              (label :class "toggle-label" :limit-width 12 :text wifi_ssid))
+      ;; Quick toggles grid
+      (box :class "cc-grid" :orientation "vertical" :space-evenly true
+        (box :orientation "horizontal" :space-evenly true
+          ;; Wi-Fi Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {wifi_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wifi-toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text {wifi_state == "on" ? "" : "󰖪"}))
+              (box :class "toggle-divider")
+              (button :class "toggle-arrow"
+                      :onclick "eww --config ~/.config/eww update cc_view=wifi wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\""
+                      "›"))
+            (label :class "toggle-label" :limit-width 12 :text wifi_ssid))
 
-            ;; Nút bật/tắt Bluetooth
-            (box :class "toggle-container" :orientation "vertical" :space-evenly false
-              (box :class {bt_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-                (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh bt-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                  (label :text ""))
-                (box :class "toggle-divider")
-                (button :class "toggle-arrow"
-                        :onclick "eww --config ~/.config/eww update cc_view=bluetooth bt_list=\"$(~/.config/eww/scripts/cc/bluetooth.sh list)\"; ~/.config/eww/scripts/cc/bluetooth.sh scan-on"
-                        "›"))
-              (label :class "toggle-label" :text "Bluetooth"))
+          ;; Bluetooth Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {bt_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh bt-toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text ""))
+              (box :class "toggle-divider")
+              (button :class "toggle-arrow"
+                      :onclick "eww --config ~/.config/eww update cc_view=bluetooth bt_list=\"$(~/.config/eww/scripts/cc/bluetooth.sh list)\"; ~/.config/eww/scripts/cc/bluetooth.sh scan-on"
+                      "›"))
+            (label :class "toggle-label" :text "Bluetooth"))
 
-            ;; Nút bật/tắt Chế độ máy bay
-            (box :class "toggle-container" :orientation "vertical" :space-evenly false
-              (box :class {airplane_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-                (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh airplane-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                  (label :text ""))
-                (box :class "toggle-divider")
-                (button :class "toggle-arrow" :onclick "" "›"))
-              (label :class "toggle-label" :text "Airplane")))
+          ;; Airplane Mode Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {airplane_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh airplane-toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text ""))
+              (box :class "toggle-divider")
+              (button :class "toggle-arrow" :onclick "" "›"))
+            (label :class "toggle-label" :text "Airplane")))
 
-          (box :orientation "horizontal" :space-evenly true
-            ;; Nút bật/tắt Mạng dây (Ethernet)
-            (box :class "toggle-container" :orientation "vertical" :space-evenly false
-              (box :class {wired_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-                (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wired-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                  (label :text ""))
-                (box :class "toggle-divider")
-                (button :class "toggle-arrow"
-                        :onclick "eww --config ~/.config/eww update cc_view=wired wired_info=\"$(~/.config/eww/scripts/cc/wired.sh info)\""
-                        "›"))
-              (label :class "toggle-label" :text "Mạng dây"))
+        (box :orientation "horizontal" :space-evenly true
+          ;; Wired network Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {wired_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wired-toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text ""))
+              (box :class "toggle-divider")
+              (button :class "toggle-arrow"
+                      :onclick "eww --config ~/.config/eww update cc_view=wired wired_info=\"$(~/.config/eww/scripts/cc/wired.sh info)\""
+                      "›"))
+            (label :class "toggle-label" :text "Wired"))
 
-            ;; Nút bật/tắt Âm lượng (Volume)
-            (box :class "toggle-container" :orientation "vertical" :space-evenly false
-              (box :class {vol_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-                (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh vol-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                  (label :text {vol_muted == "on" ? "󰝟" : ""}))
-                (box :class "toggle-divider")
-                (button :class "toggle-arrow"
-                        :onclick "eww --config ~/.config/eww update cc_view=audio audio_sinks=\"$(~/.config/eww/scripts/cc/audio.sh sinks)\" audio_apps=\"$(~/.config/eww/scripts/cc/audio.sh apps)\""
-                        "›"))
-              (label :class "toggle-label" :text "Volume"))
+          ;; Volume Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {vol_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh vol-toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text {vol_muted == "on" ? "󰝟" : ""}))
+              (box :class "toggle-divider")
+              (button :class "toggle-arrow"
+                      :onclick "eww --config ~/.config/eww update cc_view=audio audio_sinks=\"$(~/.config/eww/scripts/cc/audio.sh sinks)\" audio_apps=\"$(~/.config/eww/scripts/cc/audio.sh apps)\""
+                      "›"))
+            (label :class "toggle-label" :text "Volume"))
 
-            ;; Nút bật/tắt Micro
-            (box :class "toggle-container" :orientation "vertical" :space-evenly false
-              (box :class {mic_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-                (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh mic-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                  (label :text {mic_muted == "on" ? "" : ""}))
-                (box :class "toggle-divider")
-                (button :class "toggle-arrow"
-                        :onclick "eww --config ~/.config/eww update cc_view=mic mic_sources=\"$(~/.config/eww/scripts/cc/mic.sh sources)\" mic_level=\"$(~/.config/eww/scripts/cc/mic.sh level)\""
-                        "›"))
-              (label :class "toggle-label" :text "Micro"))))
+          ;; Microphone Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {mic_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh mic-toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text {mic_muted == "on" ? "" : ""}))
+              (box :class "toggle-divider")
+              (button :class "toggle-arrow"
+                      :onclick "eww --config ~/.config/eww update cc_view=mic mic_sources=\"$(~/.config/eww/scripts/cc/mic.sh sources)\" mic_level=\"$(~/.config/eww/scripts/cc/mic.sh level)\""
+                      "›"))
+            (label :class "toggle-label" :text "Microphone"))))
 
-        ;; Thanh trượt (Sliders) cho Âm lượng và Độ sáng
-        (box :class "cc-sliders" :orientation "vertical" :space-evenly false
-          (box :class "slider-row" :orientation "horizontal" :space-evenly false
-            (label :class "slider-icon vol" :text {vol_muted == "on" ? "󰝟" : ""})
-            (scale :class "slider vol" :value {vol_muted == "on" ? 0 : vol_level} :min 0 :max 100 :onchange "~/.config/eww/scripts/control_center.sh set-vol {}"))
-          (box :class "slider-row" :orientation "horizontal" :space-evenly false
-            (label :class "slider-icon bri" :text "")
-            (scale :class "slider bri" :value bri_level :min 10 :max 100 :onchange "~/.config/eww/scripts/control_center.sh set-bri {}")))
+      ;; Sliders
+      (box :class "cc-sliders" :orientation "vertical" :space-evenly false
+        (box :class "slider-row" :orientation "horizontal" :space-evenly false
+          (label :class "slider-icon vol" :text {vol_muted == "on" ? "󰝟" : ""})
+          (scale :class "slider vol" :value {vol_muted == "on" ? 0 : vol_level} :min 0 :max 100 :onchange "~/.config/eww/scripts/control_center.sh set-vol {}"))
+        (box :class "slider-row" :orientation "horizontal" :space-evenly false
+          (label :class "slider-icon bri" :text "")
+          (scale :class "slider bri" :value bri_level :min 10 :max 100 :onchange "~/.config/eww/scripts/control_center.sh set-bri {}")))
 
-        ;; Phần chân trang (Footer): Các nút tròn tắt nguồn, khởi động lại, đăng xuất ở góc dưới bên phải
-        (box :class "cc-footer" :orientation "horizontal" :space-evenly true
-          (box :halign "start")
-          (box :class "power-box" :orientation "horizontal" :space-evenly false :halign "end"
-            (button :class "power-btn shutdown" :onclick "systemctl poweroff" "")
-            (button :class "power-btn reboot" :onclick "systemctl reboot" "")
-            (button :class "power-btn logout" :onclick "swaymsg exit" "󰍃")))))
+      ;; Footer
+      (box :class "cc-footer" :orientation "horizontal" :space-evenly true
+        (box :halign "start")
+        (box :class "power-box" :orientation "horizontal" :space-evenly false :halign "end"
+          (button :class "power-btn shutdown" :onclick "systemctl poweroff" "")
+          (button :class "power-btn reboot" :onclick "systemctl reboot" "")
+          (button :class "power-btn logout" :onclick "swaymsg exit" "󰍃"))))
 
-    ;; Pages chi tiết
-    (revealer :reveal {cc_view == "wifi"} :transition "none" :duration "0s"
-      (wifi-page))
-    (revealer :reveal {cc_view == "bluetooth"} :transition "none" :duration "0s"
-      (bluetooth-page))
-    (revealer :reveal {cc_view == "audio"} :transition "none" :duration "0s"
-      (audio-page))
-    (revealer :reveal {cc_view == "mic"} :transition "none" :duration "0s"
-      (mic-page))
-    (revealer :reveal {cc_view == "wired"} :transition "none" :duration "0s"
-      (wired-page))))
+    ;; Detailed Pages
+    (wifi-page :visible {cc_view == "wifi"})
+    (bluetooth-page :visible {cc_view == "bluetooth"})
+    (audio-page :visible {cc_view == "audio"})
+    (mic-page :visible {cc_view == "mic"})
+    (wired-page :visible {cc_view == "wired"})))
 
 

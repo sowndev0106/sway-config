@@ -25,7 +25,9 @@ window#waybar {
 #custom-power {
     color: #f38ba8;
     background-color: #313244;
-    padding: 0 12px;
+    /* Glyph  (power-off) có side-bearing lệch trái trong ô advance, nên đệm
+       trái > phải để dịch phần vẽ về đúng tâm pill */
+    padding: 0 11px 0 13px;
     margin: 4px 6px;
     border-radius: 16px;
 }
