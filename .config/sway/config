@@ -21,6 +21,10 @@ set $menu_alt wofi --show drun
 output * bg #1e1e2e solid_color
 # output * bg ~/Pictures/wallpaper.jpg fill   # fill | fit | stretch | center | tile
 
+# Bố cục màn hình do kanshi quản lý (xem ~/.config/kanshi/config) — KHÔNG đặt
+# `output ... position` ở đây nữa, sẽ đá nhau với kanshi. Chỉnh tay bằng wdisplays
+# rồi chép vị trí vào file kanshi để giữ vĩnh viễn.
+
 ### Idle / lock màn hình
 exec swayidle -w \
     timeout 300 '~/.config/sway/scripts/lock.sh' \
@@ -102,11 +106,15 @@ bindsym $mod+b splith
 bindsym $mod+v splitv
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+e exec nautilus
+bindsym $mod+e exec thunar
 bindsym $mod+f fullscreen
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
+# Bật/tắt màn hình laptop (dùng khi muốn chỉ xài 2 màn ngoài HDMI+DP)
+bindsym $mod+o output eDP-1 toggle
+# Chỉnh màn hình bằng wdisplays (tắt kanshi để khỏi tranh chấp) rồi TỰ LƯU khi đóng
+bindsym $mod+Shift+o exec ~/.config/sway/scripts/edit-display-layout.sh
 
 ### Scratchpad
 bindsym $mod+Shift+minus move scratchpad
@@ -173,7 +181,7 @@ for_window [app_id="blueman-manager"] floating enable
 for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="fcitx5-config-qt"] floating enable
 for_window [app_id="org.fcitx.fcitx5-config-qt"] floating enable
-for_window [app_id="org.gnome.Nautilus" title="(?i)(properties|preferences)"] floating enable
+for_window [app_id="thunar" title="(?i)(properties|preferences|rename|file operation)"] floating enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="bubble"] floating enable
 for_window [window_role="dialog"] floating enable
@@ -191,12 +199,18 @@ exec_always /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 exec fcitx5 -d --replace
 # Lưu lịch sử clipboard (xem lại bằng Mod+Shift+v)
 exec wl-paste --watch cliphist store
-# Khay hệ thống: WiFi/mạng và Bluetooth
-exec nm-applet --indicator
-exec blueman-applet
+# WiFi/mạng và Bluetooth giờ hiển thị bằng module waybar (icon sáng màu),
+# nên KHÔNG chạy applet tray nữa (icon tray xám tối, khó nhìn).
+# Backend vẫn hoạt động: NetworkManager + bluetooth.service chạy nền độc lập.
+# Quản lý mạng: click icon mạng trên bar (mở nm-connection-editor) hoặc `nmtui`.
+# Ghép thiết bị BT: click icon bluetooth (mở blueman-manager) hoặc `bluetoothctl`.
+# exec nm-applet --indicator
+# exec blueman-applet
 # OSD volume/độ sáng (wob) — tạo fifo rồi đọc vào wob
 exec rm -f $XDG_RUNTIME_DIR/wob.sock && mkfifo $XDG_RUNTIME_DIR/wob.sock && tail -f $XDG_RUNTIME_DIR/wob.sock | wob
-# Tự sắp xếp màn hình khi cắm/rút màn ngoài
-exec kanshi
+# Tự sắp xếp màn hình khi cắm/rút màn ngoài.
+# exec_always + kill cũ: mỗi lần reload (Super+Shift+C) kanshi chạy lại và áp dụng
+# lại bố cục, nếu không layout sẽ bị reset về mặc định khi reload.
+exec_always pkill -x kanshi; kanshi
 
 include /etc/sway/config.d/*

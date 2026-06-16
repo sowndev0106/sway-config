@@ -16,8 +16,12 @@ PACKAGES=(
     xwayland
     # Tiện ích desktop bổ sung
     xdg-desktop-portal-wlr   # chia sẻ màn hình / hộp thoại chọn file (Zoom, Meet, OBS)
-    nautilus                 # file manager (GNOME Files)
-    file-roller              # giải nén zip/rar (chuột phải trong Nautilus)
+    thunar                   # file manager (nhẹ, của XFCE)
+    thunar-archive-plugin    # nén/giải nén zip/rar bằng chuột phải trong Thunar
+    thunar-volman            # tự nhận USB/ổ cắm ngoài
+    tumbler                  # tạo ảnh thu nhỏ (thumbnail) cho ảnh/PDF
+    gvfs                     # gắn ổ đĩa, thùng rác, mạng cho Thunar
+    file-roller              # backend giải nén cho thunar-archive-plugin
     firefox                  # trình duyệt
     imv                      # xem ảnh
     cliphist                 # quản lý lịch sử clipboard
@@ -80,7 +84,7 @@ EOF
     echo "   -> Ở màn hình đăng nhập chọn 'Sway (Hybrid GPU)'."
 fi
 
-echo "==> Đặt Nautilus làm trình quản lý file mặc định..."
-xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
+echo "==> Đặt Thunar làm trình quản lý file mặc định..."
+xdg-mime default thunar.desktop inode/directory 2>/dev/null || true
 
 echo "==> Xong. Đăng xuất rồi chọn 'Sway (Hybrid GPU)' ở màn hình đăng nhập (máy Nvidia)."
