@@ -9,6 +9,7 @@ PACKAGES=(
     waybar rofi wofi foot mako-notifier
     papirus-icon-theme
     grim slurp wl-clipboard
+    curl unzip            # tải + giải nén Nerd Font cho waybar
     brightnessctl playerctl
     wireplumber pavucontrol
     policykit-1-gnome
@@ -48,6 +49,38 @@ echo "==> Cài package (cần sudo)..."
 # Không để repo bên thứ ba bị lỗi (key hết hạn, thiếu Release...) làm dừng script.
 sudo apt update || echo "   (cảnh báo: apt update có lỗi từ repo khác, bỏ qua)"
 sudo apt install -y "${PACKAGES[@]}"
+
+echo "==> Cài JetBrainsMono Nerd Font (icon waybar)..."
+# apt không có sẵn Nerd Font -> tải bản release vào thư mục font của user (không cần sudo).
+# Icon waybar (wifi/bluetooth/pin/nhiệt độ...) vẽ bằng font này; thiếu nó sẽ ra ô trống.
+NERD_DIR="$HOME/.local/share/fonts/JetBrainsMonoNerd"
+if [ -z "$(ls "$NERD_DIR"/*.ttf 2>/dev/null)" ]; then
+    mkdir -p "$NERD_DIR"
+    NERD_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+    if curl -fsSL --max-time 180 -o /tmp/JetBrainsMono.zip "$NERD_URL"; then
+        unzip -oq /tmp/JetBrainsMono.zip -x "*Windows*" "*.txt" "LICENSE" -d "$NERD_DIR"
+        fc-cache -f "$HOME/.local/share/fonts" >/dev/null 2>&1
+        echo "   đã cài Nerd Font vào $NERD_DIR"
+    else
+        echo "   (cảnh báo: tải Nerd Font lỗi - kiểm tra mạng rồi chạy lại)"
+    fi
+else
+    echo "   Nerd Font đã có, bỏ qua."
+fi
+
+echo "==> Tắt blueman-applet tự khởi động (tránh icon bluetooth trùng với waybar)..."
+# Có module bluetooth trên waybar rồi nên không cần applet tray. Ghi đè autostart
+# hệ thống (/etc/xdg/autostart/blueman.desktop) bằng bản Hidden=true cho riêng user.
+mkdir -p "$HOME/.config/autostart"
+cat > "$HOME/.config/autostart/blueman.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=Bluetooth Manager (disabled)
+Comment=Tắt blueman-applet vì đã có module bluetooth trên waybar (tránh icon tray trùng)
+Exec=blueman-applet
+Hidden=true
+X-GNOME-Autostart-enabled=false
+EOF
 
 echo "==> Bật dịch vụ Bluetooth..."
 sudo systemctl enable --now bluetooth

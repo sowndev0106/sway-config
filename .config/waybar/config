@@ -1,51 +1,102 @@
 {
+    // ── Thanh trạng thái waybar (Catppuccin Mocha, pill gom nhóm) ──
+    // Bố cục: trái = nguồn + workspaces + cảm biến | giữa = đồng hồ |
+    //         phải = âm thanh + mạng + bluetooth + độ sáng + pin + tray.
+    // Icon vẽ bằng JetBrainsMono Nerd Font (xem style.css). Bar hiện trên MỌI màn.
     "layer": "top",
     "position": "top",
-    "height": 30,
-    "spacing": 4,
-    "modules-left": ["sway/workspaces", "sway/mode"],
-    "modules-center": ["sway/window"],
-    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "clock", "tray"],
+    "height": 32,
+    "spacing": 0,
+
+    "modules-left": ["custom/power", "sway/workspaces", "sway/mode", "temperature", "cpu", "memory"],
+    "modules-center": ["clock"],
+    "modules-right": ["pulseaudio", "network", "bluetooth", "backlight", "battery", "tray"],
+
+    // ── Nút nguồn (mở menu wlogout) ──
+    "custom/power": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "wlogout"
+    },
 
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{name}"
     },
-    "sway/window": {
-        "max-length": 50
+    "sway/mode": {
+        "format": "{}"
     },
-    "clock": {
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format": "{:%a %d-%m %H:%M}"
+
+    // ── Cảm biến (trái) ──
+    "temperature": {
+        // thermal_zone9 = x86_pkg_temp (nhiệt CPU package trên máy này)
+        "thermal-zone": 9,
+        "critical-threshold": 85,
+        "format": "{icon} {temperatureC}°C",
+        "format-critical": " {temperatureC}°C",
+        "format-icons": ["", "", ""],
+        "interval": 5
     },
     "cpu": {
-        "format": "  {usage}%",
+        "format": " {usage}%",
+        "interval": 2,
         "tooltip": false
     },
     "memory": {
-        "format": "  {}%"
+        "format": "󰍛 {percentage}%",
+        "interval": 5
+    },
+
+    // ── Đồng hồ (giữa) ──
+    "clock": {
+        "format": " {:%a %d-%m  %H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+
+    // ── Âm thanh / mạng / bluetooth / độ sáng / pin (phải) ──
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": " muted",
+        "format-icons": { "default": ["", "", ""] },
+        "on-click": "pavucontrol"
+    },
+    "network": {
+        "format-wifi": "",
+        "format-ethernet": "",
+        "format-disconnected": "",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
+        "tooltip-format-ethernet": "{ifname}: {ipaddr}",
+        "tooltip-format-disconnected": "Không có kết nối",
+        "on-click": "nm-connection-editor"
+    },
+    "bluetooth": {
+        "format": "",
+        "format-disabled": "",
+        "format-off": "",
+        "format-connected": " {device_alias}",
+        "tooltip-format": "{controller_alias}\t{status}",
+        "tooltip-format-connected": "{controller_alias}\t{status}\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "blueman-manager"
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{icon} {percent}%",
+        "format-icons": [""],
+        "on-scroll-up": "brightnessctl set +5%",
+        "on-scroll-down": "brightnessctl set 5%-"
     },
     "battery": {
         "states": { "warning": 30, "critical": 15 },
-        "format": "{icon}  {capacity}%",
-        "format-charging": "  {capacity}%",
-        "format-plugged": "  {capacity}%",
-        "format-icons": ["", "", "", "", ""]
+        "format": "{icon} {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "format-icons": ["", "", "", "", ""]
     },
-    "network": {
-        "format-wifi": "  {signalStrength}%",
-        "format-ethernet": "  {ipaddr}",
-        "format-disconnected": "⚠  Disconnected",
-        "tooltip-format": "{ifname}: {ipaddr}"
-    },
-    "pulseaudio": {
-        "format": "{icon}  {volume}%",
-        "format-muted": "  muted",
-        "format-icons": { "default": ["", "", ""] },
-        "on-click": "pavucontrol"
-    },
+
     "tray": {
-        "spacing": 10
+        "icon-size": 16,
+        "spacing": 8
     }
 }
