@@ -1,20 +1,27 @@
 # kanshi — tự áp dụng bố cục màn hình khi cắm/rút màn ngoài.
 # Xem tên output thật của máy bạn:  swaymsg -t get_outputs
-# Rồi sửa "eDP-1" / "HDMI-A-1" cho khớp.
+# kanshi tự chọn profile có TẬP output khớp với màn đang cắm.
+
+# 3 màn: laptop | DP-1 (2K) | HDMI  (trái -> phải)
+profile docked-3 {
+    output eDP-1    enable scale 1.0 position 0,133
+    output DP-1     enable scale 1.0 position 1920,0
+    output HDMI-A-1 enable scale 1.0 position 4480,133
+}
+
+# Laptop + 1 màn ngoài DP-1 đặt bên phải
+profile docked-dp {
+    output eDP-1 enable scale 1.0 position 0,0
+    output DP-1  enable scale 1.0 position 1920,0
+}
+
+# Laptop + 1 màn ngoài HDMI đặt bên phải
+profile docked-hdmi {
+    output eDP-1    enable scale 1.0 position 0,0
+    output HDMI-A-1 enable scale 1.0 position 1920,0
+}
 
 # Chỉ dùng màn hình laptop
 profile laptop {
-    output eDP-1 enable scale 1.0
+    output eDP-1 enable scale 1.0 position 0,0
 }
-
-# Laptop + màn ngoài đặt bên phải (bỏ dấu # để bật, sửa tên cho đúng)
-#profile docked {
-#    output eDP-1 enable position 0,0
-#    output HDMI-A-1 enable position 1920,0
-#}
-
-# Đóng nắp, chỉ dùng màn ngoài
-#profile external-only {
-#    output eDP-1 disable
-#    output HDMI-A-1 enable position 0,0
-#}

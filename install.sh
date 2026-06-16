@@ -41,7 +41,8 @@ PACKAGES=(
 )
 
 echo "==> Cài package (cần sudo)..."
-sudo apt update
+# Không để repo bên thứ ba bị lỗi (key hết hạn, thiếu Release...) làm dừng script.
+sudo apt update || echo "   (cảnh báo: apt update có lỗi từ repo khác, bỏ qua)"
 sudo apt install -y "${PACKAGES[@]}"
 
 echo "==> Bật dịch vụ Bluetooth..."

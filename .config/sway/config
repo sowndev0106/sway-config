@@ -123,6 +123,12 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
+### Resize trực tiếp (không cần vào mode)
+bindsym $mod+Ctrl+Left  resize shrink width 30px
+bindsym $mod+Ctrl+Right resize grow   width 30px
+bindsym $mod+Ctrl+Up    resize shrink height 30px
+bindsym $mod+Ctrl+Down  resize grow   height 30px
+
 ### Phím media / độ sáng (kèm OSD qua wob)
 bindsym XF86AudioRaiseVolume exec ~/.config/sway/scripts/vol.sh 5%+
 bindsym XF86AudioLowerVolume exec ~/.config/sway/scripts/vol.sh 5%-
@@ -156,7 +162,8 @@ default_floating_border pixel 2
 smart_borders on
 
 # Màu viền (theme Catppuccin Mocha-ish)
-client.focused          #89b4fa #89b4fa #1e1e2e #89b4fa #89b4fa
+# Màu thứ 4 (indicator) = #f38ba8 (đỏ) để thấy được hướng split: cạnh đỏ là nơi window mới sẽ mở
+client.focused          #89b4fa #89b4fa #1e1e2e #f38ba8 #89b4fa
 client.unfocused        #313244 #313244 #cdd6f4 #313244 #313244
 client.focused_inactive #45475a #45475a #cdd6f4 #45475a #45475a
 
