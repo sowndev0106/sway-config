@@ -7,63 +7,72 @@
 
 /* Thẻ bọc ngoài cùng */
 .calendar-card {
-  background: #1e1e2e;
-  border: 2px solid #313244;
+  background: #1e1e2e; /* Catppuccin Base */
+  border: 2px solid #313244; /* Catppuccin Surface 0 */
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   color: #cdd6f4;
 }
 
 /* ── 1. Phần Header (Đồng hồ & Ngày) ── */
 .header-box {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .clock-box {
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .clock-time {
-  font-size: 44px;
+  font-size: 48px;
   font-weight: 800;
   color: #cdd6f4;
 }
 
-.clock-separator {
-  font-size: 40px;
-  font-weight: 300;
-  color: #b4befe;
-  margin: 0 12px;
+/* Đường separator đứng đổi màu gradient từ hồng sang xanh lam */
+.clock-separator-line {
+  background-image: linear-gradient(to bottom, #f5c2e7, #89b4fa);
+  min-width: 2px;
+  min-height: 44px;
+  margin: 0 20px;
+  border-radius: 1px;
 }
 
 .clock-date {
-  font-size: 13px;
-  font-weight: 500;
-  color: #a6adc8;
+  font-size: 14px;
+  font-weight: 600;
+  color: #a6adc8; /* Soft subtext color */
 }
 
-/* ── 2. Phần Điều hướng Lịch ── */
-.nav-box {
-  background: #313244;
+/* ── 2. Thẻ nested chứa Lịch (Màu tối hơn) ── */
+.calendar-inner {
+  background: #181825; /* Catppuccin Mantle - tạo chiều sâu nhẹ */
   border-radius: 12px;
-  padding: 8px 12px;
-  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #313244; /* Subtle border */
+}
+
+
+/* ── 3. Phần Điều hướng Lịch ── */
+.nav-box {
+  background: transparent;
+  margin-bottom: 16px;
 }
 
 .selector-box {
-  min-width: 130px;
+  min-width: 120px;
 }
 
 .nav-btn {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   color: #89b4fa;
-  padding: 0 8px;
+  padding: 4px 8px;
   border-radius: 6px;
 }
 
 .nav-btn:hover {
-  background: #45475a;
+  background: #313244;
 }
 
 .nav-label {
@@ -72,48 +81,245 @@
   color: #cdd6f4;
 }
 
-/* ── 3. Phần Lưới Lịch ── */
+/* ── 4. Phần Lưới Lịch ── */
 .weekday-row {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .weekday {
   font-size: 12px;
   font-weight: bold;
-  color: #a6e3a1;
+  color: #89dceb; /* Soft sky blue */
   min-width: 40px;
   min-height: 25px;
 }
 
-.day-grid {
-  /* Container các dòng tuần */
-}
-
 .week-row {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
-.day {
-  font-size: 13px;
-  font-weight: 500;
+/* Box chứa ngày */
+.day-box {
   min-width: 40px;
   min-height: 40px;
-  margin: 0 2px;
   border-radius: 20px;
+  background: transparent;
+}
+
+/* Text hiển thị ngày */
+.day-text {
+  font-size: 13px;
+  font-weight: 600;
   color: #cdd6f4;
 }
 
-.day.today {
-  background: #89b4fa;
-  color: #1e1e2e;
-  font-weight: 700;
+/* Ngày hiện tại */
+.day-box.today {
+  background: #89b4fa; /* Catppuccin Blue */
 }
 
-.day.muted {
-  color: #45475a;
+.day-box.today .day-text {
+  color: #11111b; /* Crust for contrast */
+  font-weight: 800;
 }
 
-.day:hover:not(.today):not(.muted) {
+/* Ngày của tháng khác */
+.day-box.muted .day-text {
+  color: #45475a; /* Surface 1 - tối hơn */
+}
+
+/* Hiệu ứng hover cho các ngày thường */
+.day-box:hover:not(.today):not(.muted) {
   background: #313244;
-  font-weight: bold;
 }
+
+/* Lớp phủ nhấp chuột ra ngoài để đóng */
+.closer {
+  background: transparent;
+}
+
+/* ── Trung tâm điều khiển (Control Center) ── */
+.control-center-card {
+  background: rgba(30, 30, 46, 0.95); /* Nền bán trong suốt (Base) */
+  border: 2px solid #313244; /* Surface 0 */
+  border-radius: 20px;
+  padding: 24px;
+  color: #cdd6f4; /* Text */
+}
+
+.cc-header {
+  margin-bottom: 24px;
+}
+
+.cc-clock {
+  margin-bottom: 4px;
+}
+
+.cc-time {
+  font-size: 32px;
+  font-weight: 800;
+  color: #cdd6f4; /* Text */
+}
+
+.cc-sep {
+  font-size: 30px;
+  font-weight: 300;
+  color: #45475a; /* Surface 1 */
+  margin: 0 10px;
+}
+
+.cc-date {
+  font-size: 14px;
+  color: #a6adc8; /* Subtext 0 */
+}
+
+.cc-moon {
+  font-size: 24px;
+  color: #45475a; /* Surface 1 */
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.cc-moon.active {
+  color: #89b4fa; /* Blue */
+}
+
+.cc-grid {
+  margin-bottom: 24px;
+}
+
+.toggle-container {
+  margin: 8px;
+  min-width: 90px;
+}
+
+.toggle-btn {
+  background: #313244; /* Surface 0 */
+  border-radius: 24px;
+  padding: 10px 8px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+}
+
+.toggle-btn.active {
+  background: #89b4fa; /* Blue */
+  color: #1e1e2e; /* Base */
+}
+
+.toggle-btn.active .toggle-divider {
+  background: rgba(30, 30, 46, 0.2);
+}
+
+.toggle-btn.active .toggle-main,
+.toggle-btn.active .toggle-arrow {
+  color: #1e1e2e; /* Base */
+}
+
+.toggle-main {
+  font-size: 18px;
+  color: #cdd6f4; /* Text */
+  margin-right: 6px;
+  min-width: 28px;
+}
+
+.toggle-divider {
+  min-width: 1px;
+  background: rgba(205, 214, 244, 0.15);
+  margin: 0 4px;
+}
+
+.toggle-arrow {
+  font-size: 16px;
+  color: #a6adc8; /* Subtext 0 */
+  margin-left: 6px;
+  min-width: 18px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  color: #a6adc8; /* Subtext 0 */
+}
+
+.cc-sliders {
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.slider-row {
+  margin-bottom: 16px;
+  background: #313244; /* Surface 0 */
+  border-radius: 16px;
+  padding: 10px 16px;
+}
+
+.slider-icon {
+  font-size: 18px;
+  margin-right: 12px;
+  min-width: 24px;
+}
+
+.slider-icon.vol {
+  color: #89b4fa; /* Blue */
+}
+
+.slider-icon.bri {
+  color: #f9e2af; /* Yellow */
+}
+
+.slider {
+  min-width: 230px;
+}
+
+.slider scale trough {
+  background: #45475a; /* Surface 1 */
+  border-radius: 6px;
+  min-height: 8px;
+}
+
+.slider scale trough highlight {
+  border-radius: 6px;
+}
+
+.slider.vol scale trough highlight {
+  background: #89b4fa; /* Blue */
+}
+
+.slider.bri scale trough highlight {
+  background: #f9e2af; /* Yellow */
+}
+
+.cc-footer {
+  padding-top: 12px;
+  border-top: 1px solid #313244; /* Surface 0 */
+}
+
+.power-btn {
+  font-size: 16px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 50%;
+  background: #313244; /* Surface 0 */
+  color: #cdd6f4; /* Text */
+  margin-left: 12px;
+}
+
+.power-btn:hover {
+  background: #45475a; /* Surface 1 */
+}
+
+.power-btn.shutdown:hover {
+  background: #f38ba8; /* Red */
+  color: #1e1e2e; /* Base */
+}
+
+.power-btn.reboot:hover {
+  background: #b4befe; /* Lavender */
+  color: #1e1e2e; /* Base */
+}
+
+.power-btn.logout:hover {
+  background: #89b4fa; /* Blue */
+  color: #1e1e2e; /* Base */
+}
+
+
