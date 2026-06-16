@@ -17,7 +17,7 @@
     :x "0px"
     :y "45px"
     :width "360px"
-    :height "480px"
+    :height "530px"
     :anchor "top center")
   :stacking "overlay"
   :exclusive false
@@ -32,33 +32,200 @@
     (box :class "header-box" :orientation "vertical" :space-evenly false
       (box :class "clock-box" :orientation "horizontal" :space-evenly false :halign "center"
         (label :class "clock-time" :text time_hour)
-        (label :class "clock-separator" :text "|")
+        (box :class "clock-separator-line" :valign "center")
         (label :class "clock-time" :text time_min))
-      (label :class "clock-date" :text time_date))
+      (label :class "clock-date" :halign "center" :text time_date))
 
-    ;; ── Phần 2: Điều hướng Tháng và Năm ──
-    (box :class "nav-box" :orientation "horizontal" :space-evenly true
-      ;; Chọn tháng
-      (box :class "selector-box" :orientation "horizontal" :space-evenly true :halign "center"
-        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh month prev" "‹")
-        (label :class "nav-label month" :text {calendar_json.month_name ?: ""})
-        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh month next" "›"))
-      ;; Chọn năm
-      (box :class "selector-box" :orientation "horizontal" :space-evenly true :halign "center"
-        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh year prev" "‹")
-        (label :class "nav-label year" :text {calendar_year})
-        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh year next" "›")))
+    ;; ── Phần 2: Thẻ nested chứa lịch (Màu sẫm hơn) ──
+    (box :class "calendar-inner" :orientation "vertical" :space-evenly false
+      ;; Điều hướng Tháng và Năm
+      (box :class "nav-box" :orientation "horizontal" :space-evenly true
+        ;; Chọn tháng
+        (box :class "selector-box" :orientation "horizontal" :space-evenly true :halign "center"
+          (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh month prev" "<")
+          (label :class "nav-label month" :halign "center" :text {calendar_json.month_name ?: ""})
+          (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh month next" ">"))
+        ;; Chọn năm
+        (box :class "selector-box" :orientation "horizontal" :space-evenly true :halign "center"
+          (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh year prev" "<")
+          (label :class "nav-label year" :halign "center" :text {calendar_year})
+          (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh year next" ">")))
 
-    ;; ── Phần 3: Lưới Lịch hiển thị ──
-    ;; Dòng thứ trong tuần
-    (box :class "weekday-row" :orientation "horizontal" :space-evenly true
-      (for day in {calendar_json.weekdays ?: "[]"}
-        (label :class "weekday" :text day)))
-    ;; Lưới ngày
-    (box :class "day-grid" :orientation "vertical" :space-evenly false
-      (for week in {calendar_json.weeks ?: "[]"}
-        (box :class "week-row" :orientation "horizontal" :space-evenly true
-          (for day in week
-            (label
-              :class {day.today ? "day today" : day.muted ? "day muted" : "day"}
-              :text {day.label})))))))
+      ;; Dòng thứ trong tuần
+      (box :class "weekday-row" :orientation "horizontal" :space-evenly true
+        (for day in {calendar_json.weekdays ?: "[]"}
+          (label :class "weekday" :width 40 :height 25 :xalign 0.5 :yalign 0.5 :text day)))
+
+      ;; Lưới ngày
+      (box :class "day-grid" :orientation "vertical" :space-evenly false
+        (for week in {calendar_json.weeks ?: "[]"}
+          (box :class "week-row" :orientation "horizontal" :space-evenly true
+            (for day in week
+              (box
+                :class {day.today ? "day-box today" : day.muted ? "day-box muted" : "day-box"}
+                :width 40
+                :height 40
+                (label
+                  :class "day-text"
+                  :xalign 0.5
+                  :yalign 0.5
+                  :text {day.label})))))))))
+
+;; Widget closer làm nhiệm vụ click ra ngoài để đóng
+(defwidget closer [window]
+  (eventbox :class "closer" :onclick "/home/sown/.local/bin/eww --config ~/.config/eww close ${window} && /home/sown/.local/bin/eww --config ~/.config/eww close ${window}-closer"))
+
+;; Cửa sổ closer bao phủ toàn màn hình
+(defwindow calendar-popup-closer [monitor]
+  :monitor monitor
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "100%"
+    :height "100%"
+    :anchor "top left")
+  :stacking "overlay"
+  :focusable false
+  (closer :window "calendar-popup"))
+
+;; ── Biến và Poll cho Control Center (Trung tâm điều khiển) ──
+;; Tên mạng Wifi hiện tại hoặc trạng thái ngắt kết nối/tắt
+(defpoll wifi_ssid :interval "3s" "~/.config/eww/scripts/control_center.sh wifi-ssid")
+;; Trạng thái bật/tắt Wifi (on/off)
+(defpoll wifi_state :interval "3s" "~/.config/eww/scripts/control_center.sh wifi-state")
+;; Trạng thái bật/tắt Bluetooth (on/off)
+(defpoll bt_state :interval "3s" "~/.config/eww/scripts/control_center.sh bt-state")
+;; Trạng thái Chế độ máy bay (on/off)
+(defpoll airplane_state :interval "3s" "~/.config/eww/scripts/control_center.sh airplane-state")
+;; Trạng thái Chế độ ban đêm / Gammastep (on/off)
+(defpoll nightlight_state :interval "3s" "~/.config/eww/scripts/control_center.sh nightlight-state")
+;; Mức âm lượng hiện tại (0-100)
+(defpoll vol_level :interval "1s" "~/.config/eww/scripts/control_center.sh vol-level")
+;; Trạng thái tắt tiếng (on/off)
+(defpoll vol_muted :interval "1s" "~/.config/eww/scripts/control_center.sh vol-muted")
+;; Trạng thái tắt micro (on/off)
+(defpoll mic_muted :interval "1s" "~/.config/eww/scripts/control_center.sh mic-muted")
+;; Mức độ sáng màn hình hiện tại (0-100)
+(defpoll bri_level :interval "2s" "~/.config/eww/scripts/control_center.sh bri-level")
+
+;; ── Cửa sổ Control Center Window ──
+;; Cửa sổ Control Center Popup hiển thị ở góc trên bên phải màn hình
+(defwindow control-center-popup [monitor]
+  :monitor monitor
+  :geometry (geometry
+    :x "15px"
+    :y "45px"
+    :width "360px"
+    :height "450px"
+    :anchor "top right")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  :namespace "eww-control-center"
+  (control-center-card))
+
+;; ── Cửa sổ Closer cho Control Center ──
+;; Cửa sổ closer của Control Center để đóng khi click ra ngoài
+(defwindow control-center-popup-closer [monitor]
+  :monitor monitor
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "100%"
+    :height "100%"
+    :anchor "top left")
+  :stacking "overlay"
+  :focusable false
+  (closer :window "control-center-popup"))
+
+;; ── Widget chính của Control Center (Trung tâm điều khiển) ──
+(defwidget control-center-card []
+  (box :class "control-center-card" :orientation "vertical" :space-evenly false
+    ;; Phần đầu (Header): Đồng hồ lớn & Ngày tháng & Icon trạng thái chế độ đêm ở bên phải
+    (box :class "cc-header" :orientation "horizontal" :space-evenly true
+      (box :class "cc-header-left" :orientation "vertical" :space-evenly false :halign "start"
+        (box :class "cc-clock" :orientation "horizontal" :space-evenly false
+          (label :class "cc-time" :text time_hour)
+          (label :class "cc-sep" :text "|")
+          (label :class "cc-time" :text time_min))
+        (label :class "cc-date" :text time_date))
+      (box :class "cc-header-right" :halign "end" :valign "start"
+        (label :class {nightlight_state == "on" ? "cc-moon active" : "cc-moon"} :text "")))
+
+    ;; Lưới nút bật/tắt nhanh (3 cột x 2 hàng)
+    (box :class "cc-grid" :orientation "vertical" :space-evenly true
+      (box :orientation "horizontal" :space-evenly true
+        ;; Nút bật/tắt Wifi
+        (box :class "toggle-container" :orientation "vertical" :space-evenly false
+          (box :class {wifi_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wifi-toggle"
+              (label :text {wifi_state == "on" ? "" : "󰖪"}))
+            (box :class "toggle-divider")
+            (button :class "toggle-arrow" :onclick "nm-connection-editor &" "›"))
+          (label :class "toggle-label" :limit-width 12 :text wifi_ssid))
+
+        ;; Nút bật/tắt Bluetooth
+        (box :class "toggle-container" :orientation "vertical" :space-evenly false
+          (box :class {bt_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh bt-toggle"
+              (label :text ""))
+            (box :class "toggle-divider")
+            (button :class "toggle-arrow" :onclick "blueman-manager &" "›"))
+          (label :class "toggle-label" :text "Bluetooth"))
+
+        ;; Nút bật/tắt Chế độ máy bay
+        (box :class "toggle-container" :orientation "vertical" :space-evenly false
+          (box :class {airplane_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh airplane-toggle"
+              (label :text ""))
+            (box :class "toggle-divider")
+            (button :class "toggle-arrow" :onclick "" "›"))
+          (label :class "toggle-label" :text "Airplane")))
+
+      (box :orientation "horizontal" :space-evenly true
+        ;; Nút bật/tắt Chế độ ban đêm (Night Light)
+        (box :class "toggle-container" :orientation "vertical" :space-evenly false
+          (box :class {nightlight_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh nightlight-toggle"
+              (label :text ""))
+            (box :class "toggle-divider")
+            (button :class "toggle-arrow" :onclick "" "›"))
+          (label :class "toggle-label" :text "Night Light"))
+
+        ;; Nút bật/tắt Âm lượng (Volume)
+        (box :class "toggle-container" :orientation "vertical" :space-evenly false
+          (box :class {vol_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh vol-toggle"
+              (label :text {vol_muted == "on" ? "󰝟" : ""}))
+            (box :class "toggle-divider")
+            (button :class "toggle-arrow" :onclick "pavucontrol &" "›"))
+          (label :class "toggle-label" :text "Volume"))
+
+        ;; Nút bật/tắt Micro
+        (box :class "toggle-container" :orientation "vertical" :space-evenly false
+          (box :class {mic_muted == "off" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh mic-toggle"
+              (label :text {mic_muted == "on" ? "" : ""}))
+            (box :class "toggle-divider")
+            (button :class "toggle-arrow" :onclick "pavucontrol &" "›"))
+          (label :class "toggle-label" :text "Micro"))))
+
+    ;; Thanh trượt (Sliders) cho Âm lượng và Độ sáng
+    (box :class "cc-sliders" :orientation "vertical" :space-evenly false
+      ;; Thanh trượt Âm lượng
+      (box :class "slider-row" :orientation "horizontal" :space-evenly false
+        (label :class "slider-icon vol" :text {vol_muted == "on" ? "󰝟" : ""})
+        (scale :class "slider vol" :value {vol_muted == "on" ? 0 : vol_level} :min 0 :max 100 :onchange "~/.config/eww/scripts/control_center.sh set-vol {}"))
+      ;; Thanh trượt Độ sáng màn hình
+      (box :class "slider-row" :orientation "horizontal" :space-evenly false
+        (label :class "slider-icon bri" :text "")
+        (scale :class "slider bri" :value bri_level :min 10 :max 100 :onchange "~/.config/eww/scripts/control_center.sh set-bri {}")))
+
+    ;; Phần chân trang (Footer): Các nút tròn tắt nguồn, khởi động lại, đăng xuất ở góc dưới bên phải
+    (box :class "cc-footer" :orientation "horizontal" :space-evenly true
+      (box :halign "start")
+      (box :class "power-box" :orientation "horizontal" :space-evenly false :halign "end"
+        (button :class "power-btn shutdown" :onclick "systemctl poweroff" "")
+        (button :class "power-btn reboot" :onclick "systemctl reboot" "")
+        (button :class "power-btn logout" :onclick "swaymsg exit" "󰍃")))))
+
