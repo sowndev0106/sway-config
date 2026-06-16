@@ -17,10 +17,6 @@ floating_modifier $mod normal
 set $menu_alt wofi --show drun
 
 ### Output (màn hình) - chạy `swaymsg -t get_outputs` để xem tên output
-# Nền màu trơn (mặc định). Muốn dùng ảnh thật: comment dòng dưới và bỏ comment dòng kế.
-# output * bg #1e1e2e solid_color
-# Kiểu hiển thị ảnh: fill | fit | stretch | center | tile
-output * bg ~/Downloads/pexels-flickr-149246.jpg fill
 
 # Bố cục màn hình do kanshi quản lý (xem ~/.config/kanshi/config) — KHÔNG đặt
 # `output ... position` ở đây nữa, sẽ đá nhau với kanshi. Chỉnh tay bằng wdisplays
