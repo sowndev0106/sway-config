@@ -611,4 +611,82 @@
   margin-right: 12px;
 }
 
+/* ── Alt+Tab Switcher Styles ── */
+
+/* Lớp phủ toàn màn hình */
+.switcher-overlay {
+  background: rgba(15, 15, 23, 0.75); /* Làm mờ/dim các vùng xung quanh */
+  min-width: 1920px; /* Bao phủ chiều rộng màn hình lớn */
+  min-height: 1080px; /* Bao phủ chiều cao màn hình lớn */
+}
+
+/* Hộp thoại chính căn giữa màn hình */
+.switcher-card {
+  background: #1e1e2e; /* Catppuccin Mocha Base */
+  border: 2px solid #313244; /* Surface 0 */
+  border-radius: 24px;
+  padding: 32px 40px;
+  min-width: 600px;
+}
+
+/* Danh sách các ứng dụng hiển thị ngang */
+.switcher-list {
+  margin-bottom: 24px;
+}
+
+/* Từng phần tử cửa sổ trong danh sách */
+.switcher-item {
+  margin: 0 12px;
+  border-radius: 16px;
+  padding: 8px;
+}
+
+/* Hộp preview giả lập cửa sổ */
+.switcher-item .preview-box {
+  background: #181825; /* Mantle */
+  border: 2px solid #313244; /* Surface 0 */
+  border-radius: 16px;
+  min-width: 110px;
+  min-height: 110px;
+}
+
+/* Icon ứng dụng */
+.switcher-item .app-icon {
+  opacity: 0.8;
+}
+
+/* Nhãn Workspace hiển thị phía dưới preview */
+.switcher-ws-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6c7086; /* Overlay 0 */
+  margin-top: 8px;
+}
+
+/* Phần tử đang được chọn hoạt động */
+.switcher-item.active .preview-box {
+  background: #313244; /* Surface 0 */
+  border-color: #89b4fa; /* Catppuccin Blue */
+}
+
+.switcher-item.active .app-icon {
+  opacity: 1.0;
+}
+
+.switcher-item.active .switcher-ws-label {
+  color: #89b4fa; /* Làm sáng nhãn workspace khi active */
+}
+
+/* Tiêu đề cửa sổ đang chọn ở dưới cùng */
+.switcher-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #cdd6f4; /* Text */
+  background: #181825; /* Mantle */
+  padding: 8px 24px;
+  border-radius: 12px;
+  border: 1px solid #313244;
+  margin-top: 12px;
+}
+
 

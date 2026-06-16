@@ -154,6 +154,28 @@ bindsym $mod+slash exec ~/.config/sway/scripts/show-shortcuts.py
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
+# Khởi động Alt+Tab Switcher (nhấn Alt+Tab lần đầu)
+bindsym Mod1+Tab exec python3 ~/.config/eww/scripts/alt_tab.py start
+
+# Chế độ điều khiển Alt+Tab Switcher tạm thời
+mode "switcher" {
+    # Nhấn Tab tiếp tục di chuyển tới cửa sổ tiếp theo
+    bindsym Tab exec python3 ~/.config/eww/scripts/alt_tab.py next
+    # Shift+Tab di chuyển ngược lại
+    bindsym Shift+Tab exec python3 ~/.config/eww/scripts/alt_tab.py prev
+    
+    # Xác nhận chọn bằng Enter hoặc Space
+    bindsym Return exec python3 ~/.config/eww/scripts/alt_tab.py select
+    bindsym Space exec python3 ~/.config/eww/scripts/alt_tab.py select
+    
+    # Hủy và đóng bằng phím Escape
+    bindsym Escape exec python3 ~/.config/eww/scripts/alt_tab.py close
+    
+    # Nhả phím Alt (Alt_L/Alt_R) để tự động chọn và focus cửa sổ đang chọn
+    bindsym --release Alt_L exec python3 ~/.config/eww/scripts/alt_tab.py select
+    bindsym --release Alt_R exec python3 ~/.config/eww/scripts/alt_tab.py select
+}
+
 ### Resize mode
 mode "resize" {
     bindsym $left resize shrink width 10px
