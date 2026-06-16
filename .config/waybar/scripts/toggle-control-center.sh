@@ -53,6 +53,9 @@ if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^$WINDOW"; then
     "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
     "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER_WINDOW" || true
 else
+    # Reset về trang home và xoá trạng thái nhập mật khẩu trước khi mở
+    "$EWW_BIN" --config "$CONFIG_DIR" update \
+        cc_view=home cc_pass="" cc_pass_ssid="" cc_wifi_error="" 2>/dev/null || true
     # Mở popup chính TRƯỚC, rồi mới mở closer.
     # Thứ tự này quan trọng: nếu mở closer trước, lớp closer toàn màn hình sẽ
     # chiếm sự kiện chuột và mọi cú click (kể cả lên nút) đều đóng popup —
