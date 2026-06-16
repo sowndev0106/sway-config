@@ -9,30 +9,45 @@ pgrep -x swaylock >/dev/null 2>&1 && exit 0
 
 dir=$(mktemp -d)
 
-# Chụp màn hình đang focus -> làm mờ -> dùng làm nền
-focused=$(swaymsg -t get_outputs 2>/dev/null | python3 -c "import sys,json;o=[x for x in json.load(sys.stdin) if x.get('focused')];print(o[0]['name'] if o else '')" 2>/dev/null)
-[ -z "$focused" ] && focused=$(swaymsg -t get_outputs 2>/dev/null | python3 -c "import sys,json;a=json.load(sys.stdin);print(a[0]['name'] if a else '')" 2>/dev/null)
+# Lấy danh sách tất cả các màn hình (outputs) đang hoạt động
+outputs=$(swaymsg -t get_outputs 2>/dev/null | python3 -c "import sys,json;[print(x['name']) for x in json.load(sys.stdin)]" 2>/dev/null)
 
-bg=""
-shot="$dir/bg.png"
-if [ -n "$focused" ] && grim -o "$focused" "$shot" 2>/dev/null; then
-    convert "$shot" -scale 10% -blur 0x2.5 -scale 1000% "$shot" 2>/dev/null && bg="$shot"
-fi
+# Chụp màn hình và làm mờ song song cho từng monitor để tăng tốc
+for out in $outputs; do
+    (
+        f="$dir/$out.png"
+        if grim -o "$out" "$f" 2>/dev/null; then
+            convert "$f" -scale 10% -blur 0x2.5 -scale 1000% "$f" 2>/dev/null
+        fi
+    ) &
+done
+wait
 
 style="$HOME/.config/gtklock/style.css"
 
 if command -v gtklock >/dev/null 2>&1; then
-    set --
-    [ -f "$style" ] && set -- -s "$style"
-    [ -n "$bg" ] && set -- "$@" -b "$bg"
-    gtklock "$@"
+    style_temp="$dir/style.css"
+    if [ -f "$style" ]; then
+        cp "$style" "$style_temp"
+    else
+        touch "$style_temp"
+    fi
+
+    # Thêm cấu hình CSS nền blur cho từng màn hình
+    for out in $outputs; do
+        f="$dir/$out.png"
+        if [ -f "$f" ]; then
+            echo "window#$out { background-image: url('$f'); background-size: cover; background-repeat: no-repeat; background-position: center; }" >> "$style_temp"
+        fi
+    done
+
+    gtklock -s "$style_temp"
 else
     # Fallback: swaylock, nền blur từng màn hình
     args=""
-    for out in $(swaymsg -t get_outputs 2>/dev/null | python3 -c "import sys,json;[print(x['name']) for x in json.load(sys.stdin)]" 2>/dev/null); do
+    for out in $outputs; do
         f="$dir/$out.png"
-        if grim -o "$out" "$f" 2>/dev/null; then
-            convert "$f" -scale 10% -blur 0x2.5 -scale 1000% "$f" 2>/dev/null
+        if [ -f "$f" ]; then
             args="$args -i $out:$f"
         fi
     done

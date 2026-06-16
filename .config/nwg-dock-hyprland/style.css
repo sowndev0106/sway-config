@@ -1,0 +1,58 @@
+/* nwg-dock — Catppuccin Mocha, dock nổi dưới màn hình */
+window {
+    background: rgba(30, 30, 46, 0.82);
+    border: 1px solid rgba(137, 180, 250, 0.35);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+#box {
+    padding: 6px 8px;
+}
+
+button,
+image {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: #cdd6f4;
+}
+
+button {
+    min-width: 42px;
+    min-height: 42px;
+    padding: 4px;
+    margin: 0 2px;
+    border-radius: 9px;
+}
+
+button:hover {
+    background: rgba(137, 180, 250, 0.18);
+}
+
+button:focus {
+    box-shadow: none;
+}
+
+#active {
+    border-bottom: 2px solid #89b4fa;
+}
+
+.dock-workspace-row {
+    margin: 0 8px;
+}
+
+.dock-workspace-button {
+    min-width: 26px;
+    min-height: 24px;
+    padding: 2px 7px;
+    margin: 0 1px;
+    color: #cdd6f4;
+    background: rgba(49, 50, 68, 0.75);
+    border-radius: 999px;
+}
+
+.dock-workspace-active {
+    color: #1e1e2e;
+    background: #89b4fa;
+}

@@ -6,10 +6,12 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PACKAGES=(
     sway swaybg swayidle swaylock
-    waybar rofi wofi foot mako-notifier
+    waybar rofi wofi foot mako-notifier gnome-calendar
     papirus-icon-theme
     grim slurp wl-clipboard
-    curl unzip            # tải + giải nén Nerd Font cho waybar
+    curl unzip git ca-certificates
+    build-essential pkg-config
+    meson ninja-build libwayland-dev wayland-protocols libgtk-4-dev
     brightnessctl playerctl
     wireplumber pavucontrol
     policykit-1-gnome
@@ -43,12 +45,149 @@ PACKAGES=(
     gtklock                  # màn khóa đẹp (ô nhập mật khẩu thật, theme CSS)
     grimshot                 # chụp màn hình tiện hơn (kèm thông báo)
     kanshi wdisplays         # đa màn hình: tự sắp xếp + GUI kéo thả
+    # Phụ thuộc cho Eww (GTK3 layer shell, dbusmenu, cairo...)
+    jq
+    libgtk-3-dev
+    libgtk-layer-shell-dev
+    libdbusmenu-gtk3-dev
+    libcairo2-dev
+    libgdk-pixbuf-2.0-dev
+    libpango1.0-dev
 )
 
 echo "==> Cài package (cần sudo)..."
 # Không để repo bên thứ ba bị lỗi (key hết hạn, thiếu Release...) làm dừng script.
 sudo apt update || echo "   (cảnh báo: apt update có lỗi từ repo khác, bỏ qua)"
 sudo apt install -y "${PACKAGES[@]}"
+
+export PATH="$HOME/.cargo/bin:$PATH"
+
+cargo_meets_min_version() {
+    command -v cargo >/dev/null 2>&1 || return 1
+
+    local current required oldest
+    current="$(cargo --version | awk '{print $2}')"
+    required="1.95.0"
+    oldest="$(printf '%s\n%s\n' "$required" "$current" | sort -V | head -n1)"
+
+    [ "$oldest" = "$required" ]
+}
+
+ensure_rust_toolchain() {
+    if cargo_meets_min_version; then
+        echo "==> Rust/Cargo đủ mới, bỏ qua."
+        return
+    fi
+
+    echo "==> Cài/cập nhật Rust stable bằng rustup (nwg-dock cần Rust 1.95+)..."
+    if command -v rustup >/dev/null 2>&1; then
+        rustup update stable
+        rustup default stable
+    else
+        curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal
+    fi
+
+    # Sway/GDM không phải lúc nào cũng nạp ~/.profile, nhưng install.sh cần cargo ngay.
+    if [ -f "$HOME/.cargo/env" ]; then
+        # shellcheck disable=SC1091
+        . "$HOME/.cargo/env"
+    fi
+    export PATH="$HOME/.cargo/bin:$PATH"
+}
+
+ensure_eww() {
+    local eww_bin tmpdir source_dir
+
+    eww_bin="$(command -v eww 2>/dev/null || true)"
+    if [ -z "$eww_bin" ] && [ -x "$HOME/.local/bin/eww" ]; then
+        eww_bin="$HOME/.local/bin/eww"
+    fi
+
+    if [ -n "$eww_bin" ] && "$eww_bin" --help >/dev/null 2>&1; then
+        echo "==> eww đã có ($eww_bin), bỏ qua."
+        return
+    fi
+
+    # eww chưa được đóng gói sẵn trên Ubuntu Noble (24.04), nên cần tự build từ source.
+    echo "==> Cài eww Wayland calendar popup..."
+    tmpdir="$(mktemp -d)"
+    (
+        set -e
+        trap 'rm -rf "$tmpdir"' EXIT
+        source_dir="$tmpdir/eww"
+        git clone --depth 1 https://github.com/elkowar/eww.git "$source_dir"
+        cargo build --manifest-path "$source_dir/Cargo.toml" \
+            --release \
+            --no-default-features \
+            --features=wayland
+
+        mkdir -p "$HOME/.local/bin"
+        install -m 0755 "$source_dir/target/release/eww" "$HOME/.local/bin/eww"
+    )
+}
+
+ensure_gtk4_layer_shell() {
+    local multiarch tmpdir source_dir build_dir
+
+    if command -v gcc >/dev/null 2>&1; then
+        multiarch="$(gcc -print-multiarch 2>/dev/null || true)"
+        if [ -n "$multiarch" ]; then
+            export PKG_CONFIG_PATH="/usr/local/lib/$multiarch/pkgconfig:${PKG_CONFIG_PATH:-}"
+        fi
+    fi
+    export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:${PKG_CONFIG_PATH:-}"
+
+    if pkg-config --exists gtk4-layer-shell-0; then
+        echo "==> gtk4-layer-shell đã có ($(pkg-config --modversion gtk4-layer-shell-0)), bỏ qua."
+        return
+    fi
+
+    echo "==> Cài gtk4-layer-shell 1.3.0 từ source (Ubuntu noble chưa có package apt)..."
+    tmpdir="$(mktemp -d)"
+    source_dir="$tmpdir/gtk4-layer-shell"
+    build_dir="$source_dir/build"
+
+    git clone --depth 1 --branch v1.3.0 --single-branch \
+        https://github.com/wmww/gtk4-layer-shell.git "$source_dir"
+    meson setup "$build_dir" "$source_dir" \
+        --prefix=/usr/local \
+        -Dexamples=false \
+        -Ddocs=false \
+        -Dtests=false \
+        -Dintrospection=false \
+        -Dvapi=false
+    ninja -C "$build_dir"
+    sudo ninja -C "$build_dir" install
+    sudo ldconfig
+    rm -rf "$tmpdir"
+
+    if ! pkg-config --exists gtk4-layer-shell-0; then
+        echo "   lỗi: cài gtk4-layer-shell xong nhưng pkg-config chưa thấy gtk4-layer-shell-0"
+        exit 1
+    fi
+}
+
+install_nwg_dock() {
+    local dock_bin
+
+    dock_bin="$(command -v nwg-dock 2>/dev/null || true)"
+    if [ -z "$dock_bin" ] && [ -x "$HOME/.cargo/bin/nwg-dock" ]; then
+        dock_bin="$HOME/.cargo/bin/nwg-dock"
+    fi
+
+    if [ -n "$dock_bin" ] && [ "${UPDATE_NWG_DOCK:-0}" != "1" ]; then
+        echo "==> nwg-dock đã có ($dock_bin), bỏ qua."
+        return
+    fi
+
+    echo "==> Cài nwg-dock Rust/macOS-style..."
+    cargo install nwg-dock
+}
+
+ensure_rust_toolchain
+ensure_eww
+ensure_gtk4_layer_shell
+install_nwg_dock
 
 echo "==> Cài JetBrainsMono Nerd Font (icon waybar)..."
 # apt không có sẵn Nerd Font -> tải bản release vào thư mục font của user (không cần sudo).

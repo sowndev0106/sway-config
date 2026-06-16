@@ -21,6 +21,8 @@
 
     "sway/workspaces": {
         "disable-scroll": true,
+        // Hiện đủ workspace trên mọi màn; CSS dùng class current_output để gạch
+        // chân các workspace đang thuộc màn chứa bar đó.
         "all-outputs": true,
         "format": "{name}"
     },
@@ -36,7 +38,7 @@
         "format": "{icon} {temperatureC}°C",
         "format-critical": " {temperatureC}°C",
         "format-icons": ["", "", ""],
-        "interval": 5
+        "interval": 3
     },
     "cpu": {
         "format": " {usage}%",
@@ -51,7 +53,8 @@
     // ── Đồng hồ (giữa) ──
     "clock": {
         "format": " {:%a %d-%m  %H:%M}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "on-click": "~/.config/waybar/scripts/toggle-calendar.sh"
     },
 
     // ── Âm thanh / mạng / bluetooth / độ sáng / pin (phải) ──

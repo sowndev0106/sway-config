@@ -1,0 +1,27 @@
+[behavior]
+autohide = true
+wm = "sway"
+hide-timeout = 400
+hotspot-delay = 20
+hotspot-layer = "overlay"
+
+[layout]
+position = "bottom"
+alignment = "center"
+full = false
+mb = 10
+layer = "overlay"
+exclusive = false
+
+[appearance]
+icon-size = 40
+opacity = 82
+css-file = "style.css"
+launch-animation = true
+
+[launcher]
+launcher-cmd = "/home/sown/.config/sway/scripts/rofi-focused.sh -show drun"
+launcher-pos = "end"
+
+[filters]
+num-ws = 10

@@ -43,10 +43,12 @@ window#waybar {
     margin: 2px;
     color: #cdd6f4;
     background-color: transparent;
+    border-bottom: 2px solid transparent;
     border-radius: 14px;
 }
 #workspaces button:hover    { background-color: #45475a; box-shadow: none; }
 #workspaces button.focused  { background-color: #89b4fa; color: #1e1e2e; }
+#workspaces button.current_output { border-bottom-color: #89b4fa; }
 #workspaces button.urgent   { background-color: #f38ba8; color: #1e1e2e; }
 
 #mode {

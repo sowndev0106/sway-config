@@ -1,0 +1,137 @@
+// Bảng màu Catppuccin Mocha đồng bộ với Waybar
+$base: #1e1e2e;
+$surface0: #313244;
+$surface1: #45475a;
+$text: #cdd6f4;
+$subtext0: #a6adc8;
+$blue: #89b4fa;
+$lavender: #b4befe;
+$red: #f38ba8;
+$green: #a6e3a1;
+
+* {
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", "DejaVu Sans Mono", monospace;
+}
+
+// Thẻ bọc ngoài cùng
+.calendar-card {
+  background: $base;
+  border: 2px solid $surface0;
+  border-radius: 16px;
+  padding: 20px;
+  color: $text;
+}
+
+// ── 1. Phần Header (Đồng hồ & Ngày) ──
+.header-box {
+  margin-bottom: 20px;
+}
+
+.clock-box {
+  margin-bottom: 5px;
+}
+
+.clock-time {
+  font-size: 44px;
+  font-weight: 800;
+  color: $text;
+}
+
+.clock-separator {
+  font-size: 40px;
+  font-weight: 300;
+  color: $lavender;
+  margin: 0 12px;
+}
+
+.clock-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: $subtext0;
+  text-align: center;
+}
+
+// ── 2. Phần Điều hướng Lịch ──
+.nav-box {
+  background: $surface0;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+}
+
+.selector-box {
+  min-width: 130px;
+  justify-content: space-between;
+}
+
+.nav-btn {
+  font-size: 20px;
+  font-weight: bold;
+  color: $blue;
+  padding: 0 8px;
+  border-radius: 6px;
+}
+
+.nav-btn:hover {
+  background: $surface1;
+}
+
+.nav-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: $text;
+  text-align: center;
+}
+
+// ── 3. Phần Lưới Lịch ──
+.weekday-row {
+  margin-bottom: 10px;
+}
+
+.weekday {
+  font-size: 12px;
+  font-weight: bold;
+  color: $green;
+  width: 40px;
+  min-width: 40px;
+  height: 25px;
+  min-height: 25px;
+  text-align: center;
+}
+
+.day-grid {
+  // Container các dòng tuần
+}
+
+.week-row {
+  margin-bottom: 6px;
+}
+
+.day {
+  font-size: 13px;
+  font-weight: 500;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  text-align: center;
+  margin: 0 2px;
+  border-radius: 20px;
+  color: $text;
+}
+
+.day.today {
+  background: $blue;
+  color: $base;
+  font-weight: 700;
+}
+
+.day.muted {
+  color: $surface1;
+}
+
+.day:hover:not(.today):not(.muted) {
+  background: $surface0;
+  font-weight: bold;
+}

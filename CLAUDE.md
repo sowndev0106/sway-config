@@ -30,6 +30,7 @@ chạy** — không cần copy. Một nguồn duy nhất.
 | `.config/sway/scripts/` | `vol.sh`, `bri.sh` (OSD), `lock.sh`, `record.sh`, `launch.sh` (Nvidia) |
 | `.config/kanshi/config` | Bố cục đa màn hình (auto theo số màn cắm) |
 | `.config/waybar/{config,style.css}` | Thanh trạng thái |
+| `.config/nwg-dock-hyprland/{config.toml,style.css}` | Dock app dưới màn hình, tự ẩn |
 | `.config/{rofi,wofi,foot,mako,swaylock,wlogout,gtklock}/` | Launcher, terminal, thông báo, khóa màn, menu nguồn |
 | `.config/environment.d/` | Biến môi trường (bộ gõ tiếng Việt, con trỏ) |
 | `install.sh` | `apt install` package + tạo symlink (apt update lỗi repo bên thứ ba không làm dừng script) |

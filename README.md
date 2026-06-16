@@ -27,6 +27,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 |---|---|---|
 | **sway** | Quản lý cửa sổ tiling (Wayland) | — |
 | **waybar** | Thanh trạng thái trên cùng | tự chạy |
+| **nwg-dock** | Dock app dưới màn hình, tự ẩn | rê chuột xuống đáy màn hình |
 | **rofi** | Trình khởi chạy ứng dụng (chính) | `Mod+d` |
 | **wofi** | Launcher dự phòng (native Wayland) | `Mod+Shift+d` |
 | **foot** | Terminal | `Mod+Enter` |
@@ -67,7 +68,9 @@ cd ~/sway-config
 
 `install.sh` sẽ:
 1. `apt install` toàn bộ package cần thiết.
-2. Tạo **symlink** từ `~/.config/<tên>` trỏ vào thư mục trong repo.
+2. Cài `nwg-dock` bằng Cargo; nếu Ubuntu chưa có `gtk4-layer-shell`, script tự
+   build thư viện này từ source.
+3. Tạo **symlink** từ `~/.config/<tên>` trỏ vào thư mục trong repo.
    Config cũ (nếu có) được đổi tên thành `<tên>.bak` để sao lưu.
 
 > **Symlink là gì?** Là một "lối tắt": file thật nằm trong `~/sway-config`,
@@ -226,6 +229,12 @@ Hiện workspace (trái), tên cửa sổ (giữa), và bên phải: âm lượn
 RAM, pin, đồng hồ, khay hệ thống (tray). Cấu hình:
 `.config/waybar/config` (nội dung) và `style.css` (giao diện).
 
+### nwg-dock (dock app tự ẩn)
+Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện tích. Rê chuột xuống
+đáy màn hình để dock trồi lên; rời chuột thì dock tự ẩn lại. Cấu hình:
+`.config/nwg-dock-hyprland/config.toml` và `style.css`. Script khởi động:
+`.config/sway/scripts/dock.sh`.
+
 ### mako (thông báo)
 Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình:
 `.config/mako/config`. Lệnh hữu ích: `makoctl dismiss` (đóng), `makoctl restore`.
@@ -277,6 +286,8 @@ tiến trình hoặc reload Sway).
 | Thời gian tự khóa màn hình | khối `exec swayidle ...` trong `sway/config` |
 | Bố cục / module thanh trạng thái | `.config/waybar/config` |
 | Màu sắc thanh trạng thái | `.config/waybar/style.css` |
+| Dock app dưới màn hình | `.config/nwg-dock-hyprland/config.toml` |
+| Màu sắc dock app | `.config/nwg-dock-hyprland/style.css` |
 | Giao diện rofi | `.config/rofi/config.rasi` |
 | Font / màu terminal | `.config/foot/foot.ini` |
 | Kiểu thông báo | `.config/mako/config` |
@@ -324,6 +335,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | **Máy Nvidia: vào Sway bị văng về login** | Sway từ chối GPU Nvidia độc quyền nên thoát ngay. Chọn session **"Sway (Hybrid GPU)"** ở màn hình đăng nhập (install.sh tự tạo nếu có Nvidia — render bằng iGPU, vẫn dùng được màn hình nối qua Nvidia). Từ TTY: `WLR_DRM_DEVICES=<iGPU>:<Nvidia> sway --unsupported-gpu` |
 | Phím tắt không ăn | `Mod+Shift+c` reload; xem log: `journalctl --user -b -u sway` hoặc chạy `swaymsg -t get_config` |
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
+| Dock không hiện khi rê xuống đáy | Chạy `~/.config/sway/scripts/dock.sh` trong terminal để xem lỗi; nếu báo thiếu binary thì chạy `./install.sh` |
 | Volume/độ sáng không đổi | Kiểm tra `wpctl status` (audio), `brightnessctl info` |
 | Không share được màn hình (Zoom/Meet) | Cài thêm `xdg-desktop-portal-wlr` |
 | App GUI không xin được quyền admin | Kiểm tra polkit agent đang chạy: `pgrep -f polkit-gnome` |
@@ -350,6 +362,7 @@ sway-config/
 │   ├── xdg-desktop-portal/    # cấu hình portal (chia sẻ màn hình)
 │   ├── waybar/config          # nội dung thanh trạng thái
 │   ├── waybar/style.css       # giao diện thanh trạng thái
+│   ├── nwg-dock-hyprland/     # dock app dưới màn hình (config + CSS)
 │   ├── rofi/config.rasi       # launcher chính
 │   ├── wofi/config            # launcher dự phòng
 │   ├── wofi/style.css

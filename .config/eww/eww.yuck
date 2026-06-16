@@ -1,0 +1,64 @@
+;; Biến lưu trữ dữ liệu JSON lịch
+(defvar calendar_json "{}")
+
+;; Biến trạng thái năm và tháng hiển thị trên UI
+(defvar calendar_month "")
+(defvar calendar_year "")
+
+;; Poll lấy giờ, phút và ngày tháng hiện tại cho phần Header
+(defpoll time_hour :interval "1s" "date +%H")
+(defpoll time_min  :interval "1s" "date +%M")
+(defpoll time_date :interval "10s" "LC_TIME=C date '+%A, %d %B'")
+
+;; Cửa sổ Calendar Popup hiển thị trên màn hình hiện tại
+(defwindow calendar-popup [monitor]
+  :monitor monitor
+  :geometry (geometry
+    :x "0px"
+    :y "45px"
+    :width "360px"
+    :height "480px"
+    :anchor "top center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable "none"
+  :namespace "eww-calendar-popup"
+  (calendar-card))
+
+;; Widget chính của lịch
+(defwidget calendar-card []
+  (box :class "calendar-card" :orientation "vertical" :space-evenly false
+    ;; ── Phần 1: Header hiển thị Đồng hồ số lớn & Ngày tháng ──
+    (box :class "header-box" :orientation "vertical" :space-evenly false
+      (box :class "clock-box" :orientation "horizontal" :space-evenly false :halign "center"
+        (label :class "clock-time" :text time_hour)
+        (label :class "clock-separator" :text "|")
+        (label :class "clock-time" :text time_min))
+      (label :class "clock-date" :text time_date))
+
+    ;; ── Phần 2: Điều hướng Tháng và Năm ──
+    (box :class "nav-box" :orientation "horizontal" :space-evenly true
+      ;; Chọn tháng
+      (box :class "selector-box" :orientation "horizontal" :space-evenly false :halign "center"
+        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh month prev" "‹")
+        (label :class "nav-label month" :text {calendar_json.month_name ?: ""})
+        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh month next" "›"))
+      ;; Chọn năm
+      (box :class "selector-box" :orientation "horizontal" :space-evenly false :halign "center"
+        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh year prev" "‹")
+        (label :class "nav-label year" :text {calendar_year})
+        (button :class "nav-btn" :onclick "~/.config/eww/scripts/navigate.sh year next" "›")))
+
+    ;; ── Phần 3: Lưới Lịch hiển thị ──
+    ;; Dòng thứ trong tuần
+    (box :class "weekday-row" :orientation "horizontal" :space-evenly true
+      (for day in {calendar_json.weekdays ?: "[]"}
+        (label :class "weekday" :text day)))
+    ;; Lưới ngày
+    (box :class "day-grid" :orientation "vertical" :space-evenly false
+      (for week in {calendar_json.weeks ?: "[]"}
+        (box :class "week-row" :orientation "horizontal" :space-evenly true
+          (for day in week
+            (label
+              :class {day.today ? "day today" : day.muted ? "day muted" : "day"}
+              :text {day.label})))))))
