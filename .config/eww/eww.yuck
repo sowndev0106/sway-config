@@ -108,6 +108,25 @@
 ;; Mức độ sáng màn hình hiện tại (0-100)
 (defpoll bri_level :interval "2s" "~/.config/eww/scripts/control_center.sh bri-level")
 
+;; ── Router-view: trang đang hiển thị trong control center ──
+(defvar cc_view "home")
+;; Đệm mật khẩu Wi-Fi (chỉ dùng khi cc_pass_ssid != "")
+(defvar cc_pass "")
+;; SSID đang chờ nhập mật khẩu; "" = không hiện ô nhập
+(defvar cc_pass_ssid "")
+;; Thông báo lỗi tạm (ví dụ "Sai mật khẩu")
+(defvar cc_wifi_error "")
+
+;; Danh sách dữ liệu các panel — nạp theo yêu cầu (không poll)
+(defvar wifi_list "[]")
+(defvar bt_list "[]")
+(defvar audio_sinks "[]")
+(defvar audio_apps "[]")
+(defvar mic_sources "[]")
+(defvar wired_info "{\"state\":\"unknown\",\"device\":\"\",\"ip\":\"\",\"gateway\":\"\",\"speed\":\"\"}")
+;; Mức micro hiện tại (0-100) — nạp khi vào panel mic
+(defvar mic_level "50")
+
 ;; ── Cửa sổ Control Center Window ──
 ;; Cửa sổ Control Center Popup hiển thị ở góc trên bên phải màn hình
 (defwindow control-center-popup [monitor]
