@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Kịch bản bật/tắt cửa sổ lịch Eww.
 set -euo pipefail
 
 # 1. Kiểm tra các phụ thuộc hệ thống
@@ -25,7 +24,8 @@ if [ ! -x "$EWW_BIN" ]; then
 fi
 
 CONFIG_DIR="$HOME/.config/eww"
-WINDOW="calendar-popup"
+WINDOW="control-center-popup"
+CLOSER_WINDOW="control-center-popup-closer"
 
 # 3. Lấy tên màn hình đang được focus (fallback về 0 nếu trống)
 MONITOR="$(swaymsg -t get_outputs | jq -r '.[] | select(.focused).name' | head -n1)"
@@ -34,7 +34,6 @@ MONITOR="${MONITOR:-0}"
 # 4. Khởi động daemon nếu chưa chạy và đợi kết nối sẵn sàng
 if ! "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1; then
     "$EWW_BIN" --config "$CONFIG_DIR" daemon >/dev/null 2>&1 || true
-    # Chờ tối đa 3 giây cho daemon sẵn sàng kết nối IPC
     for i in {1..30}; do
         if "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1; then
             break
@@ -43,35 +42,18 @@ if ! "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1; then
     done
 fi
 
-CLOSER_WINDOW="calendar-popup-closer"
-
-# Đóng control center nếu đang mở để tránh chồng chéo
-if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^control-center-popup"; then
-    "$EWW_BIN" --config "$CONFIG_DIR" close "control-center-popup" || true
-    "$EWW_BIN" --config "$CONFIG_DIR" close "control-center-popup-closer" || true
+# Đóng lịch (calendar-popup) nếu đang mở để tránh chồng chéo
+if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^calendar-popup"; then
+    "$EWW_BIN" --config "$CONFIG_DIR" close "calendar-popup" || true
+    "$EWW_BIN" --config "$CONFIG_DIR" close "calendar-popup-closer" || true
 fi
 
-# 5. Thực hiện Bật/Tắt cửa sổ lịch
+# 5. Thực hiện Bật/Tắt cửa sổ control center
 if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^$WINDOW"; then
-    # Nếu cửa sổ đang mở -> đóng cả hai
     "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
     "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER_WINDOW" || true
 else
-    # Nếu cửa sổ đang đóng -> khởi tạo lại biến tháng/năm về thực tại, cập nhật dữ liệu và mở
-    read -r current_year current_month < <(date "+%Y %m")
-    
-    # Cập nhật các biến trạng thái trong Eww về hiện tại
-    "$EWW_BIN" --config "$CONFIG_DIR" update calendar_month="$((10#$current_month))"
-    "$EWW_BIN" --config "$CONFIG_DIR" update calendar_year="$((10#$current_year))"
-    
-    DATA_SCRIPT="$CONFIG_DIR/scripts/calendar-data.sh"
-    if [ -x "$DATA_SCRIPT" ]; then
-        "$EWW_BIN" --config "$CONFIG_DIR" update calendar_json="$("$DATA_SCRIPT" "$current_month" "$current_year")"
-    else
-        echo "Warning: Không tìm thấy hoặc không có quyền chạy script dữ liệu lịch tại $DATA_SCRIPT" >&2
-    fi
-    # Mở closer trước, sau đó mở popup chính để popup nằm trên cùng
-    "$EWW_BIN" --config "$CONFIG_DIR" open "$CLOSER_WINDOW" --arg monitor="$MONITOR"
+    # Mở closer trước (nếu được định nghĩa), sau đó mở popup chính
+    "$EWW_BIN" --config "$CONFIG_DIR" open "$CLOSER_WINDOW" --arg monitor="$MONITOR" || true
     "$EWW_BIN" --config "$CONFIG_DIR" open "$WINDOW" --arg monitor="$MONITOR"
 fi
-
