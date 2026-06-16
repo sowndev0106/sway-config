@@ -79,7 +79,8 @@ case "${1:-}" in
         ;;
     set-app-vol)
         # set-app-vol <sink-input-id> <volume-percent>
-        pactl set-sink-input-volume "${2}" "${3}%" >/dev/null 2>&1
+        app_val=$(printf "%.0f" "${3}" 2>/dev/null || echo "${3}" | cut -d. -f1)
+        pactl set-sink-input-volume "${2}" "${app_val}%" >/dev/null 2>&1
         ;;
     *)
         echo "Unknown: ${1:-}" >&2; exit 1 ;;

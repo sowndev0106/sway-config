@@ -467,17 +467,16 @@
   (box :class "switcher-card" :orientation "vertical" :space-evenly false
     ;; Danh sách các cửa sổ nằm ngang
     (box :class "switcher-list" :orientation "horizontal" :space-evenly false :halign "center"
-      (for win in switcher_windows
+      (for win in {switcher_windows ?: "[]"}
         (box :class {win.idx == switcher_index ? "switcher-item active" : "switcher-item"}
              :orientation "vertical"
              :space-evenly false
           (overlay
             ;; 1. Preview Box (Chứa ảnh chụp màn hình hoặc placeholder)
             (box :class "preview-box"
-              (if {win.visible && win.thumbnail != ""}
-                (image :class "window-thumbnail" :path {win.thumbnail} :image-width 130 :image-height 80)
-                (box :class "window-thumbnail-placeholder" :width 130 :height 80
-                  (image :class "placeholder-icon" :path {win.icon} :image-width 40 :image-height 40))))
+              (image :visible {win.visible && win.thumbnail != ""} :class "window-thumbnail" :path {win.thumbnail} :image-width 130 :image-height 80)
+              (box :visible {!win.visible || win.thumbnail == ""} :class "window-thumbnail-placeholder" :width 130 :height 80
+                (image :class "placeholder-icon" :path {win.icon} :image-width 40 :image-height 40)))
             ;; 2. App Icon ở góc dưới bên phải
             (box :class "app-icon-badge" :halign "end" :valign "end"
               (image :class "app-icon" :path {win.icon} :image-width 24 :image-height 24))))))

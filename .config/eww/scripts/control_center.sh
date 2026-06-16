@@ -75,7 +75,7 @@ case "${1:-}" in
         fi
         ;;
     vol-level)
-        wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%.0f\n", $2*100}'
+        wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%.0f", $2*100}'
         ;;
     vol-muted)
         if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q 'MUTED'; then
@@ -98,20 +98,22 @@ case "${1:-}" in
         wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
         ;;
     set-vol)
+        vol_val=$(printf "%.0f" "${2}" 2>/dev/null || echo "${2}" | cut -d. -f1)
         wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
-        wpctl set-volume @DEFAULT_AUDIO_SINK@ "${2}"%
+        wpctl set-volume @DEFAULT_AUDIO_SINK@ "${vol_val}"%
         EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
         [ -x "$EWW" ] || EWW="$(command -v eww)"
-        "$EWW" --config "$HOME/.config/eww" update vol_muted="off" vol_level="${2}"
+        "$EWW" --config "$HOME/.config/eww" update vol_muted="off" vol_level="${vol_val}"
         ;;
     bri-level)
-        brightnessctl -m | cut -d, -f4 | tr -d '%'
+        brightnessctl -m | cut -d, -f4 | tr -d '%\n'
         ;;
     set-bri)
-        brightnessctl set "${2}"%
+        bri_val=$(printf "%.0f" "${2}" 2>/dev/null || echo "${2}" | cut -d. -f1)
+        brightnessctl set "${bri_val}"%
         EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
         [ -x "$EWW" ] || EWW="$(command -v eww)"
-        "$EWW" --config "$HOME/.config/eww" update bri_level="${2}"
+        "$EWW" --config "$HOME/.config/eww" update bri_level="${bri_val}"
         ;;
     refresh)
         # Cập nhật ngay tất cả biến trạng thái vào eww để nút phản hồi tức thì,

@@ -270,21 +270,21 @@
   min-width: 230px;
 }
 
-.slider scale trough {
+.slider trough {
   background: #45475a; /* Surface 1 */
   border-radius: 6px;
   min-height: 8px;
 }
 
-.slider scale trough highlight {
+.slider highlight {
   border-radius: 6px;
 }
 
-.slider.vol scale trough highlight {
+.slider.vol highlight {
   background: #89b4fa; /* Blue */
 }
 
-.slider.bri scale trough highlight {
+.slider.bri highlight {
   background: #f9e2af; /* Yellow */
 }
 
@@ -594,12 +594,12 @@
   min-width: 120px;
 }
 
-.slider.app-vol scale trough highlight {
+.slider.app-vol highlight {
   background: #a6e3a1;
 }
 
 /* Mic volume slider */
-.slider.mic-vol scale trough highlight {
+.slider.mic-vol highlight {
   background: #cba6f7;
 }
 
