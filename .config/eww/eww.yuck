@@ -439,10 +439,10 @@
           (button :class "power-btn logout" :onclick "swaymsg exit" "󰍃"))))
 
     ;; Detailed Pages
-    (wifi-page :visible {cc_view == "wifi"})
-    (bluetooth-page :visible {cc_view == "bluetooth"})
-    (audio-page :visible {cc_view == "audio"})
-    (mic-page :visible {cc_view == "mic"})
-    (wired-page :visible {cc_view == "wired"})))
+    (box :visible {cc_view == "wifi"} (wifi-page))
+    (box :visible {cc_view == "bluetooth"} (bluetooth-page))
+    (box :visible {cc_view == "audio"} (audio-page))
+    (box :visible {cc_view == "mic"} (mic-page))
+    (box :visible {cc_view == "wired"} (wired-page))))
 
 
