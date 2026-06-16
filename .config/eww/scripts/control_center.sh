@@ -1,12 +1,62 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="${EWW_CONFIG:-$HOME/.config/eww}"
+
+eww_bin() {
+    local eww="${EWW_BIN:-$HOME/.local/bin/eww}"
+    [ -x "$eww" ] || eww="$(command -v eww)"
+    printf '%s\n' "$eww"
+}
+
+wifi_device() {
+    nmcli -t -f DEVICE,TYPE dev | awk -F: '$2=="wifi"{print $1;exit}'
+}
+
+load_page_data() {
+    local page="${1:-}" eww
+    eww="$(eww_bin)"
+
+    case "$page" in
+        wifi)
+            "$eww" --config "$CONFIG_DIR" update \
+                wifi_list="$("$SCRIPT_DIR/cc/wifi.sh" list)"
+            ;;
+        bluetooth)
+            "$eww" --config "$CONFIG_DIR" update \
+                bt_list="$("$SCRIPT_DIR/cc/bluetooth.sh" list)"
+            "$SCRIPT_DIR/cc/bluetooth.sh" scan-on
+            ;;
+        audio)
+            "$eww" --config "$CONFIG_DIR" update \
+                audio_sinks="$("$SCRIPT_DIR/cc/audio.sh" sinks)" \
+                audio_apps="$("$SCRIPT_DIR/cc/audio.sh" apps)"
+            ;;
+        mic)
+            "$eww" --config "$CONFIG_DIR" update \
+                mic_sources="$("$SCRIPT_DIR/cc/mic.sh" sources)" \
+                mic_level="$("$SCRIPT_DIR/cc/mic.sh" level)"
+            ;;
+        wired)
+            "$eww" --config "$CONFIG_DIR" update \
+                wired_info="$("$SCRIPT_DIR/cc/wired.sh" info)"
+            ;;
+    esac
+}
+
 case "${1:-}" in
     wifi-ssid)
         if nmcli radio wifi | grep -q "disabled"; then
             echo "Wifi Off"
         else
-            ssid=$(nmcli -t -f ACTIVE,SSID dev wifi | grep '^yes' | cut -d: -f2 || true)
+            dev="$(wifi_device)"
+            ssid=""
+            if [ -n "$dev" ]; then
+                ssid="$(nmcli -t -f GENERAL.CONNECTION device show "$dev" 2>/dev/null \
+                    | awk '$0 ~ /^GENERAL.CONNECTION:/ {sub(/^[^:]*:/, ""); print; exit}')"
+            fi
+            [ "$ssid" = "--" ] && ssid=""
             echo "${ssid:-Disconnected}"
         fi
         ;;
@@ -101,9 +151,8 @@ case "${1:-}" in
         vol_val=$(printf "%.0f" "${2}" 2>/dev/null || echo "${2}" | cut -d. -f1)
         wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
         wpctl set-volume @DEFAULT_AUDIO_SINK@ "${vol_val}"%
-        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
-        [ -x "$EWW" ] || EWW="$(command -v eww)"
-        "$EWW" --config "$HOME/.config/eww" update vol_muted="off" vol_level="${vol_val}"
+        EWW="$(eww_bin)"
+        "$EWW" --config "$CONFIG_DIR" update vol_muted="off" vol_level="${vol_val}"
         ;;
     bri-level)
         brightnessctl -m | cut -d, -f4 | tr -d '%\n'
@@ -111,16 +160,38 @@ case "${1:-}" in
     set-bri)
         bri_val=$(printf "%.0f" "${2}" 2>/dev/null || echo "${2}" | cut -d. -f1)
         brightnessctl set "${bri_val}"%
-        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
-        [ -x "$EWW" ] || EWW="$(command -v eww)"
-        "$EWW" --config "$HOME/.config/eww" update bri_level="${bri_val}"
+        EWW="$(eww_bin)"
+        "$EWW" --config "$CONFIG_DIR" update bri_level="${bri_val}"
+        ;;
+    open-page)
+        page="${2:-home}"
+        EWW="$(eww_bin)"
+        case "$page" in
+            wifi)
+                "$EWW" --config "$CONFIG_DIR" update \
+                    cc_view=wifi cc_pass="" cc_pass_ssid="" cc_wifi_error=""
+                ;;
+            bluetooth|audio|mic|wired)
+                "$EWW" --config "$CONFIG_DIR" update cc_view="$page"
+                ;;
+            home)
+                "$SCRIPT_DIR/cc/bluetooth.sh" scan-off >/dev/null 2>&1 || true
+                "$EWW" --config "$CONFIG_DIR" update \
+                    cc_view=home cc_pass="" cc_pass_ssid="" cc_wifi_error=""
+                exit 0
+                ;;
+            *)
+                echo "Unknown page: $page" >&2
+                exit 1
+                ;;
+        esac
+        (load_page_data "$page") >/dev/null 2>&1 &
         ;;
     refresh)
         # Cập nhật ngay tất cả biến trạng thái vào eww để nút phản hồi tức thì,
         # không phải đợi nhịp defpoll (1-3s) => hết cảm giác bật/tắt bị chậm.
-        EWW="${EWW_BIN:-$HOME/.local/bin/eww}"
-        [ -x "$EWW" ] || EWW="$(command -v eww)"
-        "$EWW" --config "$HOME/.config/eww" update \
+        EWW="$(eww_bin)"
+        "$EWW" --config "$CONFIG_DIR" update \
             wifi_state="$("$0" wifi-state)" \
             wifi_ssid="$("$0" wifi-ssid)" \
             bt_state="$("$0" bt-state)" \

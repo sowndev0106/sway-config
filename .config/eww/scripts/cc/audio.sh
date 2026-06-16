@@ -1,47 +1,83 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+CONFIG_DIR="${EWW_CONFIG:-$HOME/.config/eww}"
+
+eww_bin() {
+    local eww="${EWW_BIN:-$HOME/.local/bin/eww}"
+    [ -x "$eww" ] || eww="$(command -v eww)"
+    printf '%s\n' "$eww"
+}
+
+sink_nodes_json() {
+    pw-dump | jq '[.[] |
+        select(.type == "PipeWire:Interface:Node" and .info.props["media.class"] == "Audio/Sink") |
+        {
+            id: .id,
+            pactl_id: .info.props["object.serial"],
+            sink: .info.props["node.name"],
+            name: (.info.props["node.description"] // .info.props["media.name"] // .info.props["node.name"])
+        }
+        | . + {
+            display_name: (
+                .name
+                | sub("^Raptor Lake-P/U/H cAVS "; "")
+                | sub("^Built-in Audio "; "")
+            )
+        }
+    ]'
+}
+
+resolve_sink() {
+    local target="${1}"
+
+    sink_nodes_json | jq -r --arg target "$target" '
+        .[] |
+        select((.id | tostring) == $target or (.pactl_id | tostring) == $target or .sink == $target) |
+        [.id, .sink] |
+        @tsv
+    ' | head -n1
+}
+
+set_sink() {
+    local target="${1}" wp_id sink_name
+
+    IFS=$'\t' read -r wp_id sink_name < <(resolve_sink "$target")
+    if [ -z "${wp_id:-}" ] || [ -z "${sink_name:-}" ]; then
+        echo "Unknown sink: $target" >&2
+        exit 1
+    fi
+
+    wpctl set-default "$wp_id" >/dev/null 2>&1
+
+    # Move currently playing streams too; changing the default only affects new streams.
+    inputs=$(pactl list sink-inputs short 2>/dev/null | cut -f1) || true
+    if [ -n "$inputs" ]; then
+        for input_id in $inputs; do
+            pactl move-sink-input "$input_id" "$sink_name" >/dev/null 2>&1 || true
+        done
+    fi
+}
+
 case "${1:-}" in
     sinks)
         # JSON mảng thiết bị âm thanh ra (sink).
-        # Trường: id (số), name (chuỗi), default (bool)
+        # Trường: id (wpctl node id), name (chuỗi đầy đủ), display_name (chuỗi ngắn), default (bool)
         default_sink=$(pactl get-default-sink 2>/dev/null || true)
-        pactl list sinks 2>/dev/null \
-            | awk -v default_sink="$default_sink" '
-                function print_sink() {
-                    if (id != "") {
-                        gsub(/"/, "\\\"", desc)
-                        is_default = (name == default_sink) ? "true" : "false"
-                        printf "{\"id\":%s,\"name\":\"%s\",\"default\":%s}\n", id, desc, is_default
-                    }
-                }
-                /^Sink #/ {
-                    print_sink()
-                    id = substr($2, 2)
-                    name = ""
-                    desc = ""
-                }
-                /^[ \t]*Name:/ { name = $2 }
-                /^[ \t]*Description:/ {
-                    desc = $0
-                    sub(/^[ \t]*Description:[ \t]*/, "", desc)
-                }
-                END {
-                    print_sink()
-                }
-            ' \
-            | paste -sd ',' - \
-            | sed 's/^/[/;s/$/]/'
+        sink_nodes_json | jq -c --arg default_sink "$default_sink" '
+            map(. + {default: (.sink == $default_sink)})
+        '
         ;;
     set-sink)
-        pactl set-default-sink "${2}" >/dev/null 2>&1
-        # Di chuyển tất cả sink-input sang sink mới
-        inputs=$(pactl list sink-inputs short 2>/dev/null | cut -f1) || true
-        if [ -n "$inputs" ]; then
-            for input_id in $inputs; do
-                pactl move-sink-input "$input_id" "${2}" >/dev/null 2>&1 || true
-            done
-        fi
+        set_sink "${2}"
+        ;;
+    select-sink)
+        set_sink "${2}"
+        EWW="$(eww_bin)"
+        "$EWW" --config "$CONFIG_DIR" update \
+            audio_sinks="$("$0" sinks)" \
+            audio_apps="$("$0" apps)"
+        "$HOME/.config/eww/scripts/control_center.sh" refresh
         ;;
     apps)
         # JSON mảng ứng dụng đang phát âm thanh (sink-inputs).

@@ -26,7 +26,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 |---|---|---|
 | **sway** | Quản lý cửa sổ tiling (Wayland) | — |
 | **waybar** | Thanh trạng thái trên cùng | tự chạy |
-| **nwg-dock** | Dock app dưới màn hình, tự ẩn | rê chuột xuống đáy màn hình |
+| **nwg-dock** | Dock app dưới màn hình (đang tắt autostart) | chạy tay `~/.config/sway/scripts/dock.sh` |
 | **rofi** | Trình khởi chạy ứng dụng & nút nguồn ghim trực tiếp (cải tiến) | `Mod+d` |
 | **wofi** | Launcher dự phòng (native Wayland) | `Mod+Shift+d` |
 | **foot** | Terminal | `Mod+Enter` |
@@ -39,7 +39,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **playerctl** | Điều khiển nhạc/video | phím media |
 | **pavucontrol** | Quản lý âm thanh (GUI) | từ launcher |
 | **cliphist** | Lịch sử clipboard (copy nhiều lần) | `Mod+Shift+v` |
-| **thunar** | Trình quản lý file (nhẹ, hỗ trợ USB/nén) | `Mod+E` |
+| **nautilus** | Trình quản lý file GNOME (giao diện tối, tối ưu Wayland) | `Mod+Shift+e` |
 | **firefox** | Trình duyệt | từ launcher |
 | **imv** | Xem ảnh | `imv <ảnh>` |
 | **nm-applet** | WiFi / mạng (GUI ở khay) | icon khay |
@@ -47,7 +47,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **wob** | Thanh OSD volume/độ sáng | tự hiện khi chỉnh |
 | **wf-recorder** | Quay màn hình | `Mod+Shift+r` |
 | **zathura** | Đọc PDF | `zathura <file>` |
-| **wlogout** | Menu nguồn toàn màn hình (dự phòng) | `Mod+Shift+e` |
+| **wlogout** | Menu nguồn toàn màn hình (dự phòng) | từ rofi (góc dưới phải) |
 | **grimshot** | Chụp màn hình (kèm thông báo) | `Print` |
 | **kanshi / wdisplays** | Đa màn hình (tự sắp xếp / GUI) | tự chạy / từ launcher |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
@@ -105,9 +105,9 @@ Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `
 | `Mod+d` | Trình khởi chạy ứng dụng (rofi) |
 | `Mod+Shift+d` | Launcher dự phòng (wofi) |
 | `Mod+q` | Đóng cửa sổ đang focus |
-| `Mod+E` | Mở file manager (Thunar) |
+| `Mod+Shift+e` | Mở file manager (Nautilus, nổi 70% màn hình, căn giữa) |
 | `Mod+Shift+c` | Nạp lại config (reload) |
-| `Mod+Shift+e` | Menu nguồn toàn màn hình (wlogout) |
+| `Mod+e` | Đổi layout (splith) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
 | `Mod+Shift+v` | Lịch sử clipboard (cliphist) |
 | `Ctrl+Space` | Bật/tắt gõ tiếng Việt (fcitx5) |
@@ -222,6 +222,10 @@ Hiện workspace (trái), tên cửa sổ (giữa), và bên phải: âm lượn
 ### nwg-dock (dock app tự ẩn)
 Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện tích. Rê chuột xuống đáy màn hình để dock trồi lên; rời chuột thì dock tự ẩn lại. Cấu hình: `.config/nwg-dock-hyprland/config.toml` và `style.css`. Script khởi động: `.config/sway/scripts/dock.sh`.
 
+**Hiện đang tắt autostart** (dock không tự chạy lúc vào Sway) để giải phóng đáy màn hình. Để bật lại:
+- Sửa `.config/sway/config` dòng `exec_always ~/.config/sway/scripts/dock.sh` (bỏ comment) rồi `Mod+Shift+c`.
+- Hoặc chạy thủ công: `~/.config/sway/scripts/dock.sh`.
+
 ### mako (thông báo)
 Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình: `.config/mako/config`. Lệnh hữu ích: `makoctl dismiss` (đóng), `makoctl restore`.
 
@@ -248,6 +252,18 @@ fcitx5 tự chạy nền khi vào Sway. Biến môi trường nằm ở `.config
 **Sử dụng:** bấm `Ctrl+Space` để chuyển qua lại Anh ↔ Việt (Unikey mặc định kiểu gõ Telex). Kiểu gõ (Telex/VNI) đổi trong `fcitx5-configtool` → Unikey.
 
 > Nếu một app (thường là app XWayland) không gõ được tiếng Việt, kiểm tra đã đăng nhập lại sau khi cài chưa, và `pgrep fcitx5` có thấy tiến trình không.
+
+### Dark theme cho toàn hệ thống
+- **GTK3/GTK4** (Thunar cũ, file-roller, ...): cấu hình trong `.config/gtk-3.0/settings.ini` và `.config/gtk-4.0/settings.ini` (đang dùng `Yaru-dark`, `gtk-application-prefer-dark-theme=1`).
+- **libadwaita** (Nautilus, app GNOME mới): biến `GTK_THEME=Yaru-dark:dark` trong `.config/environment.d/theme.conf` ép dark dù theme gốc là light.
+- **Qt5/Qt6** (foot, wofi, app Qt khác): `QT_STYLE_OVERRIDE=kvantum` trong cùng file. Chạy `qt5ct` / `qt6ct` một lần để chọn theme Kvantum-dark hoặc Adwaita-dark.
+
+Các biến trong `environment.d/` chỉ có hiệu lực với **session mới** (logout/login hoặc reboot). Để test ngay trong Sway hiện tại:
+```bash
+export GTK_THEME=Yaru-dark:dark
+export QT_STYLE_OVERRIDE=kvantum
+swaymsg reload
+```
 
 ---
 
@@ -310,10 +326,12 @@ Rồi `Mod+Shift+c` để nạp lại.
 | **Máy Nvidia: vào Sway bị văng về login** | Sway từ chối GPU Nvidia độc quyền nên thoát ngay. Chọn session **"Sway (Hybrid GPU)"** ở màn hình đăng nhập (install.sh tự tạo nếu có Nvidia — render bằng iGPU, vẫn dùng được màn hình nối qua Nvidia). Từ TTY: `WLR_DRM_DEVICES=<iGPU>:<Nvidia> sway --unsupported-gpu` |
 | Phím tắt không ăn | `Mod+Shift+c` reload; xem log: `journalctl --user -b -u sway` hoặc chạy `swaymsg -t get_config` |
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
-| Dock không hiện khi rê xuống đáy | Chạy `~/.config/sway/scripts/dock.sh` trong terminal để xem lỗi; nếu báo thiếu binary thì chạy `./install.sh` |
-| Volume/độ sáng không đổi | Kiểm tra `wpctl status` (audio), `brightnessctl info` |
+| Dock không hiện khi rê xuống đáy | Dock hiện **đang tắt autostart**. Chạy tay `~/.config/sway/scripts/dock.sh` để mở; nếu muốn bật lại vĩnh viễn, bỏ comment dòng `exec_always ~/.config/sway/scripts/dock.sh` trong `sway/config`. Nếu báo thiếu binary thì chạy `./install.sh` |
+| Volume/độ sáng không đổi | Audio: `wpctl status` + xem user có trong group `audio` không. Độ sáng: `/sys/class/backlight/intel_backlight/brightness` thuộc group `video` — nếu `brightnessctl set 5%+` báo "Permission denied" thì chạy `sudo usermod -aG video $USER` rồi **logout/login lại**. `install.sh` tự thêm bước này từ lần cài sau |
 | Không share được màn hình (Zoom/Meet) | Cài thêm `xdg-desktop-portal-wlr` |
 | App GUI không xin được quyền admin | Kiểm tra polkit agent đang chạy: `pgrep -f polkit-gnome` |
+| Nautilus (hoặc app libadwaita) vẫn sáng dù đã set dark | Biến `environment.d` chỉ nạp ở session mới — **đăng xuất rồi đăng nhập lại**. Hoặc test ngay: `export GTK_THEME=Yaru-dark:dark && swaymsg reload` |
+| App Qt (foot, wofi, ...) không theo theme tối | Cài `qt5ct qt5-style-kvantum qt6ct adwaita-qt6`, chạy `qt5ct` một lần chọn theme Kvantum-dark hoặc Adwaita-dark, logout/login lại |
 | Đổi config nhưng không thấy gì | Đảm bảo đang sửa file trong `~/sway-config` (symlink), rồi reload |
 
 **Kiểm tra symlink còn đúng không:**
@@ -343,7 +361,12 @@ sway-config/
 │   ├── wofi/style.css
 │   ├── foot/foot.ini          # terminal
 │   ├── mako/config            # thông báo
-│   └── environment.d/im.conf  # biến môi trường bộ gõ tiếng Việt
+│   ├── eww/                   # widget calendar/popup (CSS, yuck, scripts)
+│   ├── environment.d/
+│   │   ├── im.conf            # biến môi trường bộ gõ tiếng Việt
+│   │   ├── cursor.conf        # theme con trỏ chuột
+│   │   └── theme.conf         # dark theme libadwaita + Qt
+│   └── gtk-{3,4}.0/settings.ini  # theme/icon/cursor GTK
 ├── install.sh                 # cài package + tạo symlink
 ├── .gitignore
 └── README.md                  # file này

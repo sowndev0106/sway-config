@@ -165,7 +165,7 @@
     ;; Header
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
-              :onclick "eww --config ~/.config/eww update cc_view=home cc_pass='' cc_pass_ssid='' cc_wifi_error=''"
+              :onclick "~/.config/eww/scripts/control_center.sh open-page home"
               "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Wi-Fi")
       (button :class "cc-rescan-btn"
@@ -215,7 +215,7 @@
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
-              :onclick "~/.config/eww/scripts/cc/bluetooth.sh scan-off; eww --config ~/.config/eww update cc_view=home"
+              :onclick "~/.config/eww/scripts/control_center.sh open-page home"
               "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Bluetooth")
       (button :class "cc-rescan-btn"
@@ -245,7 +245,7 @@
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
-              :onclick "eww --config ~/.config/eww update cc_view=home"
+              :onclick "~/.config/eww/scripts/control_center.sh open-page home"
               "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Audio"))
     ;; Output devices (sinks)
@@ -254,9 +254,9 @@
       (box :orientation "vertical" :space-evenly false
         (for sink in audio_sinks
           (button :class {sink.default ? "cc-list-row active" : "cc-list-row"}
-                  :onclick "~/.config/eww/scripts/cc/audio.sh set-sink ${sink.id} && sleep 0.2 && eww --config ~/.config/eww update audio_sinks=\"$(~/.config/eww/scripts/cc/audio.sh sinks)\" && ~/.config/eww/scripts/control_center.sh refresh"
+                  :onclick "~/.config/eww/scripts/cc/audio.sh select-sink ${sink.id}"
             (box :orientation "horizontal" :space-evenly false
-              (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 25 :text {sink.name})
+              (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 25 :text {sink.display_name ?: sink.name})
               (label :class "cc-active-dot" :visible {sink.default} :text "●"))))))
     ;; Master Volume
     (label :class "cc-subsection-label" :halign "start" :text "Volume")
@@ -282,7 +282,7 @@
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
-              :onclick "eww --config ~/.config/eww update cc_view=home"
+              :onclick "~/.config/eww/scripts/control_center.sh open-page home"
               "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Microphone"))
     ;; Input devices (sources)
@@ -311,7 +311,7 @@
   (box :class "cc-page" :orientation "vertical" :space-evenly false
     (box :class "cc-page-header" :orientation "horizontal" :space-evenly false
       (button :class "cc-back-btn"
-              :onclick "eww --config ~/.config/eww update cc_view=home"
+              :onclick "~/.config/eww/scripts/control_center.sh open-page home"
               "‹ Back")
       (label :class "cc-page-title" :hexpand true :halign "center" :text "Wired Network"))
     ;; Device Info
@@ -342,16 +342,14 @@
   (box :class "control-center-card" :orientation "vertical" :space-evenly false
     ;; Home page
     (box :orientation "vertical" :space-evenly false :visible {cc_view == "home"}
-      ;; Header: clock, date, wired status icon
-      (box :class "cc-header" :orientation "horizontal" :space-evenly true
-        (box :class "cc-header-left" :orientation "vertical" :space-evenly false :halign "start"
+      ;; Header: centered clock and date
+      (box :class "cc-header" :orientation "vertical" :space-evenly false :halign "center"
+        (box :class "cc-header-left" :orientation "vertical" :space-evenly false :halign "center"
           (box :class "cc-clock" :orientation "horizontal" :space-evenly false
             (label :class "cc-time" :text time_hour)
             (label :class "cc-sep" :text "|")
             (label :class "cc-time" :text time_min))
-          (label :class "cc-date" :text time_date))
-        (box :class "cc-header-right" :halign "end" :valign "start"
-          (label :class {wired_state == "on" ? "cc-moon active" : "cc-moon"} :text "")))
+          (label :class "cc-date" :halign "center" :text time_date)))
 
       ;; Quick toggles grid
       (box :class "cc-grid" :orientation "vertical" :space-evenly true
@@ -363,7 +361,7 @@
                 (label :text {wifi_state == "on" ? "" : "󰖪"}))
               (box :class "toggle-divider")
               (button :class "toggle-arrow"
-                      :onclick "eww --config ~/.config/eww update cc_view=wifi wifi_list=\"$(~/.config/eww/scripts/cc/wifi.sh list)\""
+                      :onclick "~/.config/eww/scripts/control_center.sh open-page wifi"
                       "›"))
             (label :class "toggle-label" :limit-width 12 :text wifi_ssid))
 
@@ -374,7 +372,7 @@
                 (label :text ""))
               (box :class "toggle-divider")
               (button :class "toggle-arrow"
-                      :onclick "eww --config ~/.config/eww update cc_view=bluetooth bt_list=\"$(~/.config/eww/scripts/cc/bluetooth.sh list)\"; ~/.config/eww/scripts/cc/bluetooth.sh scan-on"
+                      :onclick "~/.config/eww/scripts/control_center.sh open-page bluetooth"
                       "›"))
             (label :class "toggle-label" :text "Bluetooth"))
 
@@ -395,7 +393,7 @@
                 (label :text ""))
               (box :class "toggle-divider")
               (button :class "toggle-arrow"
-                      :onclick "eww --config ~/.config/eww update cc_view=wired wired_info=\"$(~/.config/eww/scripts/cc/wired.sh info)\""
+                      :onclick "~/.config/eww/scripts/control_center.sh open-page wired"
                       "›"))
             (label :class "toggle-label" :text "Wired"))
 
@@ -406,7 +404,7 @@
                 (label :text {vol_muted == "on" ? "󰝟" : ""}))
               (box :class "toggle-divider")
               (button :class "toggle-arrow"
-                      :onclick "eww --config ~/.config/eww update cc_view=audio audio_sinks=\"$(~/.config/eww/scripts/cc/audio.sh sinks)\" audio_apps=\"$(~/.config/eww/scripts/cc/audio.sh apps)\""
+                      :onclick "~/.config/eww/scripts/control_center.sh open-page audio"
                       "›"))
             (label :class "toggle-label" :text "Volume"))
 
@@ -417,7 +415,7 @@
                 (label :text {mic_muted == "on" ? "" : ""}))
               (box :class "toggle-divider")
               (button :class "toggle-arrow"
-                      :onclick "eww --config ~/.config/eww update cc_view=mic mic_sources=\"$(~/.config/eww/scripts/cc/mic.sh sources)\" mic_level=\"$(~/.config/eww/scripts/cc/mic.sh level)\""
+                      :onclick "~/.config/eww/scripts/control_center.sh open-page mic"
                       "›"))
             (label :class "toggle-label" :text "Microphone"))))
 
@@ -450,12 +448,12 @@
 (defvar switcher_index 0)
 (defvar switcher_focused_title "")
 
-;; Cửa sổ switcher popup nổi nhỏ căn giữa màn hình
+;; Cửa sổ switcher popup nổi nhỏ căn giữa màn hình (giống Ubuntu GNOME)
 (defwindow switcher [monitor]
   :monitor monitor
   :geometry (geometry
-    :width "800px"
-    :height "200px"
+    :width "0px"
+    :height "0px"
     :anchor "center")
   :stacking "overlay"
   :exclusive false
@@ -463,24 +461,30 @@
   :namespace "eww-switcher"
   (switcher-card))
 
+;; Widget chính: hiển thị danh sách cửa sổ kiểu GNOME Shell
 (defwidget switcher-card []
   (box :class "switcher-card" :orientation "vertical" :space-evenly false
-    ;; Danh sách các cửa sổ nằm ngang
+    ;; Dòng icon các ứng dụng
     (box :class "switcher-list" :orientation "horizontal" :space-evenly false :halign "center"
       (for win in {switcher_windows ?: "[]"}
+        ;; Mỗi item: highlight box khi active + icon lớn + tên app ngắn
         (box :class {win.idx == switcher_index ? "switcher-item active" : "switcher-item"}
              :orientation "vertical"
              :space-evenly false
-          (overlay
-            ;; 1. Preview Box (Chứa ảnh chụp màn hình hoặc placeholder)
-            (box :class "preview-box"
-              (image :visible {win.visible && win.thumbnail != ""} :class "window-thumbnail" :path {win.thumbnail} :image-width 130 :image-height 80)
-              (box :visible {!win.visible || win.thumbnail == ""} :class "window-thumbnail-placeholder" :width 130 :height 80
-                (image :class "placeholder-icon" :path {win.icon} :image-width 40 :image-height 40)))
-            ;; 2. App Icon ở góc dưới bên phải
-            (box :class "app-icon-badge" :halign "end" :valign "end"
-              (image :class "app-icon" :path {win.icon} :image-width 24 :image-height 24))))))
-    ;; Tên tiêu đề của cửa sổ đang chọn
-    (label :class "switcher-title" :text switcher_focused_title :limit-width 70 :halign "center")))
-
-
+             :halign "center"
+          ;; Vùng icon (80x80) với highlight khi active
+          (box :class "switcher-icon-wrap"
+            (image :class "switcher-icon"
+                   :path {win.icon}
+                   :image-width 64
+                   :image-height 64))
+          ;; Tên app ngắn bên dưới
+          (label :class "switcher-appname"
+                 :text {win.app_id ?: "app"}
+                 :limit-width 14
+                 :halign "center"))))
+    ;; Tên tiêu đề cửa sổ đang chọn (đầy đủ)
+    (label :class "switcher-title"
+           :text switcher_focused_title
+           :limit-width 80
+           :halign "center")))

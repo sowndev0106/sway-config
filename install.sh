@@ -19,12 +19,14 @@ PACKAGES=(
     xwayland
     # Tiện ích desktop bổ sung
     xdg-desktop-portal-wlr   # chia sẻ màn hình / hộp thoại chọn file (Zoom, Meet, OBS)
-    thunar                   # file manager (nhẹ, của XFCE)
-    thunar-archive-plugin    # nén/giải nén zip/rar bằng chuột phải trong Thunar
-    thunar-volman            # tự nhận USB/ổ cắm ngoài
-    tumbler                  # tạo ảnh thu nhỏ (thumbnail) cho ảnh/PDF
-    gvfs                     # gắn ổ đĩa, thùng rác, mạng cho Thunar
-    file-roller              # backend giải nén cho thunar-archive-plugin
+    nautilus                # file manager GNOME (giống Files/macOS, dark theme đẹp)
+    file-roller             # nén/giải nén zip/rar
+    gvfs                    # gắn ổ đĩa, thùng rác, mạng
+    tumbler                 # thumbnail cho ảnh/PDF
+    qt5ct                   # cấu hình theme Qt5 (Kvantum, dark)
+    qt5-style-kvantum       # engine theme dark cho Qt5
+    qt6ct                   # cấu hình theme Qt6
+    adwaita-qt6             # theme Adwaita dark cho Qt6 (libadwaita fallback)
     firefox                  # trình duyệt
     imv                      # xem ảnh
     cliphist                 # quản lý lịch sử clipboard
@@ -59,6 +61,23 @@ echo "==> Cài package (cần sudo)..."
 # Không để repo bên thứ ba bị lỗi (key hết hạn, thiếu Release...) làm dừng script.
 sudo apt update || echo "   (cảnh báo: apt update có lỗi từ repo khác, bỏ qua)"
 sudo apt install -y "${PACKAGES[@]}"
+
+echo "==> Cấp quyền chỉnh độ sáng (group 'video')..."
+# /sys/class/backlight/*/brightness thuộc group `video` với quyền rw-rw-r--.
+# Không có group này, brightnessctl fail "Permission denied" — phím Fn và
+# slider eww đều vô hiệu. Sau khi thêm, cần LOGOUT/LOGIN để session mới
+# nhận group mới (usermod chỉ thay đổi thông tin user, group đang áp dụng
+# cho tiến trình hiện tại không đổi cho đến khi đăng nhập lại).
+if id -nG "$USER" 2>/dev/null | grep -qw video; then
+    echo "   $USER đã ở trong group 'video', bỏ qua."
+else
+    if sudo usermod -aG video "$USER"; then
+        echo "   ✓ Đã thêm $USER vào group 'video'."
+        echo "   ⚠  LOGOUT rồi LOGIN lại (hoặc reboot) để nhận group mới."
+    else
+        echo "   ✗ Không thể thêm vào group 'video' (cần sudo)."
+    fi
+fi
 
 export PATH="$HOME/.cargo/bin:$PATH"
 
@@ -256,7 +275,7 @@ EOF
     echo "   -> Ở màn hình đăng nhập chọn 'Sway (Hybrid GPU)'."
 fi
 
-echo "==> Đặt Thunar làm trình quản lý file mặc định..."
-xdg-mime default thunar.desktop inode/directory 2>/dev/null || true
+echo "==> Đặt Nautilus làm trình quản lý file mặc định..."
+xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
 
 echo "==> Xong. Đăng xuất rồi chọn 'Sway (Hybrid GPU)' ở màn hình đăng nhập (máy Nvidia)."

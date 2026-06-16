@@ -165,25 +165,9 @@ def cmd_start():
         if not output_windows:
             return
             
-        # Chụp ảnh màn hình cửa sổ đang hiển thị song song
-        processes = []
+        # Ban đầu, tạo danh sách cửa sổ với thumbnail trống để hiển thị giao diện ngay lập tức
         formatted_windows = []
         for idx, win in enumerate(output_windows):
-            thumbnail_path = ""
-            if win["visible"] and win["rect"]:
-                rect = win["rect"]
-                geom = f"{rect['x']},{rect['y']} {rect['width']}x{rect['height']}"
-                thumbnail_path = f"/tmp/sway-win-{win['id']}.png"
-                try:
-                    p = subprocess.Popen(
-                        ["grim", "-g", geom, thumbnail_path],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL
-                    )
-                    processes.append(p)
-                except Exception:
-                    thumbnail_path = ""
-            
             formatted_windows.append({
                 "id": win["id"],
                 "idx": idx,
@@ -191,13 +175,9 @@ def cmd_start():
                 "app_id": win["app_id"],
                 "workspace": win["workspace"],
                 "visible": win["visible"],
-                "thumbnail": thumbnail_path,
+                "thumbnail": "",  # Hiển thị icon placeholder trước
                 "icon": resolve_icon(win["app_id"])
             })
-            
-        # Đợi tất cả tiến trình grim hoàn thành
-        for p in processes:
-            p.wait()
             
         sel_idx = 1 if len(formatted_windows) > 1 else 0
         
@@ -209,7 +189,7 @@ def cmd_start():
         with open(STATE_FILE, "w") as f:
             json.dump(state, f)
             
-        # Cập nhật Eww
+        # Cập nhật Eww ngay lập tức
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_windows={json.dumps(formatted_windows)}"])
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={sel_idx}"])
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_focused_title={formatted_windows[sel_idx]['name']}"])
@@ -217,8 +197,73 @@ def cmd_start():
         # Mở Eww Switcher trên màn hình
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "open", "switcher", "--arg", f"monitor={focused_output}"])
         
-        # Chuyển mode Sway
-        subprocess.run(["swaymsg", "mode", "switcher"])
+        # Không dùng mode nữa — tất cả bindings ở global default mode
+        # (--release Alt_L chỉ fire ược ở default mode)
+        
+        # Fork một tiến trình con để chụp ảnh màn hình các cửa sổ visible trong nền
+        try:
+            pid = os.fork()
+            if pid == 0:
+                # Tiến trình con
+                # Đóng luồng xuất nhập chuẩn để tránh treo tiến trình gọi
+                try:
+                    sys.stdout.close()
+                    sys.stderr.close()
+                    os.close(0)
+                except Exception:
+                    pass
+                
+                processes = []
+                for win in output_windows:
+                    if win["visible"] and win["rect"]:
+                        rect = win["rect"]
+                        geom = f"{rect['x']},{rect['y']} {rect['width']}x{rect['height']}"
+                        thumbnail_path = f"/tmp/sway-win-{win['id']}.png"
+                        try:
+                            p = subprocess.Popen(
+                                ["grim", "-g", geom, thumbnail_path],
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL
+                            )
+                            processes.append((p, win["id"], thumbnail_path))
+                        except Exception:
+                            pass
+                
+                # Đợi các tiến trình grim hoàn thành
+                for p, win_id, t_path in processes:
+                    try:
+                        p.wait()
+                    except Exception:
+                        pass
+                
+                # Đọc lại file state hiện tại và cập nhật đường dẫn thumbnail mới chụp
+                if os.path.exists(STATE_FILE):
+                    try:
+                        with open(STATE_FILE, "r") as f:
+                            state = json.load(f)
+                        
+                        updated_wins = []
+                        for win in state.get("windows", []):
+                            # Tìm xem cửa sổ này có ảnh vừa chụp không
+                            for p, win_id, t_path in processes:
+                                if win["id"] == win_id:
+                                    win["thumbnail"] = t_path
+                                    break
+                            updated_wins.append(win)
+                        
+                        state["windows"] = updated_wins
+                        with open(STATE_FILE, "w") as f:
+                            json.dump(state, f)
+                            
+                        # Cập nhật lại Eww để hiển thị ảnh chụp màn hình
+                        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_windows={json.dumps(updated_wins)}"])
+                    except Exception:
+                        pass
+                
+                sys.exit(0)
+        except Exception:
+            pass
+            
     except Exception:
         emergency_cleanup()
 
@@ -227,6 +272,20 @@ def cmd_next():
 
 def cmd_prev():
     navigate(-1)
+
+def cmd_toggle_next():
+    """Nếu switcher đang mở → navigate next. Nếu chưa mở → start mới."""
+    if os.path.exists(STATE_FILE):
+        navigate(1)
+    else:
+        cmd_start()
+
+def cmd_toggle_prev():
+    """Nếu switcher đang mở → navigate prev. Nếu chưa mở → start và đến item cuối."""
+    if os.path.exists(STATE_FILE):
+        navigate(-1)
+    else:
+        cmd_start()  # start sẽ chọn idx=1 (previous window theo MRU)
 
 def navigate(step):
     try:
@@ -270,8 +329,14 @@ def cmd_select():
     except Exception:
         emergency_cleanup()
 
+def cmd_check_and_select():
+    """Chỉ select nếu switcher đang mở (state file tồn tại).
+    Dùng cho binding --release Alt_L ở global scope — an toàn gọi khi switcher đóng."""
+    if os.path.exists(STATE_FILE):
+        cmd_select()
+
 def emergency_cleanup():
-    subprocess.run(["swaymsg", "mode", "default"])
+    # Không cần reset mode nữa (không dùng mode "switcher")
     subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
     # Xoá ảnh tạm để tránh tốn dung lượng
     if os.path.exists(STATE_FILE):
@@ -291,12 +356,18 @@ def main():
     cmd = sys.argv[1]
     if cmd == "start":
         cmd_start()
+    elif cmd == "toggle_next":
+        cmd_toggle_next()
+    elif cmd == "toggle_prev":
+        cmd_toggle_prev()
     elif cmd == "next":
         cmd_next()
     elif cmd == "prev":
         cmd_prev()
     elif cmd == "select":
         cmd_select()
+    elif cmd == "check_and_select":
+        cmd_check_and_select()
     elif cmd == "close":
         emergency_cleanup()
 
