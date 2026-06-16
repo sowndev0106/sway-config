@@ -39,32 +39,39 @@ case "${1:-}" in
         fi
         ;;
     airplane-state)
-        # Nếu có bất kỳ thiết bị nào bị khóa bởi rfkill (wifi/bt), coi như chế độ máy bay đang bật
-        if rfkill list | grep -q 'Blocked: yes'; then
-            echo "on"
-        else
+        # Chế độ máy bay = TẤT CẢ radio (wifi/bt) đều bị soft-block.
+        # Còn ít nhất 1 cái "unblocked" => chưa phải máy bay.
+        if rfkill -o SOFT -n | grep -qw unblocked; then
             echo "off"
+        else
+            echo "on"
         fi
         ;;
     airplane-toggle)
-        if rfkill list | grep -q 'Blocked: yes'; then
-            rfkill unblock all
-        else
+        if rfkill -o SOFT -n | grep -qw unblocked; then
             rfkill block all
+        else
+            rfkill unblock all
         fi
         ;;
-    nightlight-state)
-        if pgrep -x gammastep >/dev/null; then
+    wired-state)
+        # Tìm thiết bị ethernet vật lý (bỏ qua veth ảo của docker và thiết bị unmanaged)
+        dev=$(nmcli -t -f DEVICE,TYPE,STATE device | awk -F: '$2=="ethernet" && $3!="unmanaged" && $1 !~ /^veth/ {print $1; exit}')
+        if [ -n "$dev" ] && nmcli -t -f DEVICE,STATE device | grep -q "^${dev}:connected"; then
             echo "on"
         else
             echo "off"
         fi
         ;;
-    nightlight-toggle)
-        if pgrep -x gammastep >/dev/null; then
-            pkill -x gammastep
+    wired-toggle)
+        dev=$(nmcli -t -f DEVICE,TYPE,STATE device | awk -F: '$2=="ethernet" && $3!="unmanaged" && $1 !~ /^veth/ {print $1; exit}')
+        if [ -z "$dev" ]; then
+            exit 0
+        fi
+        if nmcli -t -f DEVICE,STATE device | grep -q "^${dev}:connected"; then
+            nmcli device disconnect "$dev"
         else
-            gammastep -O 4000 &
+            nmcli device connect "$dev"
         fi
         ;;
     vol-level)

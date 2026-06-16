@@ -97,8 +97,8 @@
 (defpoll bt_state :interval "3s" "~/.config/eww/scripts/control_center.sh bt-state")
 ;; Trạng thái Chế độ máy bay (on/off)
 (defpoll airplane_state :interval "3s" "~/.config/eww/scripts/control_center.sh airplane-state")
-;; Trạng thái Chế độ ban đêm / Gammastep (on/off)
-(defpoll nightlight_state :interval "3s" "~/.config/eww/scripts/control_center.sh nightlight-state")
+;; Trạng thái mạng dây / Ethernet (on/off)
+(defpoll wired_state :interval "3s" "~/.config/eww/scripts/control_center.sh wired-state")
 ;; Mức âm lượng hiện tại (0-100)
 (defpoll vol_level :interval "1s" "~/.config/eww/scripts/control_center.sh vol-level")
 ;; Trạng thái tắt tiếng (on/off)
@@ -150,7 +150,7 @@
           (label :class "cc-time" :text time_min))
         (label :class "cc-date" :text time_date))
       (box :class "cc-header-right" :halign "end" :valign "start"
-        (label :class {nightlight_state == "on" ? "cc-moon active" : "cc-moon"} :text "")))
+        (label :class {wired_state == "on" ? "cc-moon active" : "cc-moon"} :text "")))
 
     ;; Lưới nút bật/tắt nhanh (3 cột x 2 hàng)
     (box :class "cc-grid" :orientation "vertical" :space-evenly true
@@ -183,14 +183,14 @@
           (label :class "toggle-label" :text "Airplane")))
 
       (box :orientation "horizontal" :space-evenly true
-        ;; Nút bật/tắt Chế độ ban đêm (Night Light)
+        ;; Nút bật/tắt Mạng dây (Ethernet)
         (box :class "toggle-container" :orientation "vertical" :space-evenly false
-          (box :class {nightlight_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh nightlight-toggle"
-              (label :text ""))
+          (box :class {wired_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
+            (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh wired-toggle"
+              (label :text ""))
             (box :class "toggle-divider")
-            (button :class "toggle-arrow" :onclick "" "›"))
-          (label :class "toggle-label" :text "Night Light"))
+            (button :class "toggle-arrow" :onclick "nm-connection-editor &" "›"))
+          (label :class "toggle-label" :text "Mạng dây"))
 
         ;; Nút bật/tắt Âm lượng (Volume)
         (box :class "toggle-container" :orientation "vertical" :space-evenly false

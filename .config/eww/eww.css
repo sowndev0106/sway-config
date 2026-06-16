@@ -297,6 +297,10 @@
   font-size: 16px;
   min-width: 38px;
   min-height: 38px;
+  /* Bỏ padding/border mặc định của GTK button: đệm ngang > đệm dọc khiến
+     khung rộng hơn cao, làm border-radius:50% ra hình elip và icon lệch tâm */
+  padding: 0;
+  border: none;
   border-radius: 50%;
   background: #313244; /* Surface 0 */
   color: #cdd6f4; /* Text */
