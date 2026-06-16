@@ -18,8 +18,9 @@ set $menu_alt wofi --show drun
 
 ### Output (màn hình) - chạy `swaymsg -t get_outputs` để xem tên output
 # Nền màu trơn (mặc định). Muốn dùng ảnh thật: comment dòng dưới và bỏ comment dòng kế.
-output * bg #1e1e2e solid_color
-# output * bg ~/Pictures/wallpaper.jpg fill   # fill | fit | stretch | center | tile
+# output * bg #1e1e2e solid_color
+# Kiểu hiển thị ảnh: fill | fit | stretch | center | tile
+output * bg ~/Downloads/pexels-flickr-149246.jpg fill
 
 # Bố cục màn hình do kanshi quản lý (xem ~/.config/kanshi/config) — KHÔNG đặt
 # `output ... position` ở đây nữa, sẽ đá nhau với kanshi. Chỉnh tay bằng wdisplays
@@ -53,6 +54,7 @@ bindgesture swipe:3:left workspace next
 
 ### Key bindings — cơ bản
 bindsym $mod+Return exec $term
+bindsym $mod+Shift+Return exec $term --app-id=foot-float   # terminal nổi nhanh
 bindsym $mod+q kill
 bindsym $mod+d exec $menu
 bindsym $mod+Shift+d exec $menu_alt
@@ -182,6 +184,8 @@ for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="fcitx5-config-qt"] floating enable
 for_window [app_id="org.fcitx.fcitx5-config-qt"] floating enable
 for_window [app_id="thunar" title="(?i)(properties|preferences|rename|file operation)"] floating enable
+# Terminal nổi nhanh (Super+Shift+Return): nổi, 900x550, giữa màn hình
+for_window [app_id="foot-float"] floating enable, resize set 900 550, move position center
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="bubble"] floating enable
 for_window [window_role="dialog"] floating enable

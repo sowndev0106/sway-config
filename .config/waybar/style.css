@@ -79,11 +79,10 @@ window#waybar {
     border-radius: 16px;
 }
 
-/* ── Cụm phải (pulseaudio + network + bluetooth + backlight + battery) = 1 pill liền ── */
+/* ── Cụm phải (pulseaudio + network + bluetooth + battery) = 1 pill liền ── */
 #pulseaudio,
 #network,
 #bluetooth,
-#backlight,
 #battery {
     background-color: #313244;
     padding: 0 10px;
@@ -99,7 +98,6 @@ window#waybar {
 #bluetooth.connected  { color: #89dceb; }
 #bluetooth.disabled,
 #bluetooth.off        { color: #6c7086; }
-#backlight            { color: #f9e2af; }
 #battery.charging     { color: #a6e3a1; }
 #battery.warning      { color: #f9e2af; }
 #battery.critical     { color: #f38ba8; }

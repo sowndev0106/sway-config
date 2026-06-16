@@ -45,7 +45,7 @@ inputbar {
 }
 
 prompt { text-color: @accent; }
-entry  { placeholder: "Tìm ứng dụng..."; placeholder-color: @fg-alt; }
+entry  { placeholder: "Search apps..."; placeholder-color: @fg-alt; }
 
 listview {
     margin: 10px 0 0 0;

@@ -1,27 +1,48 @@
 # kanshi — tự áp dụng bố cục màn hình khi cắm/rút màn ngoài.
 # Xem tên output thật của máy bạn:  swaymsg -t get_outputs
 # kanshi tự chọn profile có TẬP output khớp với màn đang cắm.
+#
+# Nhận diện theo TÊN CỔNG (eDP-1 / DP-1 / HDMI-A-1). Lý do: các màn của bạn báo
+# serial rỗng/Unknown nên không khớp được kiểu "hãng model serial".
+# Bản đồ cổng: DP-1 = HCX T2721Q (2K) | HDMI-A-1 = LG FHD | eDP-1 = laptop.
+#
+# MẸO: kéo trong wdisplays cho ưng rồi bấm Super+Shift+O — script tự lưu layout
+# hiện tại thành 1 profile vào vùng AUTO bên dưới. Lần sau cắm đúng bộ màn đó,
+# kanshi tự nạp lại.
 
-# 3 màn: laptop | DP-1 (2K) | HDMI  (trái -> phải)
+# >>> AUTO PROFILES (script save-display-layout.py tự quản lý — đừng sửa tay) <<<
+# @auto-key: DP-1 + HDMI-A-1 + eDP-1
+profile auto-dp-1-hdmi-a-1-edp-1 {
+    output "eDP-1" enable mode 1920x1080@60.02Hz position 0,180
+    output "DP-1" enable mode 2560x1440@59.951Hz position 1920,0
+    output "HDMI-A-1" enable mode 1920x1080@60Hz position 4480,180
+}
+# <<< AUTO PROFILES <<<
+
+# 3 màn (fallback nếu xoá vùng AUTO): laptop | HCX (DP-1, 2K) | LG (HDMI)  trái -> phải
 profile docked-3 {
-    output eDP-1    enable scale 1.0 position 0,133
-    output DP-1     enable scale 1.0 position 1920,0
-    output HDMI-A-1 enable scale 1.0 position 4480,133
+    output eDP-1    enable mode 1920x1080@60Hz  position 0,180
+    output DP-1     enable mode 2560x1440@60Hz  position 1920,0
+    output HDMI-A-1 enable mode 1920x1080@60Hz  position 4480,180
 }
 
-# Laptop + 1 màn ngoài DP-1 đặt bên phải
+# Laptop + 1 màn ngoài DP-1 (2K) đặt bên phải
 profile docked-dp {
-    output eDP-1 enable scale 1.0 position 0,0
-    output DP-1  enable scale 1.0 position 1920,0
+    output eDP-1 enable mode 1920x1080@60Hz  position 0,0
+    output DP-1  enable mode 2560x1440@60Hz  position 1920,0
 }
 
 # Laptop + 1 màn ngoài HDMI đặt bên phải
 profile docked-hdmi {
-    output eDP-1    enable scale 1.0 position 0,0
-    output HDMI-A-1 enable scale 1.0 position 1920,0
+    output eDP-1    enable mode 1920x1080@60Hz  position 0,0
+    output HDMI-A-1 enable mode 1920x1080@60Hz  position 1920,0
 }
 
 # Chỉ dùng màn hình laptop
 profile laptop {
-    output eDP-1 enable scale 1.0 position 0,0
+    output eDP-1 enable mode 1920x1080@60Hz  position 0,0
 }
+
+# Lưu ý: "2 màn ngoài HDMI+DP, tắt màn laptop" KHÔNG thể tự nhận diện,
+# vì khi đó eDP-1 vẫn đang cắm (giống hệt trường hợp 3 màn). Dùng phím tắt
+# Super+o trong sway để bật/tắt màn laptop thủ công khi cần chế độ này.

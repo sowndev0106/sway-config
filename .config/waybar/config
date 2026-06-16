@@ -10,7 +10,7 @@
 
     "modules-left": ["custom/power", "sway/workspaces", "sway/mode", "temperature", "cpu", "memory"],
     "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "bluetooth", "backlight", "battery", "tray"],
+    "modules-right": ["pulseaudio", "network", "bluetooth", "battery", "tray"],
 
     // ── Nút nguồn (mở menu wlogout) ──
     "custom/power": {
@@ -44,7 +44,7 @@
         "tooltip": false
     },
     "memory": {
-        "format": "󰍛 {percentage}%",
+        "format": " {percentage}%",
         "interval": 5
     },
 
@@ -67,7 +67,7 @@
         "format-disconnected": "",
         "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
         "tooltip-format-ethernet": "{ifname}: {ipaddr}",
-        "tooltip-format-disconnected": "Không có kết nối",
+        "tooltip-format-disconnected": "Disconnected",
         "on-click": "nm-connection-editor"
     },
     "bluetooth": {
@@ -79,13 +79,6 @@
         "tooltip-format-connected": "{controller_alias}\t{status}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}",
         "on-click": "blueman-manager"
-    },
-    "backlight": {
-        "device": "intel_backlight",
-        "format": "{icon} {percent}%",
-        "format-icons": [""],
-        "on-scroll-up": "brightnessctl set +5%",
-        "on-scroll-down": "brightnessctl set 5%-"
     },
     "battery": {
         "states": { "warning": 30, "critical": 15 },
