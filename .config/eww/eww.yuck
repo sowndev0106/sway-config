@@ -291,9 +291,9 @@
       (box :orientation "vertical" :space-evenly false
         (for src in mic_sources
           (button :class {src.default ? "cc-list-row active" : "cc-list-row"}
-                  :onclick "~/.config/eww/scripts/cc/mic.sh set-source ${src.id} && sleep 0.2 && eww --config ~/.config/eww update mic_sources=\"$(~/.config/eww/scripts/cc/mic.sh sources)\" mic_level=\"$(~/.config/eww/scripts/cc/mic.sh level)\" && ~/.config/eww/scripts/control_center.sh refresh"
+                  :onclick "~/.config/eww/scripts/cc/mic.sh select-source ${src.id}"
             (box :orientation "horizontal" :space-evenly false
-              (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 25 :text {src.name})
+              (label :class "cc-net-name" :hexpand true :halign "start" :limit-width 25 :text {src.display_name ?: src.name})
               (label :class "cc-active-dot" :visible {src.default} :text "●"))))))
     ;; Microphone level
     (label :class "cc-subsection-label" :halign "start" :text "Microphone Level")
