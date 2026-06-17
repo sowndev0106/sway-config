@@ -611,69 +611,74 @@
   margin-right: 12px;
 }
 
-/* ── Alt+Tab Switcher — Ubuntu GNOME Style ── */
+/* ── Alt+Tab Switcher — Workspace Style ── */
 
-/* Card chính: nền đen mờ, bo góc lớn, giống GNOME Shell */
 .switcher-card {
-  background: rgba(30, 30, 46, 0.82);
+  background: rgba(30, 30, 46, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 20px;
-  padding: 20px 24px 14px 24px;
+  padding: 24px;
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.70),
     0 0 0 1px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
 }
 
-/* Hàng icon nằm ngang */
 .switcher-list {
+  margin-bottom: 0px;
+}
+
+.switcher-item {
+  margin: 0 8px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 120ms ease, border-color 120ms ease;
+  min-width: 180px;
+}
+
+.switcher-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(137, 180, 250, 0.50); /* Catppuccin Blue */
+  box-shadow: 0 0 15px rgba(137, 180, 250, 0.15);
+}
+
+/* Khung chứa ảnh preview */
+.switcher-preview-wrap {
+  width: 160px;
+  height: 90px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 10px;
 }
 
-/* Mỗi item: padding + khoảng cách đều */
-.switcher-item {
-  margin: 0 4px;
-  padding: 8px;
-  border-radius: 14px;
-  border: 2px solid transparent;
-  transition: background 120ms ease, border-color 120ms ease;
-  min-width: 86px;
-}
-
-/* Item đang được chọn: highlight box (perimeter border glow) */
-.switcher-item.active {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.30);
-}
-
-/* Khung chứa icon — luôn cùng kích thước */
-.switcher-icon-wrap {
-  background: transparent;
-  padding: 4px;
-  border-radius: 18px;
-  min-width: 72px;
-  min-height: 72px;
-}
-
-/* Icon ứng dụng */
-.switcher-icon {
-  border-radius: 12px;
-}
-
-/* Tên app ngắn bên dưới icon */
-.switcher-appname {
+.switcher-empty-lbl {
   font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
-  margin-top: 6px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
-/* Tên tiêu đề đầy đủ ở dưới cùng */
-.switcher-title {
-  font-size: 12px;
+/* Hàng icon ứng dụng nhỏ bên dưới preview */
+.switcher-apps-row {
+  margin-top: 6px;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.switcher-app-mini-icon {
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px;
+}
+
+/* Tên Workspace dưới cùng của card */
+.switcher-ws-name {
+  font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.90);
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-  padding: 4px 12px 0 12px;
-  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 8px;
 }

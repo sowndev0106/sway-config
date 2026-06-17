@@ -444,9 +444,8 @@
     (box :visible {cc_view == "wired"} (wired-page))))
 
 ;; ── Cấu hình biến trạng thái Alt+Tab Switcher ──
-(defvar switcher_windows "[]")
+(defvar switcher_workspaces "[]")
 (defvar switcher_index 0)
-(defvar switcher_focused_title "")
 
 ;; Cửa sổ switcher popup nổi nhỏ căn giữa màn hình (giống Ubuntu GNOME)
 (defwindow switcher [monitor]
@@ -461,30 +460,32 @@
   :namespace "eww-switcher"
   (switcher-card))
 
-;; Widget chính: hiển thị danh sách cửa sổ kiểu GNOME Shell
+;; Widget chính: hiển thị danh sách các Workspace
 (defwidget switcher-card []
   (box :class "switcher-card" :orientation "vertical" :space-evenly false
-    ;; Dòng icon các ứng dụng
+    ;; Dòng danh sách các workspace card nằm ngang
     (box :class "switcher-list" :orientation "horizontal" :space-evenly false :halign "center"
-      (for win in {switcher_windows ?: "[]"}
-        ;; Mỗi item: highlight box khi active + icon lớn + tên app ngắn
-        (box :class {win.idx == switcher_index ? "switcher-item active" : "switcher-item"}
+      (for ws in {switcher_workspaces ?: "[]"}
+        (box :class {ws.idx == switcher_index ? "switcher-item active" : "switcher-item"}
              :orientation "vertical"
              :space-evenly false
              :halign "center"
-          ;; Vùng icon (80x80) với highlight khi active
-          (box :class "switcher-icon-wrap"
-            (image :class "switcher-icon"
-                   :path {win.icon}
-                   :image-width 64
-                   :image-height 64))
-          ;; Tên app ngắn bên dưới
-          (label :class "switcher-appname"
-                 :text {win.app_id ?: "app"}
-                 :limit-width 14
-                 :halign "center"))))
-    ;; Tên tiêu đề cửa sổ đang chọn (đầy đủ)
-    (label :class "switcher-title"
-           :text switcher_focused_title
-           :limit-width 80
-           :halign "center")))
+          
+          ;; 1. Vùng hiển thị ảnh Preview (thumbnail) hoặc gradient nền tối
+          (box :class "switcher-preview-wrap"
+               :style {ws.thumbnail != "" ? "background-image: url('${ws.thumbnail}');" : "background: linear-gradient(135deg, #1e1e2e, #313244);"}
+            ;; Nếu không có preview, hiển thị nhãn tên Workspace ở giữa
+            (box :visible {ws.thumbnail == ""} :halign "center" :valign "center"
+                 (label :class "switcher-empty-lbl" :text "Workspace ${ws.name}")))
+
+          ;; 2. Hàng ngang chứa các icon nhỏ của ứng dụng đang mở trong workspace đó
+          (box :class "switcher-apps-row" :orientation "horizontal" :space-evenly false :halign "center"
+            (for app in {ws.apps ?: "[]"}
+              (image :class "switcher-app-mini-icon"
+                     :path {app.icon}
+                     :image-width 20
+                     :image-height 20)))
+                     
+          ;; 3. Tên Workspace
+          (label :class "switcher-ws-name"
+                 :text "Workspace ${ws.name}"))))))
