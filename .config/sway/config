@@ -286,5 +286,6 @@ exec rm -f $XDG_RUNTIME_DIR/wob.sock && mkfifo $XDG_RUNTIME_DIR/wob.sock && tail
 # exec_always + kill cũ: mỗi lần reload (Super+Shift+C) kanshi chạy lại và áp dụng
 # lại bố cục, nếu không layout sẽ bị reset về mặc định khi reload.
 exec_always pkill -x kanshi; kanshi
+exec_always python3 ~/.config/sway/scripts/sway_workspace_daemon.py
 
 include /etc/sway/config.d/*
