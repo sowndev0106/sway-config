@@ -646,14 +646,19 @@
 
 /* Khung chứa ảnh preview */
 .switcher-preview-wrap {
-  width: 160px;
-  height: 90px;
+  min-width: 160px;
+  min-height: 90px;
   border-radius: 8px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   border: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.switcher-preview-empty {
+  min-width: 160px;
+  min-height: 90px;
+  background: linear-gradient(135deg, #1e1e2e, #313244);
+  border-radius: 8px;
 }
 
 .switcher-empty-lbl {

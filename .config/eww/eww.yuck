@@ -473,10 +473,15 @@
           
           ;; 1. Vùng hiển thị ảnh Preview (thumbnail) hoặc gradient nền tối
           (box :class "switcher-preview-wrap"
-               :style {ws.thumbnail != "" ? "background-image: url('${ws.thumbnail}');" : "background: linear-gradient(135deg, #1e1e2e, #313244);"}
-            ;; Nếu không có preview, hiển thị nhãn tên Workspace ở giữa
-            (box :visible {ws.thumbnail == ""} :halign "center" :valign "center"
-                 (label :class "switcher-empty-lbl" :text "Workspace ${ws.name}")))
+            (box :visible {ws.thumbnail != ""}
+              (image :path {ws.thumbnail}
+                     :image-width 160
+                     :image-height 90))
+            (box :visible {ws.thumbnail == ""}
+                 :class "switcher-preview-empty"
+                 :halign "center"
+                 :valign "center"
+              (label :class "switcher-empty-lbl" :text "Workspace ${ws.name}")))
 
           ;; 2. Hàng ngang chứa các icon nhỏ của ứng dụng đang mở trong workspace đó
           (box :class "switcher-apps-row" :orientation "horizontal" :space-evenly false :halign "center"
