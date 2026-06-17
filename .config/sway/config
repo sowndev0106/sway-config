@@ -26,6 +26,13 @@ output * bg ~/.config/sway/wallpapers/pexels-flickr-149246.jpg fill
 # `output ... position` ở đây nữa, sẽ đá nhau với kanshi. Chỉnh tay bằng wdisplays
 # rồi chép vị trí vào file kanshi để giữ vĩnh viễn.
 
+# Đẩy biến môi trường của sway vào systemd/D-Bus user. BẮT BUỘC chạy SỚM, trước
+# waybar/portal: nếu không, systemd giữ XDG_CURRENT_DESKTOP=GNOME (sót lại từ
+# display manager) → xdg-desktop-portal cố dùng backend gnome, timeout 50s rồi
+# chết → waybar treo 120s chờ portal nên KHÔNG hiện. Ép =sway để portal đọc đúng
+# ~/.config/xdg-desktop-portal/sway-portals.conf (default=gtk, screencast=wlr).
+exec_always dbus-update-activation-environment --systemd XDG_CURRENT_DESKTOP=sway WAYLAND_DISPLAY DISPLAY SWAYSOCK
+
 ### Idle / lock màn hình
 exec swayidle -w \
     timeout 300 '~/.config/sway/scripts/lock.sh' \
