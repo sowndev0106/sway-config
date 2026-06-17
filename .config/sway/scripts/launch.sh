@@ -36,4 +36,14 @@ devs="$primary"
 # Chỉ áp dụng khi CÓ Nvidia; máy chỉ-Intel để con trỏ phần cứng cho mượt.
 [ -n "$dgpu" ] && export WLR_NO_HARDWARE_CURSORS=1
 
-exec sway --unsupported-gpu "$@"
+# Ưu tiên Sway 1.10+ build tay ở /opt/sway-stack (có explicit-sync -> hết giật
+# Nvidia; xem build-sway.sh). Không có thì dùng Sway hệ thống (1.9).
+sway_bin="/opt/sway-stack/bin/sway"
+if [ -x "$sway_bin" ]; then
+    # Đề phòng rpath không ăn: cho linker thấy lib trong /opt trước.
+    export LD_LIBRARY_PATH="/opt/sway-stack/lib:${LD_LIBRARY_PATH:-}"
+else
+    sway_bin="sway"
+fi
+
+exec "$sway_bin" --unsupported-gpu "$@"

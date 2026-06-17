@@ -346,7 +346,10 @@ done
 ### GPU lai Nvidia: Sway từ chối khởi động với driver độc quyền -> cần --unsupported-gpu.
 ### Chạy đa GPU: render bằng iGPU (Intel/AMD) làm chính, nhưng vẫn dùng được màn hình
 ### nối qua card Nvidia rời (liệt kê Nvidia thứ hai trong WLR_DRM_DEVICES).
-if lsmod 2>/dev/null | grep -q '^nvidia'; then
+# Dò Nvidia qua /sys (KHÔNG dùng 'lsmod | grep -q': dưới 'set -o pipefail',
+# grep -q khớp xong đóng pipe làm lsmod chết SIGPIPE -> pipeline báo lỗi dù đã
+# khớp -> khối bị bỏ nhầm). Đọc /sys/module/nvidia là chắc chắn, không qua pipe.
+if [ -d /sys/module/nvidia ]; then
     echo "==> Phát hiện Nvidia: tạo session 'Sway (Hybrid GPU)'"
     # Dùng script launch.sh (tự dò card lúc chạy, dùng /dev/dri/cardN không có
     # dấu ':' để khỏi xung đột ký tự ngăn cách của WLR_DRM_DEVICES).
@@ -359,6 +362,18 @@ Exec=$HOME/.config/sway/scripts/launch.sh
 Type=Application
 EOF
     echo "   -> Ở màn hình đăng nhập chọn 'Sway (Hybrid GPU)'."
+
+    # Sway 1.9 của 24.04 thiếu explicit-sync -> màn hình qua Nvidia bị giật.
+    # Build Sway 1.10 (có explicit-sync) vào /opt/sway-stack nếu chưa có.
+    # (Không dùng '... | grep -q' vì lý do pipefail/SIGPIPE nêu trên.)
+    sway_built="$(/opt/sway-stack/bin/sway --version 2>/dev/null || true)"
+    case "$sway_built" in
+        *" 1.10"*)
+            echo "   -> Đã có Sway 1.10 ở /opt/sway-stack, bỏ qua build." ;;
+        *)
+            echo "==> Build Sway 1.10 từ source để hết giật trên Nvidia (~15-25 phút)..."
+            sudo "$REPO_DIR/.config/sway/scripts/build-sway.sh" ;;
+    esac
 fi
 
 echo "==> Đặt Nautilus làm trình quản lý file mặc định..."
