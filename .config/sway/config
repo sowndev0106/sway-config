@@ -228,10 +228,18 @@ smart_borders on
 hide_edge_borders both
 
 # Màu viền (theme Catppuccin Mocha-ish)
+# Định dạng font chữ hiển thị trên thanh tab
+font pango:Inter Semi-Bold 10
+titlebar_border_thickness 1
+titlebar_padding 10 6
+
+# Màu sắc cho tab/cửa sổ (Catppuccin Mocha)
+# Cấu trúc: class border backgr text indicator child_border
 # Màu thứ 4 (indicator) = #f38ba8 (đỏ) để thấy được hướng split: cạnh đỏ là nơi window mới sẽ mở
 client.focused          #89b4fa #89b4fa #1e1e2e #f38ba8 #89b4fa
-client.unfocused        #313244 #313244 #cdd6f4 #313244 #313244
-client.focused_inactive #45475a #45475a #cdd6f4 #45475a #45475a
+client.unfocused        #181825 #181825 #a6adc8 #181825 #181825
+client.focused_inactive #313244 #313244 #cdd6f4 #313244 #313244
+client.urgent           #f38ba8 #f38ba8 #1e1e2e #f38ba8 #f38ba8
 
 ### Quy tắc cửa sổ nổi (floating) — hộp thoại & app cấu hình tự nổi giữa màn hình
 for_window [app_id="pavucontrol"] floating enable
