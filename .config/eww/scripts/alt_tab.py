@@ -144,6 +144,24 @@ def find_windows_with_focus(node, visible_workspaces, path=(), current_output=No
         
     return windows
 
+def find_apps_in_workspace(node, apps_list):
+    """Hàm đệ quy tìm các app nằm trong một node workspace."""
+    node_type = node.get("type")
+    if node_type in ("con", "floating_con"):
+        if not node.get("nodes") and not node.get("floating_nodes"):
+            node_name = node.get("name")
+            if node_name and (node.get("app_id") or node.get("window_properties")):
+                app_id = node.get("app_id") or node.get("window_properties", {}).get("class")
+                if app_id and "eww" not in app_id.lower() and "waybar" not in app_id.lower():
+                    apps_list.append({
+                        "app_id": app_id,
+                        "icon": resolve_icon(app_id)
+                    })
+    
+    children = node.get("nodes", []) + node.get("floating_nodes", [])
+    for child in children:
+        find_apps_in_workspace(child, apps_list)
+
 def cmd_start():
     try:
         tree = get_sway_data("get_tree")
@@ -154,35 +172,50 @@ def cmd_start():
         if not focused_output:
             return
             
-        output_workspaces = {w["name"] for w in workspaces if w["output"] == focused_output}
-        visible_workspaces = {w["name"] for w in workspaces if w["output"] == focused_output and w["visible"]}
+        # Chỉ lấy các workspace thuộc màn hình hiện tại
+        output_workspaces = [w for w in workspaces if w["output"] == focused_output]
         
-        # Lấy danh sách cửa sổ và sắp xếp theo MRU
-        all_windows = find_windows_with_focus(tree, visible_workspaces)
-        output_windows = [w for w in all_windows if w["workspace"] in output_workspaces]
-        output_windows.sort(key=lambda w: w["focus_path"])
+        # Sắp xếp các workspace theo tên/id
+        output_workspaces.sort(key=lambda w: w["name"])
         
-        if not output_windows:
-            return
+        # Đọc dữ liệu cây để lấy danh sách app của từng workspace
+        workspace_nodes = {}
+        def find_ws_nodes(node):
+            if node.get("type") == "workspace":
+                workspace_nodes[node.get("name")] = node
+            for child in node.get("nodes", []) + node.get("floating_nodes", []):
+                find_ws_nodes(child)
+        find_ws_nodes(tree)
+        
+        formatted_workspaces = []
+        for idx, ws in enumerate(output_workspaces):
+            ws_name = ws["name"]
+            node = workspace_nodes.get(ws_name, {})
+            apps = []
+            find_apps_in_workspace(node, apps)
             
-        # Ban đầu, tạo danh sách cửa sổ với thumbnail trống để hiển thị giao diện ngay lập tức
-        formatted_windows = []
-        for idx, win in enumerate(output_windows):
-            formatted_windows.append({
-                "id": win["id"],
+            # Ảnh preview lưu bởi daemon
+            preview_path = f"/tmp/sway-ws-{ws_name}.png"
+            if not os.path.exists(preview_path):
+                preview_path = ""
+                
+            formatted_workspaces.append({
+                "name": ws_name,
                 "idx": idx,
-                "name": win["name"],
-                "app_id": win["app_id"],
-                "workspace": win["workspace"],
-                "visible": win["visible"],
-                "thumbnail": "",  # Hiển thị icon placeholder trước
-                "icon": resolve_icon(win["app_id"])
+                "apps": apps,
+                "thumbnail": preview_path,
+                "focused": ws.get("focused", False)
             })
             
-        sel_idx = 1 if len(formatted_windows) > 1 else 0
+        if not formatted_workspaces:
+            return
+            
+        # Xác định workspace cần chuyển tới đầu tiên (kế tiếp của active)
+        active_idx = next((w["idx"] for w in formatted_workspaces if w["focused"]), 0)
+        sel_idx = (active_idx + 1) % len(formatted_workspaces) if len(formatted_workspaces) > 1 else active_idx
         
         state = {
-            "windows": formatted_windows,
+            "workspaces": formatted_workspaces,
             "index": sel_idx,
             "monitor": focused_output
         }
@@ -190,81 +223,13 @@ def cmd_start():
             json.dump(state, f)
             
         # Cập nhật Eww ngay lập tức
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_windows={json.dumps(formatted_windows)}"])
+        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_workspaces={json.dumps(formatted_workspaces)}"])
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={sel_idx}"])
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_focused_title={formatted_windows[sel_idx]['name']}"])
         
         # Mở Eww Switcher trên màn hình
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "open", "switcher", "--arg", f"monitor={focused_output}"])
         
-        # Không dùng mode nữa — tất cả bindings ở global default mode
-        # (--release Alt_L chỉ fire ược ở default mode)
-        
-        # Fork một tiến trình con để chụp ảnh màn hình các cửa sổ visible trong nền
-        try:
-            pid = os.fork()
-            if pid == 0:
-                # Tiến trình con
-                # Đóng luồng xuất nhập chuẩn để tránh treo tiến trình gọi
-                try:
-                    sys.stdout.close()
-                    sys.stderr.close()
-                    os.close(0)
-                except Exception:
-                    pass
-                
-                processes = []
-                for win in output_windows:
-                    if win["visible"] and win["rect"]:
-                        rect = win["rect"]
-                        geom = f"{rect['x']},{rect['y']} {rect['width']}x{rect['height']}"
-                        thumbnail_path = f"/tmp/sway-win-{win['id']}.png"
-                        try:
-                            p = subprocess.Popen(
-                                ["grim", "-g", geom, thumbnail_path],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL
-                            )
-                            processes.append((p, win["id"], thumbnail_path))
-                        except Exception:
-                            pass
-                
-                # Đợi các tiến trình grim hoàn thành
-                for p, win_id, t_path in processes:
-                    try:
-                        p.wait()
-                    except Exception:
-                        pass
-                
-                # Đọc lại file state hiện tại và cập nhật đường dẫn thumbnail mới chụp
-                if os.path.exists(STATE_FILE):
-                    try:
-                        with open(STATE_FILE, "r") as f:
-                            state = json.load(f)
-                        
-                        updated_wins = []
-                        for win in state.get("windows", []):
-                            # Tìm xem cửa sổ này có ảnh vừa chụp không
-                            for p, win_id, t_path in processes:
-                                if win["id"] == win_id:
-                                    win["thumbnail"] = t_path
-                                    break
-                            updated_wins.append(win)
-                        
-                        state["windows"] = updated_wins
-                        with open(STATE_FILE, "w") as f:
-                            json.dump(state, f)
-                            
-                        # Cập nhật lại Eww để hiển thị ảnh chụp màn hình
-                        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_windows={json.dumps(updated_wins)}"])
-                    except Exception:
-                        pass
-                
-                sys.exit(0)
-        except Exception:
-            pass
-            
-    except Exception:
+    except Exception as e:
         emergency_cleanup()
 
 def cmd_next():
@@ -281,11 +246,11 @@ def cmd_toggle_next():
         cmd_start()
 
 def cmd_toggle_prev():
-    """Nếu switcher đang mở → navigate prev. Nếu chưa mở → start và đến item cuối."""
+    """Nếu switcher đang mở → navigate prev. Nếu chưa mở → start."""
     if os.path.exists(STATE_FILE):
         navigate(-1)
     else:
-        cmd_start()  # start sẽ chọn idx=1 (previous window theo MRU)
+        cmd_start()
 
 def navigate(step):
     try:
@@ -294,19 +259,18 @@ def navigate(step):
         with open(STATE_FILE, "r") as f:
             state = json.load(f)
             
-        windows = state["windows"]
-        if not windows:
+        workspaces = state["workspaces"]
+        if not workspaces:
             return
             
         curr_idx = state["index"]
-        new_idx = (curr_idx + step) % len(windows)
+        new_idx = (curr_idx + step) % len(workspaces)
         state["index"] = new_idx
         
         with open(STATE_FILE, "w") as f:
             json.dump(state, f)
             
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={new_idx}"])
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_focused_title={windows[new_idx]['name']}"])
     except Exception:
         emergency_cleanup()
 
@@ -318,34 +282,26 @@ def cmd_select():
         with open(STATE_FILE, "r") as f:
             state = json.load(f)
             
-        windows = state["windows"]
+        workspaces = state["workspaces"]
         curr_idx = state["index"]
         
-        if windows and 0 <= curr_idx < len(windows):
-            target_win = windows[curr_idx]
-            subprocess.run(["swaymsg", f"[con_id={target_win['id']}] focus"])
+        if workspaces and 0 <= curr_idx < len(workspaces):
+            target_ws = workspaces[curr_idx]
+            subprocess.run(["swaymsg", f"workspace {target_ws['name']}"])
             
         emergency_cleanup()
     except Exception:
         emergency_cleanup()
 
 def cmd_check_and_select():
-    """Chỉ select nếu switcher đang mở (state file tồn tại).
-    Dùng cho binding --release Alt_L ở global scope — an toàn gọi khi switcher đóng."""
+    """Chỉ select nếu switcher đang mở (state file tồn tại)."""
     if os.path.exists(STATE_FILE):
         cmd_select()
 
 def emergency_cleanup():
-    # Không cần reset mode nữa (không dùng mode "switcher")
     subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
-    # Xoá ảnh tạm để tránh tốn dung lượng
     if os.path.exists(STATE_FILE):
         try:
-            with open(STATE_FILE, "r") as f:
-                state = json.load(f)
-            for win in state.get("windows", []):
-                if win.get("thumbnail") and os.path.exists(win["thumbnail"]):
-                    os.remove(win["thumbnail"])
             os.remove(STATE_FILE)
         except Exception:
             pass
