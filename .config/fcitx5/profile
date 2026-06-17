@@ -1,0 +1,20 @@
+[Groups/0]
+# Tên nhóm
+Name=Default
+# Bố cục bàn phím mặc định
+Default Layout=us
+# Bộ gõ mặc định khi khởi động (tiếng Anh; Ctrl+Space để chuyển sang Unikey)
+DefaultIM=keyboard-us
+
+[Groups/0/Items/0]
+# Bàn phím tiếng Anh (US)
+Name=keyboard-us
+Layout=
+
+[Groups/0/Items/1]
+# Bộ gõ tiếng Việt Unikey (mặc định kiểu gõ Telex)
+Name=unikey
+Layout=
+
+[GroupOrder]
+0=Default

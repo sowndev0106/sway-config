@@ -1,46 +1,39 @@
 #!/bin/sh
 # Khởi chạy Sway trên máy GPU lai (Intel/AMD iGPU + Nvidia rời).
 #
-# Nguyên tắc: GPU nào đang ĐIỀU KHIỂN màn hình thì làm renderer CHÍNH (đứng đầu
-# WLR_DRM_DEVICES) -> tránh copy khung hình chéo GPU (thứ gây nhiễu UI trên Nvidia).
-# GPU còn lại đứng sau để màn hình nối qua nó vẫn dùng được.
+# Nguyên tắc: iGPU (Intel/AMD) LUÔN làm renderer CHÍNH (đứng đầu WLR_DRM_DEVICES)
+# vì driver mesa của nó ổn định trên wlroots. Để Nvidia làm renderer chính trên
+# Sway 1.9 (chưa có explicit-sync) là nguyên nhân kinh điển gây GIẬT/XÉ/NHIỄU hình.
+# Nvidia đứng SAU: màn hình cắm vào Nvidia vẫn quét hình được (wlroots tự copy
+# khung hình đã render từ iGPU sang Nvidia để xuất ra màn hình).
 #
 # Dùng /dev/dri/cardN (KHÔNG dùng by-path vì tên chứa ':' trùng ký tự ngăn cách).
 
-igpu=""; igpu_card=""; dgpu=""; dgpu_card=""
+igpu=""; dgpu=""
 for d in /sys/class/drm/card[0-9]*; do
     card="$(basename "$d")"
     case "$card" in *-*) continue ;; esac          # bỏ connector (card1-eDP-1...)
     drv=$(basename "$(readlink -f "$d/device/driver" 2>/dev/null)" 2>/dev/null)
     node="/dev/dri/$card"
     case "$drv" in
-        i915|xe|amdgpu|radeon) [ -z "$igpu" ] && { igpu="$node"; igpu_card="$card"; } ;;
-        nvidia)                dgpu="$node"; dgpu_card="$card" ;;
+        i915|xe|amdgpu|radeon) [ -z "$igpu" ] && igpu="$node" ;;
+        nvidia)                dgpu="$node" ;;
     esac
 done
 
-# Card này có màn hình nào đang cắm (connected) không?
-has_output() {
-    for s in /sys/class/drm/"$1"-*/status; do
-        [ "$(cat "$s" 2>/dev/null)" = "connected" ] && return 0
-    done
-    return 1
-}
-
-# Ưu tiên Nvidia làm chính NẾU màn hình cắm vào Nvidia; ngược lại dùng iGPU.
-if [ -n "$dgpu" ] && has_output "$dgpu_card"; then
-    primary="$dgpu";  secondary="$igpu"
-elif [ -n "$igpu" ] && has_output "$igpu_card"; then
+# iGPU làm renderer chính nếu có; chỉ rơi về Nvidia khi máy KHÔNG có iGPU.
+if [ -n "$igpu" ]; then
     primary="$igpu";  secondary="$dgpu"
 else
-    primary="$igpu";  secondary="$dgpu"
+    primary="$dgpu";  secondary="$igpu"
 fi
 
 devs="$primary"
 [ -n "$secondary" ] && devs="${devs:+$devs:}$secondary"
 [ -n "$devs" ] && export WLR_DRM_DEVICES="$devs"
 
-# Nvidia không vẽ được con trỏ phần cứng -> ép con trỏ phần mềm
-export WLR_NO_HARDWARE_CURSORS=1
+# Nvidia không vẽ được con trỏ phần cứng dưới wlroots -> ép con trỏ phần mềm.
+# Chỉ áp dụng khi CÓ Nvidia; máy chỉ-Intel để con trỏ phần cứng cho mượt.
+[ -n "$dgpu" ] && export WLR_NO_HARDWARE_CURSORS=1
 
 exec sway --unsupported-gpu "$@"

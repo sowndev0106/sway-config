@@ -8,3 +8,6 @@
 # Python cache (do eww scripts/*.py tạo ra khi chạy)
 __pycache__/
 *.pyc
+
+# fcitx5 tự sinh lúc chạy (cache bố cục bàn phím, cấu hình thông báo) — không commit
+.config/fcitx5/conf/
