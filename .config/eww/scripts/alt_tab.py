@@ -5,6 +5,7 @@ import json
 import glob
 import subprocess
 import signal
+import time
 
 EWW_BIN = os.path.expanduser("~/.local/bin/eww")
 if not os.path.exists(EWW_BIN):
@@ -162,17 +163,17 @@ def cleanup_and_exit():
 def start_daemon(start_prev=False):
     global index, workspaces, monitor
     
-    # 0. Ghi đè file PID để báo hiệu tiến trình đang khởi động
-    my_pid = os.getpid()
-    with open(PID_FILE, "w") as f:
-        f.write(str(my_pid))
-        
     try:
-        # Đăng ký signal trước để nhận diện sự kiện ngay khi chạy
+        # 0. Đăng ký signal trước để nhận diện sự kiện ngay khi chạy
         signal.signal(signal.SIGUSR1, handle_next)
         signal.signal(signal.SIGUSR2, handle_prev)
         signal.signal(signal.SIGTERM, handle_select)
         signal.signal(signal.SIGINT, handle_cancel)
+        
+        # 1. Ghi đè file PID để báo hiệu tiến trình đã sẵn sàng nhận signal
+        my_pid = os.getpid()
+        with open(PID_FILE, "w") as f:
+            f.write(str(my_pid))
         
         # 1. Truy vấn Sway IPC
         tree = get_sway_data("get_tree")
@@ -264,6 +265,12 @@ def main():
                 pass
         # Khởi chạy daemon thực tế chạy ngầm
         subprocess.Popen([sys.executable, __file__, "daemon"])
+        # Chờ cho đến khi daemon ghi file PID báo hiệu sẵn sàng (tối đa 1 giây)
+        for _ in range(200):
+            if os.path.exists(PID_FILE):
+                break
+            time.sleep(0.005)
+        sys.exit(0)
         
     elif cmd == "start_prev":
         if os.path.exists(PID_FILE):
@@ -275,6 +282,12 @@ def main():
             except Exception:
                 pass
         subprocess.Popen([sys.executable, __file__, "daemon_prev"])
+        # Chờ cho đến khi daemon ghi file PID báo hiệu sẵn sàng (tối đa 1 giây)
+        for _ in range(200):
+            if os.path.exists(PID_FILE):
+                break
+            time.sleep(0.005)
+        sys.exit(0)
         
     elif cmd == "daemon":
         start_daemon(start_prev=False)
