@@ -13,9 +13,9 @@
 # >>> AUTO PROFILES (script save-display-layout.py tự quản lý — đừng sửa tay) <<<
 # @auto-key: DP-1 + HDMI-A-1 + eDP-1
 profile auto-dp-1-hdmi-a-1-edp-1 {
-    output "eDP-1" enable mode 1920x1080@60.02Hz position 0,238
-    output "DP-1" enable mode 2560x1440@59.951Hz position 1920,76
-    output "HDMI-A-1" enable mode 1920x1080@60Hz position 4480,238
+    output "eDP-1" enable mode 1920x1080@60.02Hz position 0,200
+    output "DP-1" enable mode 2560x1440@59.951Hz position 1954,0
+    output "HDMI-A-1" enable mode 1920x1080@60Hz position 4514,200
 }
 # <<< AUTO PROFILES <<<
 
