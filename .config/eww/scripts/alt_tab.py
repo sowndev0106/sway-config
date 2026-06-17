@@ -4,6 +4,7 @@ import sys
 import json
 import glob
 import subprocess
+import signal
 
 EWW_BIN = os.path.expanduser("~/.local/bin/eww")
 if not os.path.exists(EWW_BIN):
@@ -11,6 +12,12 @@ if not os.path.exists(EWW_BIN):
 
 EWW_DIR = os.path.expanduser("~/.config/eww")
 STATE_FILE = "/tmp/eww-switcher-state.json"
+PID_FILE = "/tmp/eww-switcher-daemon.pid"
+
+# Global daemon state variables
+workspaces = []
+index = 0
+monitor = ""
 
 def get_sway_data(cmd_type):
     res = subprocess.run(["swaymsg", "-t", cmd_type], capture_output=True, text=True)
@@ -96,54 +103,6 @@ def resolve_icon(app_id):
                 
     return get_fallback_icon()
 
-def find_windows_with_focus(node, visible_workspaces, path=(), current_output=None, current_workspace=None):
-    node_id = node.get("id")
-    node_type = node.get("type")
-    node_name = node.get("name")
-    
-    if node_type == "output":
-        current_output = node_name
-    elif node_type == "workspace":
-        current_workspace = node_name
-        
-    is_window = False
-    if node_type in ("con", "floating_con"):
-        if not node.get("nodes") and not node.get("floating_nodes"):
-            if node_name and (node.get("app_id") or node.get("window_properties")):
-                app_id = node.get("app_id") or node.get("window_properties", {}).get("class")
-                if app_id and "eww" not in app_id.lower() and "waybar" not in app_id.lower():
-                    is_window = True
-                    
-    if is_window:
-        app_id = node.get("app_id") or node.get("window_properties", {}).get("class")
-        is_visible = current_workspace in visible_workspaces
-        return [{
-            "id": node_id,
-            "name": node_name,
-            "app_id": app_id,
-            "workspace": current_workspace,
-            "output": current_output,
-            "focused": node.get("focused", False),
-            "focus_path": path,
-            "visible": is_visible,
-            "rect": node.get("rect")
-        }]
-        
-    focus_list = node.get("focus", [])
-    windows = []
-    children = node.get("nodes", []) + node.get("floating_nodes", [])
-    for child in children:
-        child_id = child.get("id")
-        try:
-            focus_idx = focus_list.index(child_id)
-        except ValueError:
-            focus_idx = 9999
-            
-        child_path = path + (focus_idx,)
-        windows.extend(find_windows_with_focus(child, visible_workspaces, child_path, current_output, current_workspace))
-        
-    return windows
-
 def find_apps_in_workspace(node, apps_list):
     """Hàm đệ quy tìm các app nằm trong một node workspace."""
     node_type = node.get("type")
@@ -162,23 +121,72 @@ def find_apps_in_workspace(node, apps_list):
     for child in children:
         find_apps_in_workspace(child, apps_list)
 
-def cmd_start():
+def handle_next(signum, frame):
+    global index, workspaces
+    if not workspaces:
+        return
+    index = (index + 1) % len(workspaces)
+    subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
+
+def handle_prev(signum, frame):
+    global index, workspaces
+    if not workspaces:
+        return
+    index = (index - 1) % len(workspaces)
+    subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
+
+def handle_select(signum, frame):
+    global index, workspaces
+    if workspaces and 0 <= index < len(workspaces):
+        target_ws = workspaces[index]
+        subprocess.run(["swaymsg", f"workspace {target_ws['name']}"])
+    cleanup_and_exit()
+
+def handle_cancel(signum, frame):
+    cleanup_and_exit()
+
+def cleanup_and_exit():
+    subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
+    if os.path.exists(STATE_FILE):
+        try:
+            os.remove(STATE_FILE)
+        except Exception:
+            pass
+    if os.path.exists(PID_FILE):
+        try:
+            os.remove(PID_FILE)
+        except Exception:
+            pass
+    sys.exit(0)
+
+def start_daemon(start_prev=False):
+    global index, workspaces, monitor
+    
+    # 0. Ghi đè file PID để báo hiệu tiến trình đang khởi động
+    my_pid = os.getpid()
+    with open(PID_FILE, "w") as f:
+        f.write(str(my_pid))
+        
     try:
+        # Đăng ký signal trước để nhận diện sự kiện ngay khi chạy
+        signal.signal(signal.SIGUSR1, handle_next)
+        signal.signal(signal.SIGUSR2, handle_prev)
+        signal.signal(signal.SIGTERM, handle_select)
+        signal.signal(signal.SIGINT, handle_cancel)
+        
+        # 1. Truy vấn Sway IPC
         tree = get_sway_data("get_tree")
         outputs = get_sway_data("get_outputs")
-        workspaces = get_sway_data("get_workspaces")
+        workspaces_data = get_sway_data("get_workspaces")
         
-        focused_output = next((o["name"] for o in outputs if o["focused"]), None)
-        if not focused_output:
+        monitor = next((o["name"] for o in outputs if o["focused"]), None)
+        if not monitor:
+            cleanup_and_exit()
             return
             
-        # Chỉ lấy các workspace thuộc màn hình hiện tại
-        output_workspaces = [w for w in workspaces if w["output"] == focused_output]
-        
-        # Sắp xếp các workspace theo tên/id
+        output_workspaces = [w for w in workspaces_data if w["output"] == monitor]
         output_workspaces.sort(key=lambda w: w["name"])
         
-        # Đọc dữ liệu cây để lấy danh sách app của từng workspace
         workspace_nodes = {}
         def find_ws_nodes(node):
             if node.get("type") == "workspace":
@@ -187,19 +195,18 @@ def cmd_start():
                 find_ws_nodes(child)
         find_ws_nodes(tree)
         
-        formatted_workspaces = []
+        workspaces = []
         for idx, ws in enumerate(output_workspaces):
             ws_name = ws["name"]
             node = workspace_nodes.get(ws_name, {})
             apps = []
             find_apps_in_workspace(node, apps)
             
-            # Ảnh preview lưu bởi daemon
             preview_path = f"/tmp/sway-ws-{ws_name}.png"
             if not os.path.exists(preview_path):
                 preview_path = ""
                 
-            formatted_workspaces.append({
+            workspaces.append({
                 "name": ws_name,
                 "idx": idx,
                 "apps": apps,
@@ -207,125 +214,109 @@ def cmd_start():
                 "focused": ws.get("focused", False)
             })
             
-        if not formatted_workspaces:
+        if not workspaces:
+            cleanup_and_exit()
             return
             
-        # Xác định workspace cần chuyển tới đầu tiên (kế tiếp của active)
-        active_idx = next((w["idx"] for w in formatted_workspaces if w["focused"]), 0)
-        sel_idx = (active_idx + 1) % len(formatted_workspaces) if len(formatted_workspaces) > 1 else active_idx
-        
+        active_idx = next((w["idx"] for w in workspaces if w["focused"]), 0)
+        if start_prev:
+            index = (active_idx - 1) % len(workspaces)
+        else:
+            index = (active_idx + 1) % len(workspaces) if len(workspaces) > 1 else active_idx
+            
         state = {
-            "workspaces": formatted_workspaces,
-            "index": sel_idx,
-            "monitor": focused_output
+            "workspaces": workspaces,
+            "index": index,
+            "monitor": monitor
         }
         with open(STATE_FILE, "w") as f:
             json.dump(state, f)
             
-        # Cập nhật Eww ngay lập tức
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_workspaces={json.dumps(formatted_workspaces)}"])
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={sel_idx}"])
+        # Cập nhật Eww
+        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_workspaces={json.dumps(workspaces)}"])
+        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
         
-        # Mở Eww Switcher trên màn hình
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "open", "switcher", "--arg", f"monitor={focused_output}"])
+        # Mở Eww Switcher
+        subprocess.run([EWW_BIN, "--config", EWW_DIR, "open", "switcher", "--arg", f"monitor={monitor}"])
         
+        # Vòng lặp chờ tín hiệu
+        while True:
+            signal.pause()
+            
     except Exception as e:
-        emergency_cleanup()
-
-def cmd_next():
-    navigate(1)
-
-def cmd_prev():
-    navigate(-1)
-
-def cmd_toggle_next():
-    """Nếu switcher đang mở → navigate next. Nếu chưa mở → start mới."""
-    if os.path.exists(STATE_FILE):
-        navigate(1)
-    else:
-        cmd_start()
-
-def cmd_toggle_prev():
-    """Nếu switcher đang mở → navigate prev. Nếu chưa mở → start."""
-    if os.path.exists(STATE_FILE):
-        navigate(-1)
-    else:
-        cmd_start()
-
-def navigate(step):
-    try:
-        if not os.path.exists(STATE_FILE):
-            return
-        with open(STATE_FILE, "r") as f:
-            state = json.load(f)
-            
-        workspaces = state["workspaces"]
-        if not workspaces:
-            return
-            
-        curr_idx = state["index"]
-        new_idx = (curr_idx + step) % len(workspaces)
-        state["index"] = new_idx
-        
-        with open(STATE_FILE, "w") as f:
-            json.dump(state, f)
-            
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={new_idx}"])
-    except Exception:
-        emergency_cleanup()
-
-def cmd_select():
-    try:
-        if not os.path.exists(STATE_FILE):
-            emergency_cleanup()
-            return
-        with open(STATE_FILE, "r") as f:
-            state = json.load(f)
-            
-        workspaces = state["workspaces"]
-        curr_idx = state["index"]
-        
-        if workspaces and 0 <= curr_idx < len(workspaces):
-            target_ws = workspaces[curr_idx]
-            subprocess.run(["swaymsg", f"workspace {target_ws['name']}"])
-            
-        emergency_cleanup()
-    except Exception:
-        emergency_cleanup()
-
-def cmd_check_and_select():
-    """Chỉ select nếu switcher đang mở (state file tồn tại)."""
-    if os.path.exists(STATE_FILE):
-        cmd_select()
-
-def emergency_cleanup():
-    subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
-    if os.path.exists(STATE_FILE):
-        try:
-            os.remove(STATE_FILE)
-        except Exception:
-            pass
+        cleanup_and_exit()
 
 def main():
     if len(sys.argv) < 2:
         sys.exit(1)
     cmd = sys.argv[1]
+    
     if cmd == "start":
-        cmd_start()
+        # Kiểm tra xem có daemon cũ còn sống không
+        if os.path.exists(PID_FILE):
+            try:
+                with open(PID_FILE, "r") as f:
+                    old_pid = int(f.read().strip())
+                os.kill(old_pid, 0)
+                # Nếu process còn sống -> thoát
+                sys.exit(0)
+            except Exception:
+                pass
+        # Khởi chạy daemon thực tế chạy ngầm
+        subprocess.Popen([sys.executable, __file__, "daemon"])
+        
+    elif cmd == "start_prev":
+        if os.path.exists(PID_FILE):
+            try:
+                with open(PID_FILE, "r") as f:
+                    old_pid = int(f.read().strip())
+                os.kill(old_pid, 0)
+                sys.exit(0)
+            except Exception:
+                pass
+        subprocess.Popen([sys.executable, __file__, "daemon_prev"])
+        
+    elif cmd == "daemon":
+        start_daemon(start_prev=False)
+        
+    elif cmd == "daemon_prev":
+        start_daemon(start_prev=True)
+        
     elif cmd == "toggle_next":
-        cmd_toggle_next()
+        if os.path.exists(PID_FILE):
+            try:
+                with open(PID_FILE, "r") as f:
+                    pid = int(f.read().strip())
+                os.kill(pid, signal.SIGUSR1)
+            except Exception:
+                pass
+                
     elif cmd == "toggle_prev":
-        cmd_toggle_prev()
-    elif cmd == "next":
-        cmd_next()
-    elif cmd == "prev":
-        cmd_prev()
-    elif cmd == "select":
-        cmd_select()
-    elif cmd == "check_and_select":
-        cmd_check_and_select()
+        if os.path.exists(PID_FILE):
+            try:
+                with open(PID_FILE, "r") as f:
+                    pid = int(f.read().strip())
+                os.kill(pid, signal.SIGUSR2)
+            except Exception:
+                pass
+                
+    elif cmd == "check_and_select" or cmd == "select":
+        if os.path.exists(PID_FILE):
+            try:
+                with open(PID_FILE, "r") as f:
+                    pid = int(f.read().strip())
+                os.kill(pid, signal.SIGTERM)
+            except Exception:
+                pass
+                
     elif cmd == "close":
-        emergency_cleanup()
+        if os.path.exists(PID_FILE):
+            try:
+                with open(PID_FILE, "r") as f:
+                    pid = int(f.read().strip())
+                os.kill(pid, signal.SIGINT)
+            except Exception:
+                pass
 
 if __name__ == "__main__":
     main()

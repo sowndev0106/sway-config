@@ -164,15 +164,15 @@ bindsym $mod+minus scratchpad show
 # Alt+Tab Switcher — không cần mode riêng, tất cả ở global scope
 # Lý do: bindsym --release Alt_L chỉ fire được trong default mode.
 # toggle_next/toggle_prev tự xử lý: nếu switcher chưa mở → start; nếu đã mở → navigate
-bindsym Mod1+Tab         exec python3 ~/.config/eww/scripts/alt_tab.py toggle_next
-bindsym Mod1+Shift+Tab   exec python3 ~/.config/eww/scripts/alt_tab.py toggle_prev
+bindsym Mod1+Tab         exec [ -f /tmp/eww-switcher-daemon.pid ] && kill -USR1 $(cat /tmp/eww-switcher-daemon.pid) 2>/dev/null || python3 ~/.config/eww/scripts/alt_tab.py start
+bindsym Mod1+Shift+Tab   exec [ -f /tmp/eww-switcher-daemon.pid ] && kill -USR2 $(cat /tmp/eww-switcher-daemon.pid) 2>/dev/null || python3 ~/.config/eww/scripts/alt_tab.py start_prev
 
 # Nhả Alt → tự động focus cửa sổ đang chọn (không cần Enter)
-bindsym --release Alt_L  exec python3 ~/.config/eww/scripts/alt_tab.py check_and_select
-bindsym --release Alt_R  exec python3 ~/.config/eww/scripts/alt_tab.py check_and_select
+bindsym --release Alt_L  exec [ -f /tmp/eww-switcher-daemon.pid ] && kill -TERM $(cat /tmp/eww-switcher-daemon.pid) 2>/dev/null
+bindsym --release Alt_R  exec [ -f /tmp/eww-switcher-daemon.pid ] && kill -TERM $(cat /tmp/eww-switcher-daemon.pid) 2>/dev/null
 
 # Hủy bằng Alt+Escape (nếu muốn cancel mà không chọn)
-bindsym Mod1+Escape      exec python3 ~/.config/eww/scripts/alt_tab.py close
+bindsym Mod1+Escape      exec [ -f /tmp/eww-switcher-daemon.pid ] && kill -INT $(cat /tmp/eww-switcher-daemon.pid) 2>/dev/null
 
 ### Resize mode
 mode "resize" {
