@@ -9,7 +9,7 @@ PACKAGES=(
     waybar rofi wofi foot mako-notifier gnome-calendar
     papirus-icon-theme
     grim slurp wl-clipboard
-    curl unzip git ca-certificates
+    curl unzip git ca-certificates gpg
     build-essential pkg-config
     meson ninja-build libwayland-dev wayland-protocols libgtk-4-dev
     brightnessctl playerctl
@@ -46,12 +46,14 @@ PACKAGES=(
     wlogout                  # menu nguồn (khóa/đăng xuất/tắt...)
     gtklock                  # màn khóa đẹp (ô nhập mật khẩu thật, theme CSS)
     grimshot                 # chụp màn hình tiện hơn (kèm thông báo)
+    gettext                  # msgfmt/xgettext cho build swappy nếu apt chưa có package
     kanshi wdisplays         # đa màn hình: tự sắp xếp + GUI kéo thả
     # Phụ thuộc cho Eww (GTK3 layer shell, dbusmenu, cairo...)
     jq
     libgtk-3-dev
     libgtk-layer-shell-dev
     libdbusmenu-gtk3-dev
+    libglib2.0-dev
     libcairo2-dev
     libgdk-pixbuf-2.0-dev
     libpango1.0-dev
@@ -79,7 +81,7 @@ else
     fi
 fi
 
-export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
 cargo_meets_min_version() {
     command -v cargo >/dev/null 2>&1 || return 1
@@ -203,6 +205,74 @@ install_nwg_dock() {
     cargo install nwg-dock
 }
 
+ensure_wayscriber() {
+    local wayscriber_bin configurator_bin
+    local keyring="/usr/share/keyrings/wayscriber.gpg"
+    local source_file="/etc/apt/sources.list.d/wayscriber.list"
+
+    wayscriber_bin="$(command -v wayscriber 2>/dev/null || true)"
+    configurator_bin="$(command -v wayscriber-configurator 2>/dev/null || true)"
+
+    if dpkg-query -W -f='${Status}' wayscriber 2>/dev/null | grep -qx 'install ok installed' \
+        && dpkg-query -W -f='${Status}' wayscriber-configurator 2>/dev/null | grep -qx 'install ok installed' \
+        && [ "${UPDATE_WAYSCRIBER:-0}" != "1" ]; then
+        echo "==> wayscriber apt package đã có, bỏ qua."
+        if [ -n "$wayscriber_bin" ] && [[ "$wayscriber_bin" == "$HOME/.local/bin/"* ]]; then
+            echo "   lưu ý: PATH đang ưu tiên bản user-local ($wayscriber_bin)."
+        fi
+        return
+    fi
+
+    echo "==> Cài wayscriber screen annotation..."
+    sudo install -d -m 0755 /usr/share/keyrings
+    curl -fsSL https://wayscriber.com/apt/WAYSCRIBER-GPG-KEY.asc \
+        | gpg --dearmor \
+        | sudo tee "$keyring" >/dev/null
+    echo "deb [signed-by=$keyring] https://wayscriber.com/apt stable main" \
+        | sudo tee "$source_file" >/dev/null
+    sudo apt update
+    sudo apt install -y wayscriber wayscriber-configurator
+
+    wayscriber_bin="$(command -v wayscriber 2>/dev/null || true)"
+    if [ -n "$wayscriber_bin" ] && [[ "$wayscriber_bin" == "$HOME/.local/bin/"* ]]; then
+        echo "   lưu ý: PATH đang ưu tiên bản user-local ($wayscriber_bin) thay vì /usr/bin/wayscriber."
+    fi
+}
+
+install_swappy() {
+    local swappy_bin tmpdir source_dir build_dir
+
+    swappy_bin="$(command -v swappy 2>/dev/null || true)"
+    if [ -n "$swappy_bin" ] && [ "${UPDATE_SWAPPY:-0}" != "1" ]; then
+        echo "==> swappy đã có ($swappy_bin), bỏ qua."
+        return
+    fi
+
+    if apt-cache show swappy >/dev/null 2>&1; then
+        echo "==> Cài swappy từ apt..."
+        sudo apt install -y swappy
+        return
+    fi
+
+    echo "==> Cài swappy screenshot editor từ source..."
+    tmpdir="$(mktemp -d)"
+    (
+        set -e
+        trap 'rm -rf "$tmpdir"' EXIT
+        source_dir="$tmpdir/swappy"
+        build_dir="$source_dir/build"
+
+        git clone --depth 1 https://github.com/jtheoof/swappy.git "$source_dir"
+        meson setup "$build_dir" "$source_dir" \
+            --prefix="$HOME/.local" \
+            -Dman-pages=disabled
+        ninja -C "$build_dir"
+        ninja -C "$build_dir" install
+    )
+}
+
+ensure_wayscriber
+install_swappy
 ensure_rust_toolchain
 ensure_eww
 ensure_gtk4_layer_shell
@@ -242,6 +312,22 @@ EOF
 
 echo "==> Bật dịch vụ Bluetooth..."
 sudo systemctl enable --now bluetooth
+
+### Cho phép đọc công suất CPU (Intel RAPL) không cần root.
+### File energy_uj mặc định chỉ root đọc (chặn tấn công kênh phụ PLATYPUS/CVE-2020-8694),
+### nên module công suất của waybar (cpu-power.sh) không đọc được. Tạo udev rule
+### nới quyền đọc, rồi reload + trigger để áp dụng NGAY (không phải đợi reboot).
+### LƯU Ý: không đặt ACTION=="add" — udevadm trigger phát sự kiện "change", rule sẽ
+### không chạy. Bỏ ACTION đi để rule khớp cả "change" (trigger) lẫn "add" (lúc boot).
+if [ -d /sys/class/powercap/intel-rapl:0 ]; then
+    echo "==> Mở quyền đọc công suất CPU (Intel RAPL) cho waybar..."
+    sudo tee /etc/udev/rules.d/99-rapl.rules >/dev/null <<'EOF'
+# Nới quyền đọc energy_uj của Intel RAPL để waybar hiển thị công suất CPU.
+SUBSYSTEM=="powercap", RUN+="/bin/chmod o+r /sys%p/energy_uj"
+EOF
+    sudo udevadm control --reload
+    sudo udevadm trigger --subsystem-match=powercap
+fi
 
 echo "==> Tạo symlink config..."
 mkdir -p "$HOME/.config" "$HOME/Pictures" "$HOME/Videos"

@@ -695,3 +695,52 @@
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
+
+/* ── Sensors popup ── */
+.sensors-card {
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 14px;
+  padding: 12px 14px;
+  min-width: 210px;
+}
+
+.sensors-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6c7086;
+  margin-bottom: 10px;
+}
+
+.sensor-row {
+  padding: 5px 0;
+  border-bottom: 1px solid #1e1e2e;
+}
+
+.sensor-row-label {
+  font-size: 13px;
+  color: #cdd6f4;
+  font-weight: 500;
+}
+
+/* Toggle switch track */
+.sensor-switch {
+  min-width: 40px;
+  min-height: 22px;
+  border-radius: 11px;
+  padding: 2px;
+}
+
+.sensor-switch.on  { background: #89b4fa; }
+.sensor-switch.off { background: #45475a; }
+
+/* Toggle thumb — positioned left (off) or right (on) via class */
+.switch-thumb {
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 9px;
+  background: #1e1e2e;
+}
+
+.switch-thumb.right { margin-left: 18px; }
+.switch-thumb.left  { margin-left: 0px; }

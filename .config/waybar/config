@@ -1,16 +1,16 @@
 {
     // ── Thanh trạng thái waybar (Catppuccin Mocha, pill gom nhóm) ──
     // Bố cục: trái = nguồn + workspaces + cảm biến | giữa = đồng hồ |
-    //         phải = âm thanh + mạng + bluetooth + độ sáng + pin + tray.
+    //         phải = âm thanh + bluetooth + menu chung + pin + tray.
     // Icon vẽ bằng JetBrainsMono Nerd Font (xem style.css). Bar hiện trên MỌI màn.
     "layer": "top",
     "position": "top",
     "height": 32,
     "spacing": 0,
 
-    "modules-left": ["custom/power", "sway/workspaces", "sway/mode", "temperature", "cpu", "memory"],
+    "modules-left": ["custom/power", "sway/workspaces", "sway/mode", "group/sensors"],
     "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "bluetooth", "battery", "tray"],
+    "modules-right": ["pulseaudio", "bluetooth", "custom/control-center", "battery", "tray"],
 
     // ── Nút nguồn (mở menu wlogout) ──
     "custom/power": {
@@ -30,65 +30,94 @@
         "format": "{}"
     },
 
-    // ── Cảm biến (trái) ──
-    "temperature": {
-        // thermal_zone9 = x86_pkg_temp (nhiệt CPU package trên máy này)
-        "thermal-zone": 9,
-        "critical-threshold": 85,
-        "format": "{icon} {temperatureC}°C",
-        "format-critical": " {temperatureC}°C",
-        "format-icons": ["", "", ""],
-        "interval": 3
+    // ── Cụm cảm biến — bọc trong group để pill bo góc đúng khi ẩn ô ──
+    "group/sensors": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/sensor-temp",
+            "custom/sensor-cpu",
+            "custom/sensor-freq",
+            "custom/cpu-power",
+            "custom/sensor-ram"
+        ]
     },
-    "cpu": {
-        "format": " {usage}%",
+    "custom/sensor-temp": {
+        "exec": "~/.config/waybar/scripts/sensor-temp.sh",
+        "return-type": "json",
+        "interval": 3,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
+    },
+    "custom/sensor-cpu": {
+        "exec": "~/.config/waybar/scripts/sensor-cpu.sh",
+        "return-type": "json",
         "interval": 2,
-        "tooltip": false
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
-    "memory": {
-        "format": " {percentage}%",
-        "interval": 5
+    "custom/sensor-freq": {
+        "exec": "~/.config/waybar/scripts/sensor-freq.sh",
+        "return-type": "json",
+        "interval": 2,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
+    },
+    "custom/cpu-power": {
+        "format": "{}W",
+        "exec": "~/.config/waybar/scripts/cpu-power.sh",
+        "interval": 3,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
+    },
+    "custom/sensor-ram": {
+        "exec": "~/.config/waybar/scripts/sensor-ram.sh",
+        "return-type": "json",
+        "interval": 5,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
 
-    // ── Đồng hồ (giữa) ──
+        // ── Đồng hồ (giữa) ──
     "clock": {
         "format": " {:%a %d-%m  %H:%M}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "on-click": "~/.config/waybar/scripts/toggle-calendar.sh"
     },
 
-    // ── Âm thanh / mạng / bluetooth / độ sáng / pin (phải) ──
+    // ── Âm thanh / bluetooth / menu chung / pin (phải) ──
     "pulseaudio": {
         "format": "{icon} {volume}%",
-        "format-muted": " muted",
-        "format-icons": { "default": ["", "", ""] },
-        "on-click": "pavucontrol"
-    },
-    "network": {
-        "format-wifi": "",
-        "format-ethernet": "",
-        "format-disconnected": "",
-        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
-        "tooltip-format-ethernet": "{ifname}: {ipaddr}",
-        "tooltip-format-disconnected": "Disconnected",
-        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh"
+        "format-muted": "󰝟",
+        "format-icons": { "default": ["", "", "", "", ""] },
+        "tooltip-format": "{volume}%",
+        "tooltip-format-muted": "Muted",
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh audio"
     },
     "bluetooth": {
         "format": "",
         "format-disabled": "",
         "format-off": "",
-        "format-connected": " {device_alias}",
+        "format-connected": "󰂱",
         "tooltip-format": "{controller_alias}\t{status}",
         "tooltip-format-connected": "{controller_alias}\t{status}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}",
-        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh"
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh bluetooth"
     },
     "battery": {
-        "states": { "warning": 30, "critical": 15 },
-        "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-plugged": " {capacity}%",
-        "format-icons": ["", "", "", "", ""]
+        "states": { "warning": 30, "critical": 15, "full": 95 },
+        "format": "{icon}",
+        "format-charging": "",
+        "format-plugged": "",
+        "tooltip-format": "{capacity}% ({time})",
+        "tooltip-format-charging": "Charging: {capacity}% ({time})",
+        "tooltip-format-plugged": "Plugged: {capacity}%",
+        "format-icons": ["", "", "", "", ""],
+        "interval": 2
+    },
+    "custom/control-center": {
+        "format": "󰕮",
+        "tooltip": false,
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh home"
     },
 
     "tray": {

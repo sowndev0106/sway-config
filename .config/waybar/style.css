@@ -25,9 +25,9 @@ window#waybar {
 #custom-power {
     color: #f38ba8;
     background-color: #313244;
-    /* Glyph  (power-off) có side-bearing lệch trái trong ô advance, nên đệm
-       trái > phải để dịch phần vẽ về đúng tâm pill */
-    padding: 0 11px 0 13px;
+    /* Glyph power có phần vẽ lệch phải trong ô advance, nên đệm phải lớn hơn
+       trái để kéo icon về đúng tâm pill. */
+    padding: 0 14px 0 10px;
     margin: 4px 6px;
     border-radius: 16px;
 }
@@ -61,18 +61,29 @@ window#waybar {
     border-radius: 16px;
 }
 
-/* ── Cụm cảm biến (temperature + cpu + memory) = 1 pill liền ── */
-#temperature,
-#cpu,
-#memory {
+/* ── Cụm cảm biến — container group bo góc pill, ô con không bo góc riêng ── */
+#sensors {
     background-color: #313244;
-    padding: 0 10px;
-    margin: 4px 0;
+    border-radius: 16px;
+    margin: 4px 6px;
+    padding: 0 4px;
 }
-#temperature { border-radius: 16px 0 0 16px; margin-left: 6px; color: #fab387; }
-#cpu         { color: #f9e2af; }
-#memory      { border-radius: 0 16px 16px 0; margin-right: 6px; color: #cba6f7; }
-#temperature.critical { color: #f38ba8; }
+
+#custom-sensor-temp,
+#custom-sensor-cpu,
+#custom-sensor-freq,
+#custom-cpu-power,
+#custom-sensor-ram {
+    background-color: transparent;
+    padding: 0 8px;
+}
+
+#custom-sensor-temp  { color: #fab387; }
+#custom-sensor-cpu   { color: #f9e2af; }
+#custom-sensor-freq  { color: #f9e2af; }
+#custom-cpu-power    { color: #a6e3a1; }
+#custom-sensor-ram   { color: #cba6f7; }
+#custom-sensor-temp.critical { color: #f38ba8; }
 
 /* ── Đồng hồ (giữa) ── */
 #clock {
@@ -83,28 +94,43 @@ window#waybar {
     border-radius: 16px;
 }
 
-/* ── Cụm phải (pulseaudio + network + bluetooth + battery) = 1 pill liền ── */
+/* ── Cụm điều khiển (pulseaudio + bluetooth + settings) = 1 pill liền ── */
 #pulseaudio,
-#network,
 #bluetooth,
-#battery {
+#custom-control-center {
     background-color: #313244;
     padding: 0 10px;
     margin: 4px 0;
 }
 #pulseaudio { border-radius: 16px 0 0 16px; margin-left: 6px; color: #89dceb; }
-#battery    { border-radius: 0 16px 16px 0; margin-right: 6px; color: #a6e3a1; }
+#custom-control-center {
+    border-radius: 0 16px 16px 0;
+    margin-right: 6px;
+    color: #cba6f7;
+}
 
 #pulseaudio.muted     { color: #6c7086; }
-#network              { color: #a6e3a1; }
-#network.disconnected { color: #f38ba8; }
 #bluetooth            { color: #89b4fa; }
-#bluetooth.connected  { color: #89dceb; }
+#bluetooth.connected  { color: #89b4fa; }
 #bluetooth.disabled,
 #bluetooth.off        { color: #6c7086; }
-#battery.charging     { color: #a6e3a1; }
+
+/* ── Pin (pill riêng) ── */
+#battery {
+    background-color: #313244;
+    color: #a6e3a1;
+    padding: 0 10px;
+    margin: 4px 6px;
+    border-radius: 16px;
+}
 #battery.warning      { color: #f9e2af; }
 #battery.critical     { color: #f38ba8; }
+#battery.charging     { color: #f9e2af; }
+#battery.plugged,
+#battery.full         { color: #a6e3a1; }
+#battery.charging.full,
+#battery.plugged.full { color: #a6e3a1; }
+#custom-control-center:hover { background-color: #45475a; }
 
 /* ── Tray (phải cùng, pill riêng) ── */
 #tray {

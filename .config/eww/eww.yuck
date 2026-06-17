@@ -127,6 +127,13 @@
 ;; Mức micro hiện tại (0-100) — nạp khi vào panel mic
 (defvar mic_level "50")
 
+;; ── Sensor toggle state vars — updated instantly on click (no poll lag) ──
+(defvar sensor_temp_on  "on")
+(defvar sensor_cpu_on   "on")
+(defvar sensor_freq_on  "on")
+(defvar sensor_power_on "on")
+(defvar sensor_ram_on   "on")
+
 ;; ── Cửa sổ Control Center Window ──
 ;; Cửa sổ Control Center Popup hiển thị ở góc trên bên phải màn hình
 (defwindow control-center-popup [monitor]
@@ -495,3 +502,48 @@
                 (image :path {app.icon}
                        :image-width 16
                        :image-height 16)))))))))
+
+;; ── Sensors popup: toggle individual sensor tiles on waybar ──
+;; onclick: toggle state file + update eww var instantly (no poll delay)
+(defwidget sensor-row [label key var-name state]
+  (box :class "sensor-row" :orientation "horizontal" :space-evenly false :valign "center"
+    (label :class "sensor-row-label" :text label :hexpand true)
+    (button
+      :class {state == "on" ? "sensor-switch on" : "sensor-switch off"}
+      :onclick "~/.config/waybar/scripts/sensors-toggle.sh toggle ${key} && eww --config ~/.config/eww update ${var-name}=$(~/.config/waybar/scripts/sensors-toggle.sh get ${key})"
+      (box :class {state == "on" ? "switch-thumb right" : "switch-thumb left"}))))
+
+(defwidget sensors-card []
+  (box :class "sensors-card" :orientation "vertical" :space-evenly false
+    (label :class "sensors-title" :text "Sensors")
+    (sensor-row :label "CPU Temp"    :key "temp"  :var-name "sensor_temp_on"  :state sensor_temp_on)
+    (sensor-row :label "CPU %"       :key "cpu"   :var-name "sensor_cpu_on"   :state sensor_cpu_on)
+    (sensor-row :label "Frequency"   :key "freq"  :var-name "sensor_freq_on"  :state sensor_freq_on)
+    (sensor-row :label "CPU Power"   :key "power" :var-name "sensor_power_on" :state sensor_power_on)
+    (sensor-row :label "RAM"         :key "ram"   :var-name "sensor_ram_on"   :state sensor_ram_on)))
+
+(defwindow sensors-popup [monitor]
+  :monitor monitor
+  :geometry (geometry
+    :x "15px"
+    :y "45px"
+    :width "220px"
+    :anchor "top left")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  :namespace "eww-sensors"
+  (sensors-card))
+
+(defwindow sensors-popup-closer [monitor]
+  :monitor monitor
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "100%"
+    :height "100%"
+    :anchor "top left")
+  :stacking "foreground"
+  :focusable false
+  (closer :window "sensors-popup"))
+
