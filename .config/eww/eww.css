@@ -621,7 +621,6 @@
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.70),
     0 0 0 1px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
 }
 
 .switcher-list {
@@ -630,7 +629,7 @@
 
 .switcher-item {
   margin: 0 8px;
-  padding: 12px;
+  padding: 14px 12px;
   border-radius: 16px;
   border: 2px solid transparent;
   background: rgba(255, 255, 255, 0.02);
@@ -640,50 +639,59 @@
 
 .switcher-item.active {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(137, 180, 250, 0.50); /* Catppuccin Blue */
+  border-color: rgba(137, 180, 250, 0.60); /* Catppuccin Blue */
   box-shadow: 0 0 15px rgba(137, 180, 250, 0.15);
+}
+
+/* Tên Workspace ở trên cùng */
+.switcher-ws-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(205, 214, 244, 0.6); /* Subtext */
+  margin-bottom: 8px;
+  transition: color 120ms ease;
+}
+
+.switcher-item.active .switcher-ws-name {
+  color: #89b4fa; /* Catppuccin Blue */
 }
 
 /* Khung chứa ảnh preview */
 .switcher-preview-wrap {
   min-width: 160px;
   min-height: 90px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 10px;
-  overflow: hidden;
+  background: #181825;
+}
+
+.switcher-preview-img {
+  border-radius: 10px;
 }
 
 .switcher-preview-empty {
   min-width: 160px;
   min-height: 90px;
   background: linear-gradient(135deg, #1e1e2e, #313244);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .switcher-empty-lbl {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.3);
   font-weight: 500;
 }
 
 /* Hàng icon ứng dụng nhỏ bên dưới preview */
 .switcher-apps-row {
-  margin-top: 6px;
-  gap: 6px;
+  margin-top: 2px;
   min-height: 24px;
 }
 
-.switcher-app-mini-icon {
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 2px;
-}
-
-/* Tên Workspace dưới cùng của card */
-.switcher-ws-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  margin-top: 8px;
+.switcher-mini-icon-wrap {
+  background: rgba(17, 17, 27, 0.6); /* Catppuccin mantle */
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }

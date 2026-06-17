@@ -471,26 +471,27 @@
              :space-evenly false
              :halign "center"
           
-          ;; 1. Vùng hiển thị ảnh Preview (thumbnail) hoặc gradient nền tối
+          ;; 1. Tên Workspace (ở trên cùng)
+          (label :class "switcher-ws-name"
+                 :text "Workspace ${ws.name}")
+          
+          ;; 2. Vùng hiển thị ảnh Preview (thumbnail) hoặc gradient nền tối
           (box :class "switcher-preview-wrap"
             (box :visible {ws.thumbnail != ""}
-              (image :path {ws.thumbnail}
+              (image :class "switcher-preview-img"
+                     :path {ws.thumbnail}
                      :image-width 160
                      :image-height 90))
             (box :visible {ws.thumbnail == ""}
                  :class "switcher-preview-empty"
                  :halign "center"
                  :valign "center"
-              (label :class "switcher-empty-lbl" :text "Workspace ${ws.name}")))
+              (label :class "switcher-empty-lbl" :text "Trống")))
 
-          ;; 2. Hàng ngang chứa các icon nhỏ của ứng dụng đang mở trong workspace đó
-          (box :class "switcher-apps-row" :orientation "horizontal" :space-evenly false :halign "center"
+          ;; 3. Hàng ngang chứa các icon nhỏ của ứng dụng đang mở
+          (box :class "switcher-apps-row" :orientation "horizontal" :space-evenly false :halign "center" :spacing 6
             (for app in {ws.apps ?: "[]"}
-              (image :class "switcher-app-mini-icon"
-                     :path {app.icon}
-                     :image-width 20
-                     :image-height 20)))
-                     
-          ;; 3. Tên Workspace
-          (label :class "switcher-ws-name"
-                 :text "Workspace ${ws.name}"))))))
+              (box :class "switcher-mini-icon-wrap"
+                (image :path {app.icon}
+                       :image-width 16
+                       :image-height 16)))))))))
