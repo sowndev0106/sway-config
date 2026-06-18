@@ -161,15 +161,14 @@ bindsym $mod+slash exec ~/.config/sway/scripts/show-shortcuts.py
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
-# Alt+Tab Switcher — không cần mode riêng, tất cả ở global scope
-# Lý do: bindsym --release Alt_L chỉ fire được trong default mode.
-# toggle_next/toggle_prev tự xử lý: nếu switcher chưa mở → start; nếu đã mở → navigate
+# Alt+Tab Switcher — chạy trigger script để bật daemon
 bindsym Mod1+Tab         exec ~/.config/eww/scripts/alt_tab_trigger.sh next
 bindsym Mod1+Shift+Tab   exec ~/.config/eww/scripts/alt_tab_trigger.sh prev
-
 # Nhả Alt → tự động focus cửa sổ đang chọn (không cần Enter)
 bindsym --release Alt_L  exec ~/.config/eww/scripts/alt_tab_trigger.sh select
 bindsym --release Alt_R  exec ~/.config/eww/scripts/alt_tab_trigger.sh select
+bindsym --release Mod1+Alt_L exec ~/.config/eww/scripts/alt_tab_trigger.sh select
+bindsym --release Mod1+Alt_R exec ~/.config/eww/scripts/alt_tab_trigger.sh select
 
 # Hủy bằng Alt+Escape (nếu muốn cancel mà không chọn)
 bindsym Mod1+Escape      exec ~/.config/eww/scripts/alt_tab_trigger.sh cancel
@@ -206,7 +205,8 @@ bindsym XF86AudioPrev exec playerctl previous
 bindsym Print exec grimshot save screen          # toàn màn hình -> file
 bindsym Shift+Print exec grimshot copy area       # chọn vùng -> clipboard
 bindsym $mod+Print exec grimshot save area        # chọn vùng -> file
-bindsym $mod+Shift+s exec grimshot copy area       # snip -> clipboard
+bindsym $mod+Shift+s exec ~/.config/sway/scripts/screenshot-edit.sh  # chọn vùng -> vẽ/sửa bằng swappy
+bindsym $mod+g exec wayscriber --active                          # vẽ trực tiếp lên màn hình
 # Quay màn hình: bấm lần 1 chọn vùng & quay, lần 2 dừng
 bindsym $mod+Shift+r exec ~/.config/sway/scripts/record.sh
 

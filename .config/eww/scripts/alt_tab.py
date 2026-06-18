@@ -5,7 +5,7 @@ import json
 import glob
 import subprocess
 import signal
-import time
+from datetime import datetime
 
 EWW_BIN = os.path.expanduser("~/.local/bin/eww")
 if not os.path.exists(EWW_BIN):
@@ -122,11 +122,25 @@ def find_apps_in_workspace(node, apps_list):
     for child in children:
         find_apps_in_workspace(child, apps_list)
 
+def write_state():
+    global workspaces, index, monitor
+    try:
+        state = {
+            "workspaces": workspaces,
+            "index": index,
+            "monitor": monitor
+        }
+        with open(STATE_FILE, "w") as f:
+            json.dump(state, f)
+    except Exception:
+        pass
+
 def handle_next(signum, frame):
     global index, workspaces
     if not workspaces:
         return
     index = (index + 1) % len(workspaces)
+    write_state()
     subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
 
 def handle_prev(signum, frame):
@@ -134,20 +148,18 @@ def handle_prev(signum, frame):
     if not workspaces:
         return
     index = (index - 1) % len(workspaces)
+    write_state()
     subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
 
 def handle_select(signum, frame):
-    global index, workspaces
-    if workspaces and 0 <= index < len(workspaces):
-        target_ws = workspaces[index]
-        subprocess.run(["swaymsg", f"workspace {target_ws['name']}"])
     cleanup_and_exit()
 
 def handle_cancel(signum, frame):
     cleanup_and_exit()
 
-def cleanup_and_exit():
-    subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
+def cleanup_and_exit(close_eww=True):
+    if close_eww:
+        subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
     if os.path.exists(STATE_FILE):
         try:
             os.remove(STATE_FILE)
@@ -158,7 +170,159 @@ def cleanup_and_exit():
             os.remove(PID_FILE)
         except Exception:
             pass
-    sys.exit(0)
+    if os.path.exists("/tmp/alt-tab-grabbed"):
+        try:
+            os.remove("/tmp/alt-tab-grabbed")
+        except Exception:
+            pass
+    os._exit(0)
+
+def kill_daemon():
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE, "r") as f:
+                pid = int(f.read().strip())
+            os.kill(pid, signal.SIGKILL)
+        except Exception:
+            pass
+        try:
+            os.remove(PID_FILE)
+        except Exception:
+            pass
+    if os.path.exists("/tmp/alt-tab-grabbed"):
+        try:
+            os.remove("/tmp/alt-tab-grabbed")
+        except Exception:
+            pass
+
+def select_and_exit(close_eww=True):
+    global index, workspaces
+    try:
+        if workspaces and 0 <= index < len(workspaces):
+            target_ws = workspaces[index]
+            subprocess.run(["swaymsg", f"workspace {target_ws['name']}"])
+    except Exception:
+        pass
+    cleanup_and_exit(close_eww)
+
+def close_and_exit(close_eww=True):
+    cleanup_and_exit(close_eww)
+
+class KeyboardGrabber:
+    def __init__(self):
+        import gi
+        gi.require_version('Gtk', '3.0')
+        gi.require_version('Gdk', '3.0')
+        gi.require_version('GtkLayerShell', '0.1')
+        from gi.repository import Gtk, Gdk, GtkLayerShell
+        
+        self.Gtk = Gtk
+        self.Gdk = Gdk
+        self.GtkLayerShell = GtkLayerShell
+        
+        self.win = Gtk.Window()
+        self.GtkLayerShell.init_for_window(self.win)
+        
+        # Cấu hình cửa sổ ẩn 1x1, trên cùng và trong suốt
+        self.win.set_size_request(1, 1)
+        self.win.set_keep_above(True)
+        self.win.set_opacity(0.0)
+        
+        self.GtkLayerShell.set_layer(self.win, self.GtkLayerShell.Layer.OVERLAY)
+        self.GtkLayerShell.set_keyboard_mode(self.win, self.GtkLayerShell.KeyboardMode.EXCLUSIVE)
+        
+        self.win.connect("key-press-event", self.on_key_press)
+        self.win.connect("key-release-event", self.on_key_release)
+        self.win.connect("focus-in-event", self.on_focus_in)
+        self.win.connect("destroy", self.Gtk.main_quit)
+        
+        self.popup_opened = False
+        
+    def start(self):
+        from gi.repository import GLib
+        self.win.show_all()
+        self.win.present()
+        
+        # Trì hoãn mở popup Eww 150ms
+        GLib.timeout_add(150, self.open_switcher_popup)
+        
+        self.Gtk.main()
+        
+    def open_switcher_popup(self):
+        global monitor
+        subprocess.run([EWW_BIN, "--config", EWW_DIR, "open", "switcher", "--arg", f"monitor={monitor}"])
+        self.popup_opened = True
+        return False
+        
+    def on_focus_in(self, widget, event):
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        try:
+            with open("/tmp/alt-tab.log", "a") as f:
+                f.write(f"{now_str} - GTK Focus In\n")
+        except Exception:
+            pass
+        try:
+            with open("/tmp/alt-tab-grabbed", "w") as f:
+                f.write("1")
+        except Exception:
+            pass
+        return False
+        
+    def on_key_press(self, widget, event):
+        global index, workspaces
+        keyval = event.keyval
+        state = event.state
+        
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        try:
+            with open("/tmp/alt-tab.log", "a") as f:
+                f.write(f"{now_str} - GTK Press: {keyval}, state: {state}\n")
+        except Exception:
+            pass
+            
+        if keyval in (self.Gdk.KEY_Alt_L, self.Gdk.KEY_Alt_R):
+            return True
+            
+        if keyval == self.Gdk.KEY_Tab:
+            is_shift = bool(state & self.Gdk.ModifierType.SHIFT_MASK)
+            if is_shift:
+                index = (index - 1) % len(workspaces)
+            else:
+                index = (index + 1) % len(workspaces)
+            write_state()
+            subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
+            return True
+            
+        elif keyval == self.Gdk.KEY_ISO_Left_Tab:
+            index = (index - 1) % len(workspaces)
+            write_state()
+            subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
+            return True
+            
+        elif keyval == self.Gdk.KEY_Escape:
+            self.win.destroy()
+            close_and_exit(self.popup_opened)
+            return True
+            
+        return False
+        
+    def on_key_release(self, widget, event):
+        keyval = event.keyval
+        
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        try:
+            with open("/tmp/alt-tab.log", "a") as f:
+                f.write(f"{now_str} - GTK Release: {keyval}\n")
+        except Exception:
+            pass
+            
+        if keyval in (self.Gdk.KEY_Alt_L, self.Gdk.KEY_Alt_R):
+            self.win.destroy()
+            select_and_exit(self.popup_opened)
+            return True
+            
+        return False
+
 
 def start_daemon(start_prev=False):
     global index, workspaces, monitor
@@ -175,7 +339,7 @@ def start_daemon(start_prev=False):
         with open(PID_FILE, "w") as f:
             f.write(str(my_pid))
         
-        # 1. Truy vấn Sway IPC
+        # 2. Truy vấn Sway IPC
         tree = get_sway_data("get_tree")
         outputs = get_sway_data("get_outputs")
         workspaces_data = get_sway_data("get_workspaces")
@@ -237,15 +401,54 @@ def start_daemon(start_prev=False):
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_workspaces={json.dumps(workspaces)}"])
         subprocess.run([EWW_BIN, "--config", EWW_DIR, "update", f"switcher_index={index}"])
         
-        # Mở Eww Switcher
-        subprocess.run([EWW_BIN, "--config", EWW_DIR, "open", "switcher", "--arg", f"monitor={monitor}"])
+        # Chạy GTK grabber để bắt phím (Eww Switcher sẽ được mở sau 150ms trì hoãn trong grabber)
+        grabber = KeyboardGrabber()
+        grabber.start()
         
-        # Vòng lặp chờ tín hiệu
-        while True:
-            signal.pause()
-            
     except Exception as e:
+        import traceback
+        with open("/tmp/alt-tab-daemon-error.log", "w") as f:
+            traceback.print_exc(file=f)
         cleanup_and_exit()
+
+def cmd_select():
+    # 0. Nếu grabber đã hoạt động và chiếm bàn phím, để grabber tự xử lý việc thả Alt
+    if os.path.exists("/tmp/alt-tab-grabbed"):
+        return
+        
+    # 1. Diệt daemon ngầm ngay lập tức
+    kill_daemon()
+    
+    # 2. Đọc file trạng thái mới nhất để thực hiện chuyển workspace
+    try:
+        if os.path.exists(STATE_FILE):
+            with open(STATE_FILE, "r") as f:
+                state = json.load(f)
+            workspaces_data = state.get("workspaces", [])
+            curr_idx = state.get("index", 0)
+            if workspaces_data and 0 <= curr_idx < len(workspaces_data):
+                target_ws = workspaces_data[curr_idx]
+                subprocess.run(["swaymsg", f"workspace {target_ws['name']}"])
+    except Exception:
+        pass
+        
+    # 3. Dọn dẹp giao diện
+    subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
+    if os.path.exists(STATE_FILE):
+        try:
+            os.remove(STATE_FILE)
+        except Exception:
+            pass
+
+def cmd_close():
+    # Diệt daemon và đóng giao diện
+    kill_daemon()
+    subprocess.run([EWW_BIN, "--config", EWW_DIR, "close", "switcher"])
+    if os.path.exists(STATE_FILE):
+        try:
+            os.remove(STATE_FILE)
+        except Exception:
+            pass
 
 def main():
     if len(sys.argv) < 2:
@@ -253,40 +456,35 @@ def main():
     cmd = sys.argv[1]
     
     if cmd == "start":
-        # Kiểm tra xem có daemon cũ còn sống không
-        if os.path.exists(PID_FILE):
+        kill_daemon()
+        if os.path.exists("/tmp/alt-tab-grabbed"):
             try:
-                with open(PID_FILE, "r") as f:
-                    old_pid = int(f.read().strip())
-                os.kill(old_pid, 0)
-                # Nếu process còn sống -> thoát
-                sys.exit(0)
+                os.remove("/tmp/alt-tab-grabbed")
             except Exception:
                 pass
-        # Khởi chạy daemon thực tế chạy ngầm
-        subprocess.Popen([sys.executable, __file__, "daemon"])
-        # Chờ cho đến khi daemon ghi file PID báo hiệu sẵn sàng (tối đa 1 giây)
-        for _ in range(200):
-            if os.path.exists(PID_FILE):
-                break
-            time.sleep(0.005)
+        log_file = open("/tmp/alt-tab-daemon.log", "w")
+        p = subprocess.Popen([sys.executable, __file__, "daemon"], stdout=log_file, stderr=log_file)
+        try:
+            with open(PID_FILE, "w") as f:
+                f.write(str(p.pid))
+        except Exception:
+            pass
         sys.exit(0)
         
     elif cmd == "start_prev":
-        if os.path.exists(PID_FILE):
+        kill_daemon()
+        if os.path.exists("/tmp/alt-tab-grabbed"):
             try:
-                with open(PID_FILE, "r") as f:
-                    old_pid = int(f.read().strip())
-                os.kill(old_pid, 0)
-                sys.exit(0)
+                os.remove("/tmp/alt-tab-grabbed")
             except Exception:
                 pass
-        subprocess.Popen([sys.executable, __file__, "daemon_prev"])
-        # Chờ cho đến khi daemon ghi file PID báo hiệu sẵn sàng (tối đa 1 giây)
-        for _ in range(200):
-            if os.path.exists(PID_FILE):
-                break
-            time.sleep(0.005)
+        log_file = open("/tmp/alt-tab-daemon.log", "w")
+        p = subprocess.Popen([sys.executable, __file__, "daemon_prev"], stdout=log_file, stderr=log_file)
+        try:
+            with open(PID_FILE, "w") as f:
+                f.write(str(p.pid))
+        except Exception:
+            pass
         sys.exit(0)
         
     elif cmd == "daemon":
@@ -295,41 +493,11 @@ def main():
     elif cmd == "daemon_prev":
         start_daemon(start_prev=True)
         
-    elif cmd == "toggle_next":
-        if os.path.exists(PID_FILE):
-            try:
-                with open(PID_FILE, "r") as f:
-                    pid = int(f.read().strip())
-                os.kill(pid, signal.SIGUSR1)
-            except Exception:
-                pass
-                
-    elif cmd == "toggle_prev":
-        if os.path.exists(PID_FILE):
-            try:
-                with open(PID_FILE, "r") as f:
-                    pid = int(f.read().strip())
-                os.kill(pid, signal.SIGUSR2)
-            except Exception:
-                pass
-                
-    elif cmd == "check_and_select" or cmd == "select":
-        if os.path.exists(PID_FILE):
-            try:
-                with open(PID_FILE, "r") as f:
-                    pid = int(f.read().strip())
-                os.kill(pid, signal.SIGTERM)
-            except Exception:
-                pass
-                
+    elif cmd == "select":
+        cmd_select()
+        
     elif cmd == "close":
-        if os.path.exists(PID_FILE):
-            try:
-                with open(PID_FILE, "r") as f:
-                    pid = int(f.read().strip())
-                os.kill(pid, signal.SIGINT)
-            except Exception:
-                pass
+        cmd_close()
 
 if __name__ == "__main__":
     main()

@@ -26,6 +26,15 @@ fi
 CONFIG_DIR="$HOME/.config/eww"
 WINDOW="control-center-popup"
 CLOSER_WINDOW="control-center-popup-closer"
+PAGE="${1:-home}"
+
+case "$PAGE" in
+    home|wifi|bluetooth|audio|mic|wired) ;;
+    *)
+        echo "Error: Unknown control center page '$PAGE'." >&2
+        exit 1
+        ;;
+esac
 
 # 3. Lấy tên màn hình đang được focus (fallback về 0 nếu trống)
 MONITOR="$(swaymsg -t get_outputs | jq -r '.[] | select(.focused).name' | head -n1)"
@@ -50,12 +59,22 @@ fi
 
 # 5. Thực hiện Bật/Tắt cửa sổ control center
 if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^$WINDOW"; then
-    "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
-    "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER_WINDOW" || true
+    if [ "$PAGE" = "home" ]; then
+        "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
+        "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER_WINDOW" || true
+    else
+        "$HOME/.config/eww/scripts/control_center.sh" open-page "$PAGE" >/dev/null 2>&1 || true
+    fi
 else
-    # Reset về trang home và xoá trạng thái nhập mật khẩu trước khi mở
+    # Reset trạng thái nhập mật khẩu trước khi mở; nếu có trang đích thì mở
+    # thẳng trang đó để click icon Waybar đi đúng ngữ cảnh.
     "$EWW_BIN" --config "$CONFIG_DIR" update \
-        cc_view=home cc_pass="" cc_pass_ssid="" cc_wifi_error="" 2>/dev/null || true
+        cc_pass="" cc_pass_ssid="" cc_wifi_error="" 2>/dev/null || true
+    if [ "$PAGE" = "home" ]; then
+        "$EWW_BIN" --config "$CONFIG_DIR" update cc_view=home 2>/dev/null || true
+    else
+        "$HOME/.config/eww/scripts/control_center.sh" open-page "$PAGE" >/dev/null 2>&1 || true
+    fi
     # Mở popup chính TRƯỚC, rồi mới mở closer.
     # Thứ tự này quan trọng: nếu mở closer trước, lớp closer toàn màn hình sẽ
     # chiếm sự kiện chuột và mọi cú click (kể cả lên nút) đều đóng popup —
