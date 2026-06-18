@@ -195,11 +195,11 @@ case "${1:-}" in
             wifi_state="$("$0" wifi-state)" \
             wifi_ssid="$("$0" wifi-ssid)" \
             bt_state="$("$0" bt-state)" \
-            airplane_state="$("$0" airplane-state)" \
             wired_state="$("$0" wired-state)" \
             vol_muted="$("$0" vol-muted)" \
             vol_level="$("$0" vol-level)" \
-            mic_muted="$("$0" mic-muted)"
+            mic_muted="$("$0" mic-muted)" \
+            cpu_perf_state="$(~/.config/eww/scripts/cc/cpu-governor.sh get)"
         ;;
     *)
         echo "Unknown command: ${1:-}" >&2

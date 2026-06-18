@@ -95,8 +95,6 @@
 (defpoll wifi_state :interval "3s" "~/.config/eww/scripts/control_center.sh wifi-state")
 ;; Trạng thái bật/tắt Bluetooth (on/off)
 (defpoll bt_state :interval "3s" "~/.config/eww/scripts/control_center.sh bt-state")
-;; Trạng thái Chế độ máy bay (on/off)
-(defpoll airplane_state :interval "3s" "~/.config/eww/scripts/control_center.sh airplane-state")
 ;; Trạng thái mạng dây / Ethernet (on/off)
 (defpoll wired_state :interval "3s" "~/.config/eww/scripts/control_center.sh wired-state")
 ;; Mức âm lượng hiện tại (0-100)
@@ -107,6 +105,8 @@
 (defpoll mic_muted :interval "1s" "~/.config/eww/scripts/control_center.sh mic-muted")
 ;; Mức độ sáng màn hình hiện tại (0-100)
 (defpoll bri_level :interval "2s" "~/.config/eww/scripts/control_center.sh bri-level")
+;; Trạng thái CPU governor: on = performance, off = schedutil
+(defpoll cpu_perf_state :interval "3s" "~/.config/eww/scripts/cc/cpu-governor.sh get")
 
 ;; ── Router-view: trang đang hiển thị trong control center ──
 (defvar cc_view "home")
@@ -381,16 +381,7 @@
               (button :class "toggle-arrow"
                       :onclick "~/.config/eww/scripts/control_center.sh open-page bluetooth"
                       "›"))
-            (label :class "toggle-label" :text "Bluetooth"))
-
-          ;; Airplane Mode Toggle
-          (box :class "toggle-container" :orientation "vertical" :space-evenly false
-            (box :class {airplane_state == "on" ? "toggle-btn active" : "toggle-btn"} :orientation "horizontal" :space-evenly false
-              (button :class "toggle-main" :onclick "~/.config/eww/scripts/control_center.sh airplane-toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                (label :text ""))
-              (box :class "toggle-divider")
-              (button :class "toggle-arrow" :onclick "" "›"))
-            (label :class "toggle-label" :text "Airplane")))
+            (label :class "toggle-label" :text "Bluetooth")))
 
         (box :orientation "horizontal" :space-evenly true
           ;; Wired network Toggle
@@ -424,7 +415,17 @@
               (button :class "toggle-arrow"
                       :onclick "~/.config/eww/scripts/control_center.sh open-page mic"
                       "›"))
-            (label :class "toggle-label" :text "Microphone"))))
+            (label :class "toggle-label" :text "Microphone")))
+
+        (box :orientation "horizontal" :space-evenly true
+          ;; Performance Governor Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {cpu_perf_state == "on" ? "toggle-btn active" : "toggle-btn"}
+                 :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main"
+                      :onclick "~/.config/eww/scripts/cc/cpu-governor.sh toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text "")))
+            (label :class "toggle-label" :text "Performance"))))
 
       ;; Sliders
       (box :class "cc-sliders" :orientation "vertical" :space-evenly false
