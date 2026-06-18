@@ -12,7 +12,7 @@ case "${1:-}" in
     toggle)
         gov=$(cat "$GOV_FILE" 2>/dev/null || echo "unknown")
         if [ "$gov" = "performance" ]; then
-            sudo "$HELPER" schedutil
+            sudo "$HELPER" powersave
         else
             sudo "$HELPER" performance
         fi
