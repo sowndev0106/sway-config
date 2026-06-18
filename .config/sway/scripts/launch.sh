@@ -1,11 +1,15 @@
 #!/bin/sh
 # Khởi chạy Sway trên máy GPU lai (Intel/AMD iGPU + Nvidia rời).
 #
-# Nguyên tắc: iGPU (Intel/AMD) LUÔN làm renderer CHÍNH (đứng đầu WLR_DRM_DEVICES)
-# vì driver mesa của nó ổn định trên wlroots. Để Nvidia làm renderer chính trên
-# Sway 1.9 (chưa có explicit-sync) là nguyên nhân kinh điển gây GIẬT/XÉ/NHIỄU hình.
-# Nvidia đứng SAU: màn hình cắm vào Nvidia vẫn quét hình được (wlroots tự copy
-# khung hình đã render từ iGPU sang Nvidia để xuất ra màn hình).
+# Nguyên tắc: Nvidia làm renderer CHÍNH (đứng đầu WLR_DRM_DEVICES) NẾU có card
+# rời, vì màn hình cắm thẳng vào Nvidia. Render ngay trên GPU đang xuất hình ->
+# KHỎI copy khung hình chéo GPU qua PCIe mỗi frame (đường vòng đó là thủ phạm
+# gây GIẬT khi kéo cửa sổ, lại bỏ phí con Nvidia mạnh chỉ để ngồi copy).
+#
+# Trước đây ép iGPU làm renderer chính là WORKAROUND cho Sway 1.9 (chưa có
+# explicit-sync) — khi đó để Nvidia làm chính gây GIẬT/XÉ/NHIỄU. Nay đã build
+# Sway 1.10 (build-sway.sh) CÓ explicit-sync nên Nvidia-primary chạy mượt; lý do
+# né Nvidia đã hết. Máy chỉ-Intel (không có Nvidia) thì iGPU vẫn làm renderer.
 #
 # Dùng /dev/dri/cardN (KHÔNG dùng by-path vì tên chứa ':' trùng ký tự ngăn cách).
 
@@ -21,11 +25,11 @@ for d in /sys/class/drm/card[0-9]*; do
     esac
 done
 
-# iGPU làm renderer chính nếu có; chỉ rơi về Nvidia khi máy KHÔNG có iGPU.
-if [ -n "$igpu" ]; then
-    primary="$igpu";  secondary="$dgpu"
-else
+# Nvidia làm renderer chính nếu có (màn hình cắm vào nó); không có thì iGPU.
+if [ -n "$dgpu" ]; then
     primary="$dgpu";  secondary="$igpu"
+else
+    primary="$igpu";  secondary="$dgpu"
 fi
 
 devs="$primary"

@@ -14,9 +14,13 @@ chạy** — không cần copy. Một nguồn duy nhất.
 - Config này dùng chung cho **2 máy**: một máy chỉ có iGPU Intel, một máy có
   thêm **Nvidia rời** (Intel Arrow Lake + Nvidia, màn hình cắm vào card Nvidia).
   Mọi thứ phải **tự dò GPU lúc chạy**, không hardcode. `launch.sh` lo việc này:
-  iGPU luôn làm renderer chính, Nvidia chỉ quét hình ra màn hình. Session
-  "Sway (Hybrid GPU)" + `--unsupported-gpu` chỉ bật khi `install.sh` thấy module
-  nvidia; máy chỉ-Intel dùng session Sway thường (không qua `launch.sh`).
+  vì màn hình cắm vào Nvidia, **Nvidia làm renderer chính** (đứng đầu
+  `WLR_DRM_DEVICES`) để render thẳng trên GPU đang xuất hình, khỏi copy chéo GPU
+  qua PCIe mỗi frame (đường vòng đó gây giật khi kéo cửa sổ). Chạy được mượt nhờ
+  Sway 1.10 có explicit-sync (`build-sway.sh`); máy chỉ-Intel thì iGPU làm
+  renderer. Session "Sway (Hybrid GPU)" + `--unsupported-gpu` chỉ bật khi
+  `install.sh` thấy module nvidia; máy chỉ-Intel dùng session Sway thường
+  (không qua `launch.sh`).
 
 ## Quy ước
 
