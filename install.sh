@@ -19,7 +19,7 @@ PACKAGES=(
     xwayland
     # Tiện ích desktop bổ sung
     xdg-desktop-portal-wlr   # chia sẻ màn hình / hộp thoại chọn file (Zoom, Meet, OBS)
-    nautilus                # file manager GNOME (giống Files/macOS, dark theme đẹp)
+    nemo                    # file manager Cinnamon (GTK3, hỗ trợ chuột/kéo-thả tốt, nhẹ hơn Nautilus)
     file-roller             # nén/giải nén zip/rar
     gvfs                    # gắn ổ đĩa, thùng rác, mạng
     tumbler                 # thumbnail cho ảnh/PDF
@@ -376,7 +376,7 @@ EOF
     esac
 fi
 
-echo "==> Đặt Nautilus làm trình quản lý file mặc định..."
-xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
+echo "==> Đặt Nemo làm trình quản lý file mặc định..."
+xdg-mime default nemo.desktop inode/directory 2>/dev/null || true
 
 echo "==> Xong. Đăng xuất rồi chọn 'Sway (Hybrid GPU)' ở màn hình đăng nhập (máy Nvidia)."

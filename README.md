@@ -39,7 +39,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **playerctl** | Điều khiển nhạc/video | phím media |
 | **pavucontrol** | Quản lý âm thanh (GUI) | từ launcher |
 | **cliphist** | Lịch sử clipboard (copy nhiều lần) | `Mod+Shift+v` |
-| **nautilus** | Trình quản lý file GNOME (giao diện tối, tối ưu Wayland) | `Mod+Shift+e` |
+| **nemo** | Trình quản lý file (Cinnamon, GTK3, hỗ trợ chuột/kéo-thả tốt) | `Mod+e` |
 | **firefox** | Trình duyệt | từ launcher |
 | **imv** | Xem ảnh | `imv <ảnh>` |
 | **nm-applet** | WiFi / mạng (GUI ở khay) | icon khay |
@@ -105,7 +105,7 @@ Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `
 | `Mod+d` | Trình khởi chạy ứng dụng (rofi) |
 | `Mod+Shift+d` | Launcher dự phòng (wofi) |
 | `Mod+q` | Đóng cửa sổ đang focus |
-| `Mod+Shift+e` | Mở file manager (Nautilus, nổi 70% màn hình, căn giữa) |
+| `Mod+e` | Mở file manager (Nemo, nổi 70% màn hình, căn giữa) |
 | `Mod+Shift+c` | Nạp lại config (reload) |
 | `Mod+e` | Đổi layout (splith) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
