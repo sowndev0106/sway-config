@@ -381,7 +381,15 @@
               (button :class "toggle-arrow"
                       :onclick "~/.config/eww/scripts/control_center.sh open-page bluetooth"
                       "›"))
-            (label :class "toggle-label" :text "Bluetooth")))
+            (label :class "toggle-label" :text "Bluetooth"))
+          ;; Performance Governor Toggle
+          (box :class "toggle-container" :orientation "vertical" :space-evenly false
+            (box :class {cpu_perf_state == "on" ? "toggle-btn active" : "toggle-btn"}
+                 :orientation "horizontal" :space-evenly false
+              (button :class "toggle-main"
+                      :onclick "~/.config/eww/scripts/cc/cpu-governor.sh toggle && ~/.config/eww/scripts/control_center.sh refresh"
+                (label :text "")))
+            (label :class "toggle-label" :text "Performance")))
 
         (box :orientation "horizontal" :space-evenly true
           ;; Wired network Toggle
@@ -415,17 +423,7 @@
               (button :class "toggle-arrow"
                       :onclick "~/.config/eww/scripts/control_center.sh open-page mic"
                       "›"))
-            (label :class "toggle-label" :text "Microphone")))
-
-        (box :orientation "horizontal" :space-evenly true
-          ;; Performance Governor Toggle
-          (box :class "toggle-container" :orientation "vertical" :space-evenly false
-            (box :class {cpu_perf_state == "on" ? "toggle-btn active" : "toggle-btn"}
-                 :orientation "horizontal" :space-evenly false
-              (button :class "toggle-main"
-                      :onclick "~/.config/eww/scripts/cc/cpu-governor.sh toggle && ~/.config/eww/scripts/control_center.sh refresh"
-                (label :text "")))
-            (label :class "toggle-label" :text "Performance"))))
+            (label :class "toggle-label" :text "Microphone"))))
 
       ;; Sliders
       (box :class "cc-sliders" :orientation "vertical" :space-evenly false
