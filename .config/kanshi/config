@@ -17,6 +17,12 @@ profile auto-dp-1-hdmi-a-1-edp-1 {
     output "DP-1" enable mode 2560x1440@59.951Hz position 3840,0
     output "HDMI-A-1" enable mode 1920x1080@60Hz position 6400,159
 }
+
+# @auto-key: DP-4 + HDMI-A-3
+profile auto-dp-4-hdmi-a-3 {
+    output "HDMI-A-3" enable mode 1920x1080@60Hz position 2560,199
+    output "DP-4" enable mode 3840x2160@60Hz position 4480,0 scale 1.5
+}
 # <<< AUTO PROFILES <<<
 
 # 3 màn (fallback nếu xoá vùng AUTO): laptop | HCX (DP-1, 2K) | LG (HDMI)  trái -> phải
