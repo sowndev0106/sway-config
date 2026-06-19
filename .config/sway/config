@@ -173,6 +173,9 @@ bindsym --release Mod1+Alt_R exec ~/.config/eww/scripts/alt_tab_trigger.sh selec
 # Hủy bằng Alt+Escape (nếu muốn cancel mà không chọn)
 bindsym Mod1+Escape      exec ~/.config/eww/scripts/alt_tab_trigger.sh cancel
 
+# Phím panic: gỡ kẹt alt-tab/popup eww khi grabber giữ chết bàn phím (không cần logout)
+bindsym $mod+Ctrl+Escape exec ~/.config/sway/scripts/reset-popups.sh
+
 ### Resize mode
 mode "resize" {
     bindsym $left resize shrink width 10px

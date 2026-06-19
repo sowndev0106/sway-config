@@ -235,18 +235,42 @@ class KeyboardGrabber:
         self.win.connect("key-release-event", self.on_key_release)
         self.win.connect("focus-in-event", self.on_focus_in)
         self.win.connect("destroy", self.Gtk.main_quit)
-        
+
         self.popup_opened = False
-        
+        self.watchdog_id = None
+        # Tự đóng grabber sau 10s không có hoạt động phím, tránh treo độc quyền
+        # bàn phím khi sự kiện thả Alt không bao giờ tới (gây "popup treo").
+        self.WATCHDOG_MS = 10000
+
     def start(self):
         from gi.repository import GLib
+        self.GLib = GLib
         self.win.show_all()
         self.win.present()
-        
+
         # Trì hoãn mở popup Eww 150ms
         GLib.timeout_add(150, self.open_switcher_popup)
-        
+        self.kick_watchdog()
+
         self.Gtk.main()
+
+    def kick_watchdog(self):
+        # Đặt lại đồng hồ đếm ngược mỗi khi có hoạt động.
+        if self.watchdog_id is not None:
+            self.GLib.source_remove(self.watchdog_id)
+        self.watchdog_id = self.GLib.timeout_add(self.WATCHDOG_MS, self.on_watchdog)
+
+    def on_watchdog(self):
+        # Hết giờ chờ → coi như grabber mồ côi, đóng sạch để giải phóng bàn phím.
+        try:
+            with open("/tmp/alt-tab.log", "a") as f:
+                f.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} - Watchdog fired, closing\n")
+        except Exception:
+            pass
+        self.watchdog_id = None
+        self.win.destroy()
+        close_and_exit(self.popup_opened)
+        return False
         
     def open_switcher_popup(self):
         global monitor
@@ -272,7 +296,8 @@ class KeyboardGrabber:
         global index, workspaces
         keyval = event.keyval
         state = event.state
-        
+        self.kick_watchdog()
+
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         try:
             with open("/tmp/alt-tab.log", "a") as f:
@@ -308,7 +333,8 @@ class KeyboardGrabber:
         
     def on_key_release(self, widget, event):
         keyval = event.keyval
-        
+        self.kick_watchdog()
+
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         try:
             with open("/tmp/alt-tab.log", "a") as f:
