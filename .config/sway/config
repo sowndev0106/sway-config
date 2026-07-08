@@ -295,6 +295,11 @@ for_window [app_id="^org\.gtk\.\w*[Ff]ile[Cc]hooser.*"] floating enable, resize 
 for_window [window_role="(?i)GtkFileChooserDialog"] floating enable, resize set 900 600, move position center
 for_window [title="(?i)^(open|save|upload|select|choose)($| .*(file|folder|photo|image|document).*)"] floating enable, resize set 900 600, move position center
 
+# Chrome profile riêng (chrome-float.sh) dùng làm default browser cho link mà
+# app ngoài mở ra (claude code, claude cli, VS Code, Slack...) — luôn nổi
+# giữa màn hình thay vì tile vào layout, không đụng tới Chrome chính đang dùng.
+for_window [app_id="chrome-float"] floating enable, resize set 1280 800, move position center
+
 ### Bar
 bar {
     swaybar_command waybar

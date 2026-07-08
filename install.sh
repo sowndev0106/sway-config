@@ -380,4 +380,33 @@ fi
 echo "==> Đặt Nemo làm trình quản lý file mặc định..."
 xdg-mime default nemo.desktop inode/directory 2>/dev/null || true
 
+echo "==> Đăng ký Chrome profile riêng (float) cho link app khác mở ra..."
+### Nhiều app (claude code, claude cli, VS Code, Slack...) mở link test/preview
+### qua xdg-open -> mặc định Chrome sẽ nhồi vào tab của cửa sổ đang mở, xen vào
+### layout tile hiện tại. Wrapper chrome-float.sh dùng --user-data-dir riêng để
+### chạy một tiến trình Chrome ĐỘC LẬP (không dùng chung session với Chrome
+### chính), --class=chrome-float đặt app_id để rule floating trong
+### .config/sway/config bắt được và tự nổi giữa màn hình. Vì user-data-dir khác
+### nhau, Chrome coi đây là phiên trình duyệt riêng (cookie/đăng nhập tách biệt
+### khỏi Chrome chính) — các lần mở link sau sẽ vào tab mới của CHÍNH cửa sổ
+### float này (Chrome tự nhận đã có tiến trình chạy trên profile đó), không
+### bung thêm cửa sổ mới mỗi lần.
+mkdir -p "$HOME/.local/share/applications"
+cat > "$HOME/.local/share/applications/chrome-float.desktop" <<EOF
+[Desktop Entry]
+Name=Google Chrome (Float)
+Comment=Chrome profile riêng, tự nổi giữa màn hình — dùng khi app khác (claude code, claude cli, VS Code...) mở link
+Exec=$HOME/.config/sway/scripts/chrome-float.sh %U
+Terminal=false
+Type=Application
+Icon=google-chrome
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;
+Categories=Network;WebBrowser;
+NoDisplay=false
+EOF
+update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+xdg-mime default chrome-float.desktop x-scheme-handler/http 2>/dev/null || true
+xdg-mime default chrome-float.desktop x-scheme-handler/https 2>/dev/null || true
+
+
 echo "==> Xong. Đăng xuất rồi chọn 'Sway (Hybrid GPU)' ở màn hình đăng nhập (máy Nvidia)."
