@@ -1,8 +1,18 @@
 #!/bin/bash
-# Ctrl+Shift+C acts as plain Copy everywhere (Chrome's DevTools inspect-element
-# toggle, antigravity/VSCode's open-new-tab bind, etc. all get overridden).
+# Ctrl+Shift+C acts as plain Copy everywhere (overrides Chrome's DevTools
+# inspect-element toggle, antigravity/VSCode's open-new-tab bind, etc).
 # Exception: foot reserves Ctrl+C for SIGINT, so it already binds
 # Ctrl+Shift+C to copy natively — just replay the original combo there.
+#
+# Known limitation: in Electron apps (antigravity/VSCode), this ends up a
+# no-op instead of a real copy. Their clipboard write goes through Chromium's
+# Clipboard API, which requires a "trusted" (real hardware) input event —
+# wtype's synthetic key via the Wayland virtual-keyboard protocol doesn't
+# qualify, so the copy command runs but silently fails to write anything.
+# Confirmed this isn't fixable from here without a kernel-level input device
+# (ydotool/uinput), which needs passwordless root — not worth the security
+# trade-off for a keybinding. Plain (unmodified) Ctrl+C still works fine
+# there, since it's real input.
 
 BIND="Ctrl+Shift+c"
 SCRIPT="$HOME/.config/sway/scripts/ctrl-shift-c.sh"
