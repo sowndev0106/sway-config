@@ -9,6 +9,7 @@ PACKAGES=(
     waybar rofi wofi foot mako-notifier gnome-calendar
     papirus-icon-theme
     grim slurp wl-clipboard
+    wtype                    # synthetic keypresses on Wayland (Ctrl+Shift+C remap)
     curl unzip git ca-certificates gpg
     build-essential pkg-config
     meson ninja-build libwayland-dev wayland-protocols libgtk-4-dev

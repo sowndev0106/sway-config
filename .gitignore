@@ -11,3 +11,5 @@ __pycache__/
 
 # fcitx5 tự sinh lúc chạy (cache bố cục bàn phím, cấu hình thông báo) — không commit
 .config/fcitx5/conf/
+# Trạng thái runtime do script toggle ghi ra (không phải source)
+.config/waybar/sensors.state
