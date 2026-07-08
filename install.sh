@@ -240,6 +240,17 @@ ensure_wayscriber() {
     fi
 }
 
+ensure_xremap() {
+    # xremap: remap phím theo app (Ctrl+Shift+C = copy trong trình duyệt). Cần
+    # quyền input nên cài bằng script riêng (sudo). Bỏ qua nếu đã có binary.
+    if command -v xremap >/dev/null 2>&1 && [ "${UPDATE_XREMAP:-0}" != "1" ]; then
+        echo "==> xremap đã có ($(command -v xremap)), bỏ qua."
+        return
+    fi
+    echo "==> Cài xremap (remap phím theo app cho trình duyệt)..."
+    sudo "$REPO_DIR/.config/sway/scripts/install-xremap.sh"
+}
+
 install_swappy() {
     local swappy_bin tmpdir source_dir build_dir
 
@@ -274,6 +285,7 @@ install_swappy() {
 
 ensure_wayscriber
 install_swappy
+ensure_xremap
 ensure_rust_toolchain
 ensure_eww
 ensure_gtk4_layer_shell
@@ -310,6 +322,69 @@ Exec=blueman-applet
 Hidden=true
 X-GNOME-Autostart-enabled=false
 EOF
+
+echo "==> Ép Chrome chạy Wayland gốc (hết giật khi cuộn trang)..."
+# Mặc định google-chrome chạy qua XWayland -> thêm một lớp copy/đồng bộ khung,
+# gây GIẬT khi cuộn (rõ nhất trên máy Nvidia-primary). --ozone-platform-hint=auto
+# cho Chrome tự chọn Wayland khi đang trong session Wayland. Ghi đè desktop file
+# hệ thống bằng bản user cùng tên: copy nguyên bản gốc (giữ MimeType/Actions/icon)
+# rồi chèn flag vào các dòng Exec -> bền qua mỗi lần Chrome update.
+_chrome_desktop=/usr/share/applications/google-chrome.desktop
+if [ -f "$_chrome_desktop" ]; then
+    mkdir -p "$HOME/.local/share/applications"
+    sed 's#^Exec=/usr/bin/google-chrome\S*#& --ozone-platform-hint=auto#' \
+        "$_chrome_desktop" > "$HOME/.local/share/applications/google-chrome.desktop"
+    update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+fi
+
+echo "==> Ép app Electron render đúng GPU (hết giật Discord/Postman... trên máy Nvidia)..."
+# Electron chọn nhầm iGPU Intel làm render node trên máy Nvidia-primary -> mỗi
+# frame copy chéo GPU qua PCIe -> GIẬT. Không có biến môi trường toàn cục nào
+# truyền được flag Chromium cho Electron đóng gói sẵn, nên phải bọc từng app
+# qua electron-gpu.sh (tự dò GPU lúc chạy, máy chỉ-Intel không bị ảnh hưởng —
+# xem chú thích trong script). Cách làm giống Chrome ở trên: ghi đè desktop
+# file bằng bản user cùng tên, chèn wrapper vào đầu dòng Exec -> bền qua mỗi
+# lần app update. Chạy lại install.sh sau khi cài app Electron mới để bọc nó.
+_electron_gpu="$REPO_DIR/.config/sway/scripts/electron-gpu.sh"
+
+# Bọc 1 desktop file: copy sang bản user (nếu là file hệ thống) rồi chèn wrapper.
+wrap_electron_desktop() {
+    local src="$1" dst
+    dst="$HOME/.local/share/applications/$(basename "$src")"
+    if [ -f "$dst" ] && grep -q electron-gpu.sh "$dst"; then
+        return    # đã bọc rồi
+    fi
+    mkdir -p "$HOME/.local/share/applications"
+    if [ "$src" -ef "$dst" ]; then
+        sed -i "s#^Exec=#Exec=$_electron_gpu #" "$dst"
+    else
+        sed "s#^Exec=#Exec=$_electron_gpu #" "$(readlink -f "$src")" > "$dst"
+    fi
+    echo "   bọc electron-gpu: $(basename "$src")"
+}
+
+# Tự quét mọi desktop entry: app nào có chrome_crashpad_handler / chrome-sandbox
+# cạnh binary (hoặc thư mục cha) là app Electron/Chromium -> bọc. Bỏ qua:
+# - google-chrome/chromium: đời mới tự chọn đúng GPU qua dmabuf-feedback rồi;
+# - flatpak/snap: sandbox riêng, muốn thêm flag phải dùng cơ chế override của chúng.
+for _f in /usr/share/applications/*.desktop "$HOME/.local/share/applications/"*.desktop; do
+    [ -f "$_f" ] || continue
+    case "$(basename "$_f")" in google-chrome*|chromium*|com.google.Chrome*) continue ;; esac
+    _bin="$(awk -F= '/^Exec=/{print $2; exit}' "$_f" | awk '{print $1}')"
+    case "$_bin" in ""|env|flatpak|snap|*electron-gpu.sh) continue ;; esac
+    _real="$(readlink -f "$(command -v "$_bin" 2>/dev/null || echo "$_bin")" 2>/dev/null || true)"
+    [ -n "$_real" ] && [ -e "$_real" ] || continue
+    _dir="$(dirname "$_real")"
+    if [ -e "$_dir/chrome_crashpad_handler" ] || [ -e "$_dir/chrome-sandbox" ] \
+        || [ -e "$_dir/../chrome_crashpad_handler" ] || [ -e "$_dir/../chrome-sandbox" ]; then
+        wrap_electron_desktop "$_f"
+    fi
+done
+# Discord: /usr/bin/discord chỉ là script trỏ tới bản tự cập nhật trong
+# ~/.config/discord nên heuristic trên không bắt được -> bọc thẳng.
+[ -f /usr/share/applications/discord.desktop ] \
+    && wrap_electron_desktop /usr/share/applications/discord.desktop
+update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 
 echo "==> Bật dịch vụ Bluetooth..."
 sudo systemctl enable --now bluetooth
@@ -365,16 +440,25 @@ EOF
     echo "   -> Ở màn hình đăng nhập chọn 'Sway (Hybrid GPU)'."
 
     # Sway 1.9 của 24.04 thiếu explicit-sync -> màn hình qua Nvidia bị giật.
-    # Build Sway 1.10 (có explicit-sync) vào /opt/sway-stack nếu chưa có.
+    # Build Sway 1.12 vào /opt/sway-stack nếu chưa có. LƯU Ý: explicit sync chỉ
+    # có từ Sway 1.11 (1.10 mới chỉ chứa code trong wlroots, chưa bật) — vì vậy
+    # bản 1.10/1.11 cũ trong /opt cũng phải build lại.
     # (Không dùng '... | grep -q' vì lý do pipefail/SIGPIPE nêu trên.)
     sway_built="$(/opt/sway-stack/bin/sway --version 2>/dev/null || true)"
     case "$sway_built" in
-        *" 1.10"*)
-            echo "   -> Đã có Sway 1.10 ở /opt/sway-stack, bỏ qua build." ;;
+        *" 1.12"*)
+            echo "   -> Đã có Sway 1.12 ở /opt/sway-stack, bỏ qua build." ;;
         *)
-            echo "==> Build Sway 1.10 từ source để hết giật trên Nvidia (~15-25 phút)..."
+            echo "==> Build Sway 1.12 từ source để hết giật trên Nvidia (~15-25 phút)..."
             sudo "$REPO_DIR/.config/sway/scripts/build-sway.sh" ;;
     esac
+
+    # Nvidia nằm lì ở pstate P8 trên Wayland -> animation/Chromium lâu lâu GIẬT.
+    # Service khoá SÀN xung (vẫn boost được khi tải nặng) để hết giật. Chạy lúc
+    # khởi động VÀ sau mỗi lần resume (suspend làm mất khoá xung). Script root
+    # nên copy vào /usr/local/bin (không tham chiếu $HOME như session launch.sh).
+    echo "==> Cài service khoá xung Nvidia (hết giật animation/Chromium trên Wayland)..."
+    sudo "$REPO_DIR/.config/sway/scripts/install-nvidia-clock-lock.sh"
 fi
 
 echo "==> Đặt Nemo làm trình quản lý file mặc định..."

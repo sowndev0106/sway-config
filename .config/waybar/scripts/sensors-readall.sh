@@ -52,11 +52,28 @@ else
     power_str="<span foreground='#6c7086'>N/A W</span>"
 fi
 
+# GPU % + cong suat (chi may co Nvidia roi; may chi-Intel bo qua)
+gpu_str=""
+if command -v nvidia-smi >/dev/null 2>&1; then
+    gpu_read=$(nvidia-smi --query-gpu=utilization.gpu,power.draw \
+        --format=csv,noheader,nounits 2>/dev/null | head -n1)
+    if [ -n "$gpu_read" ]; then
+        gpu_util=$(echo "$gpu_read" | cut -d, -f1 | tr -dc '0-9')
+        gpu_watt=$(echo "$gpu_read" | cut -d, -f2 | tr -dc '0-9.')
+        gpu_str="<span foreground='#89b4fa'>󰢮 ${gpu_util:-0}%  ${gpu_watt:-0}W</span>"
+    fi
+fi
+
 # RAM %
 ram_total=$(awk '/^MemTotal:/{print $2}' /proc/meminfo)
 ram_avail=$(awk '/^MemAvailable:/{print $2}' /proc/meminfo)
 ram_pct=$(( (ram_total - ram_avail) * 100 / ram_total ))
 ram_str="<span foreground='#cba6f7'> ${ram_pct}%</span>"
 
-printf '%s  %s  %s  %s  %s' \
-    "$temp_str" "$cpu_str" "$freq_str" "$power_str" "$ram_str"
+if [ -n "$gpu_str" ]; then
+    printf '%s  %s  %s  %s  %s  %s' \
+        "$temp_str" "$cpu_str" "$freq_str" "$power_str" "$gpu_str" "$ram_str"
+else
+    printf '%s  %s  %s  %s  %s' \
+        "$temp_str" "$cpu_str" "$freq_str" "$power_str" "$ram_str"
+fi

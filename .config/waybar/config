@@ -38,6 +38,8 @@
             "custom/sensor-cpu",
             "custom/sensor-freq",
             "custom/cpu-power",
+            "custom/sensor-gpu",
+            "custom/gpu-power",
             "custom/sensor-ram"
         ]
     },
@@ -65,6 +67,20 @@
     "custom/cpu-power": {
         "format": "{}W",
         "exec": "~/.config/waybar/scripts/cpu-power.sh",
+        "interval": 3,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
+    },
+    "custom/sensor-gpu": {
+        "exec": "~/.config/waybar/scripts/sensor-gpu.sh",
+        "return-type": "json",
+        "interval": 2,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
+    },
+    "custom/gpu-power": {
+        "format": "{}W",
+        "exec": "~/.config/waybar/scripts/gpu-power.sh",
         "interval": 3,
         "signal": 8,
         "on-click": "~/.config/waybar/scripts/toggle-sensors-menu.sh"

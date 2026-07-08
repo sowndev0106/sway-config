@@ -132,6 +132,8 @@
 (defvar sensor_cpu_on   "on")
 (defvar sensor_freq_on  "on")
 (defvar sensor_power_on "on")
+(defvar sensor_gpu_on   "on")
+(defvar sensor_gpupower_on "on")
 (defvar sensor_ram_on   "on")
 
 ;; ── Cửa sổ Control Center Window ──
@@ -519,6 +521,8 @@
     (sensor-row :label "CPU %"       :key "cpu"   :var-name "sensor_cpu_on"   :state sensor_cpu_on)
     (sensor-row :label "Frequency"   :key "freq"  :var-name "sensor_freq_on"  :state sensor_freq_on)
     (sensor-row :label "CPU Power"   :key "power" :var-name "sensor_power_on" :state sensor_power_on)
+    (sensor-row :label "GPU %"       :key "gpu"   :var-name "sensor_gpu_on"   :state sensor_gpu_on)
+    (sensor-row :label "GPU Power"   :key "gpupower" :var-name "sensor_gpupower_on" :state sensor_gpupower_on)
     (sensor-row :label "RAM"         :key "ram"   :var-name "sensor_ram_on"   :state sensor_ram_on)))
 
 (defwindow sensors-popup [monitor]

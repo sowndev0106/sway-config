@@ -73,6 +73,8 @@ window#waybar {
 #custom-sensor-cpu,
 #custom-sensor-freq,
 #custom-cpu-power,
+#custom-sensor-gpu,
+#custom-gpu-power,
 #custom-sensor-ram {
     background-color: transparent;
     padding: 0 8px;
@@ -82,6 +84,8 @@ window#waybar {
 #custom-sensor-cpu   { color: #f9e2af; }
 #custom-sensor-freq  { color: #f9e2af; }
 #custom-cpu-power    { color: #a6e3a1; }
+#custom-sensor-gpu   { color: #89b4fa; }
+#custom-gpu-power    { color: #89b4fa; }
 #custom-sensor-ram   { color: #cba6f7; }
 #custom-sensor-temp.critical { color: #f38ba8; }
 

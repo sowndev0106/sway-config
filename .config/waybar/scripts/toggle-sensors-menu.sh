@@ -33,6 +33,8 @@ else
         sensor_cpu_on="$("$TOGGLE" get cpu)" \
         sensor_freq_on="$("$TOGGLE" get freq)" \
         sensor_power_on="$("$TOGGLE" get power)" \
+        sensor_gpu_on="$("$TOGGLE" get gpu)" \
+        sensor_gpupower_on="$("$TOGGLE" get gpupower)" \
         sensor_ram_on="$("$TOGGLE" get ram)" \
         2>/dev/null || true
 

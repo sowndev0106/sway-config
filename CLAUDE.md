@@ -17,7 +17,9 @@ chạy** — không cần copy. Một nguồn duy nhất.
   vì màn hình cắm vào Nvidia, **Nvidia làm renderer chính** (đứng đầu
   `WLR_DRM_DEVICES`) để render thẳng trên GPU đang xuất hình, khỏi copy chéo GPU
   qua PCIe mỗi frame (đường vòng đó gây giật khi kéo cửa sổ). Chạy được mượt nhờ
-  Sway 1.10 có explicit-sync (`build-sway.sh`); máy chỉ-Intel thì iGPU làm
+  Sway 1.12 có explicit-sync (`build-sway.sh`; lưu ý Sway 1.10 CHƯA bật explicit
+  sync dù wlroots 0.18 có sẵn code — sway chỉ gọi nó từ 1.11); máy chỉ-Intel thì
+  iGPU làm
   renderer. Session "Sway (Hybrid GPU)" + `--unsupported-gpu` chỉ bật khi
   `install.sh` thấy module nvidia; máy chỉ-Intel dùng session Sway thường
   (không qua `launch.sh`).

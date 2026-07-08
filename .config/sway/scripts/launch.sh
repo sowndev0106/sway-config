@@ -40,14 +40,13 @@ devs="$primary"
 # Chỉ áp dụng khi CÓ Nvidia; máy chỉ-Intel để con trỏ phần cứng cho mượt.
 [ -n "$dgpu" ] && export WLR_NO_HARDWARE_CURSORS=1
 
-# Ưu tiên Sway 1.10+ build tay ở /opt/sway-stack (có explicit-sync -> hết giật
+# Ưu tiên Sway build tay ở /opt/sway-stack (1.12, có explicit-sync -> hết giật
 # Nvidia; xem build-sway.sh). Không có thì dùng Sway hệ thống (1.9).
+# KHÔNG export LD_LIBRARY_PATH=/opt/sway-stack/lib ở đây: mọi binary trong stack
+# đã nhúng sẵn rpath tới /opt/sway-stack/lib, còn export thì lan sang MỌI app
+# trong session (Chrome, GTK...) ép chúng dùng lib của stack — và nó đè cả
+# rpath, từng gây lỗi "undefined symbol" khi lib trong /opt lệch bản.
 sway_bin="/opt/sway-stack/bin/sway"
-if [ -x "$sway_bin" ]; then
-    # Đề phòng rpath không ăn: cho linker thấy lib trong /opt trước.
-    export LD_LIBRARY_PATH="/opt/sway-stack/lib:${LD_LIBRARY_PATH:-}"
-else
-    sway_bin="sway"
-fi
+[ -x "$sway_bin" ] || sway_bin="sway"
 
 exec "$sway_bin" --unsupported-gpu "$@"

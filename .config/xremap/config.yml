@@ -1,0 +1,21 @@
+# xremap — remap phím THEO ỨNG DỤNG đang focus (dò app qua sway IPC).
+#
+# Mục đích: trong TRÌNH DUYỆT, biến Ctrl+Shift+C thành Ctrl+C (copy) thay vì mở
+# DevTools/inspector. Chrome/Firefox không cho đổi phím này, mà sway lại bind phím
+# TOÀN CỤC (không theo cửa sổ) — nên dùng xremap chặn ở tầng input: chỉ khi cửa sổ
+# đang focus là trình duyệt thì Ctrl+Shift+C mới được đổi; foot/terminal giữ nguyên.
+#
+# Tên app khớp theo app_id (Wayland) / class (XWayland). Dùng regex không phân biệt
+# hoa thường để bắt hết biến thể: google-chrome, Google-chrome, chromium, firefox,
+# Navigator (class XWayland của Firefox). Kiểm tra tên thật: swaymsg -t get_tree.
+
+keymap:
+  - name: Trình duyệt — Ctrl+Shift+C = copy (không mở DevTools)
+    application:
+      only:
+        - /(?i)chrome/
+        - /(?i)chromium/
+        - /(?i)firefox/
+        - /(?i)navigator/
+    remap:
+      Ctrl-Shift-C: Ctrl-C

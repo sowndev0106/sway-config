@@ -51,6 +51,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **grimshot** | Chụp màn hình (kèm thông báo) | `Print` |
 | **kanshi / wdisplays** | Đa màn hình (tự sắp xếp / GUI) | tự chạy / từ launcher |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
+| **xremap** | Remap phím theo app (trình duyệt: `Ctrl+Shift+C` = copy) | (nền) |
 | **xdg-desktop-portal-wlr** | Chia sẻ màn hình / hộp thoại chọn file | (nền) |
 
 ---
@@ -253,6 +254,18 @@ fcitx5 tự chạy nền khi vào Sway. Biến môi trường nằm ở `.config
 
 > Nếu một app (thường là app XWayland) không gõ được tiếng Việt, kiểm tra đã đăng nhập lại sau khi cài chưa, và `pgrep fcitx5` có thấy tiến trình không.
 
+### Remap phím theo app (xremap) — trình duyệt: `Ctrl+Shift+C` = copy
+Bình thường trong trình duyệt `Ctrl+Shift+C` mở DevTools/inspector. Cấu hình này
+đổi nó thành **copy** (Ctrl+C) — *chỉ khi trình duyệt (Chrome/Firefox) đang focus*;
+terminal và app khác giữ nguyên. Làm được nhờ **xremap** đọc input ở tầng evdev và
+hỏi sway xem app nào đang focus (sway bind phím toàn cục nên không tự làm được).
+
+- Cấu hình quy tắc: `.config/xremap/config.yml` (đổi app / phím tại đây).
+- Tự chạy nền qua `exec_always` trong `.config/sway/config`.
+- **Cài một lần** (cần quyền đọc input): `sudo ~/.config/sway/scripts/install-xremap.sh`
+  rồi **đăng xuất/đăng nhập lại** (để nhận group `input`). `install.sh` cũng tự gọi.
+- Kiểm tra đang chạy: `pgrep -a xremap`. Xem tên app để khớp: `swaymsg -t get_tree`.
+
 ### Dark theme cho toàn hệ thống
 - **GTK3/GTK4** (Thunar cũ, file-roller, ...): cấu hình trong `.config/gtk-3.0/settings.ini` và `.config/gtk-4.0/settings.ini` (đang dùng `Yaru-dark`, `gtk-application-prefer-dark-theme=1`).
 - **libadwaita** (Nautilus, app GNOME mới): biến `GTK_THEME=Yaru-dark:dark` trong `.config/environment.d/theme.conf` ép dark dù theme gốc là light.
@@ -328,6 +341,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
 | Dock không hiện khi rê xuống đáy | Dock hiện **đang tắt autostart**. Chạy tay `~/.config/sway/scripts/dock.sh` để mở; nếu muốn bật lại vĩnh viễn, bỏ comment dòng `exec_always ~/.config/sway/scripts/dock.sh` trong `sway/config`. Nếu báo thiếu binary thì chạy `./install.sh` |
 | Volume/độ sáng không đổi | Audio: `wpctl status` + xem user có trong group `audio` không. Độ sáng: `/sys/class/backlight/intel_backlight/brightness` thuộc group `video` — nếu `brightnessctl set 5%+` báo "Permission denied" thì chạy `sudo usermod -aG video $USER` rồi **logout/login lại**. `install.sh` tự thêm bước này từ lần cài sau |
+| **App Electron (Discord, Postman...) giật khi cuộn/gõ** (máy Nvidia) | Electron chọn nhầm iGPU Intel làm render node → mỗi frame copy chéo GPU qua PCIe. `install.sh` tự quét và bọc desktop entry qua `sway/scripts/electron-gpu.sh` (ép render node Nvidia + ANGLE Vulkan). Cài app Electron mới thì chạy lại `./install.sh`. Kiểm tra: app phải xuất hiện trong `nvidia-smi` khi đang mở |
 | Không share được màn hình (Zoom/Meet) | Cài thêm `xdg-desktop-portal-wlr` |
 | App GUI không xin được quyền admin | Kiểm tra polkit agent đang chạy: `pgrep -f polkit-gnome` |
 | Nautilus (hoặc app libadwaita) vẫn sáng dù đã set dark | Biến `environment.d` chỉ nạp ở session mới — **đăng xuất rồi đăng nhập lại**. Hoặc test ngay: `export GTK_THEME=Yaru-dark:dark && swaymsg reload` |

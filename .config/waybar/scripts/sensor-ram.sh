@@ -7,7 +7,7 @@ if ! "$TOGGLE" enabled ram 2>/dev/null; then
     exit 0
 fi
 
-icon=$(printf '')
+icon=$(printf '\U000F035B')
 
 ram_total=$(awk '/^MemTotal:/{print $2}' /proc/meminfo)
 ram_avail=$(awk '/^MemAvailable:/{print $2}' /proc/meminfo)

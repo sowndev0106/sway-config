@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Manage on/off state for each sensor tile on waybar.
 # Usage: sensors-toggle.sh get|toggle|enabled <key>
-# key: temp | cpu | freq | power | ram
+# key: temp | cpu | freq | power | gpu | gpupower | ram
 set -euo pipefail
 
 STATE_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/waybar/sensors.state"
-KEYS=(temp cpu freq power ram)
+KEYS=(temp cpu freq power gpu gpupower ram)
 
 _get() {
     local key="$1"

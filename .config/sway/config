@@ -330,4 +330,9 @@ exec rm -f $XDG_RUNTIME_DIR/wob.sock && mkfifo $XDG_RUNTIME_DIR/wob.sock && tail
 exec_always "pkill -x kanshi; kanshi"
 exec_always python3 ~/.config/sway/scripts/sway_workspace_daemon.py
 
+# Remap phím theo app: trong trình duyệt, Ctrl+Shift+C = copy thay vì mở DevTools.
+# Cần cài 1 lần: sudo ~/.config/sway/scripts/install-xremap.sh (xem config trong
+# ~/.config/xremap/config.yml). Chỉ chạy khi đã cài xremap.
+exec_always "command -v xremap >/dev/null && (pkill -x xremap; exec xremap ~/.config/xremap/config.yml)"
+
 include /etc/sway/config.d/*
