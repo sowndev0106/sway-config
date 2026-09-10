@@ -19,13 +19,18 @@ SCRIPT="$HOME/.config/sway/scripts/ctrl-shift-c.sh"
 
 app_id=$(swaymsg -t get_tree | jq -r '.. | objects | select(.focused == true) | .app_id // .window_properties.class // empty' | head -n1)
 
-if [ "$app_id" = "foot" ]; then
+# Match both the normal terminal (app_id=foot) and the floating one
+# launched with --app-id=foot-float.
+case "$app_id" in
+foot|foot-*)
     # wtype's synthetic key press would otherwise be caught by this same
     # bindsym again, causing an infinite loop — drop the binding while
     # replaying the original combo, then restore it right after.
     swaymsg "unbindsym $BIND"
     wtype -M ctrl -M shift -k c -m shift -m ctrl
     swaymsg "bindsym $BIND exec $SCRIPT"
-else
+    ;;
+*)
     wtype -M ctrl -k c -m ctrl
-fi
+    ;;
+esac
