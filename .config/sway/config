@@ -227,10 +227,13 @@ bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
 
 ### Screenshot (grimshot — tự lưu/copy + thông báo)
+# Các phím CHỌN VÙNG chạy qua screenshot-freeze.sh: màn hình đóng băng đúng lúc bấm phím nên
+# ảnh là khung hình lúc bấm (không phải lúc thả chuột, khi video/animation đã trôi đi mất).
+# Print (toàn màn hình) vốn đã chụp tức thời nên không cần.
 bindsym Print exec grimshot save screen          # toàn màn hình -> file
-bindsym Shift+Print exec grimshot copy area       # chọn vùng -> clipboard
-bindsym $mod+Print exec grimshot save area        # chọn vùng -> file
-bindsym $mod+Shift+s exec ~/.config/sway/scripts/screenshot-edit.sh  # chọn vùng -> vẽ/sửa bằng swappy
+bindsym Shift+Print exec ~/.config/sway/scripts/screenshot-freeze.sh grimshot copy area   # chọn vùng (đóng băng) -> clipboard
+bindsym $mod+Print exec ~/.config/sway/scripts/screenshot-freeze.sh grimshot save area    # chọn vùng (đóng băng) -> file
+bindsym $mod+Shift+s exec ~/.config/sway/scripts/screenshot-edit.sh  # chọn vùng (đóng băng) -> vẽ/sửa bằng swappy
 bindsym $mod+g exec wayscriber --active                          # vẽ trực tiếp lên màn hình
 # Quay màn hình: bấm lần 1 chọn vùng & quay, lần 2 dừng
 bindsym $mod+Shift+r exec ~/.config/sway/scripts/record.sh

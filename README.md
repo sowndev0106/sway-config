@@ -49,6 +49,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **zathura** | Đọc PDF | `zathura <file>` |
 | **wlogout** | Menu nguồn toàn màn hình (dự phòng) | từ rofi (góc dưới phải) |
 | **grimshot** | Chụp màn hình (kèm thông báo) | `Print` |
+| **wayfreeze** | Đóng băng màn hình đúng lúc bấm phím chụp vùng | (nền) `Shift+Print`, `Mod+Print`, `Mod+Shift+s` |
 | **kanshi / wdisplays** | Đa màn hình (tự sắp xếp / GUI) | tự chạy / từ launcher |
 | **fcitx5 + unikey** | Bộ gõ tiếng Việt | `Ctrl+Space` để bật/tắt |
 | **xremap** | Remap phím theo app (trình duyệt: `Ctrl+Shift+C` = copy) | (nền) |
@@ -184,9 +185,9 @@ Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `
 | Phím | Hành động |
 |---|---|
 | `Print` | Chụp **toàn màn hình** → lưu file (`~/Pictures`) |
-| `Shift+Print` | Chọn **vùng** → copy vào clipboard |
-| `Mod+Print` | Chọn **vùng** → lưu file |
-| `Mod+Shift+s` | Chọn **vùng** → copy vào clipboard (kiểu snip) |
+| `Shift+Print` | Chọn **vùng** → copy vào clipboard (màn hình đóng băng lúc bấm) |
+| `Mod+Print` | Chọn **vùng** → lưu file (màn hình đóng băng lúc bấm) |
+| `Mod+Shift+s` | Chọn **vùng** → mở swappy để vẽ/sửa (màn hình đóng băng lúc bấm) |
 | `Mod+Shift+r` | Quay màn hình (bấm lần 2 để dừng) → lưu `~/Videos` |
 | Vuốt 3 ngón (touchpad) | Đổi workspace trái/phải |
 
@@ -260,9 +261,27 @@ Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình
 - Khóa thủ công: `Mod+Shift+x` hoặc click nút khóa ở góc dưới phải Rofi.
 - Tự động (cấu hình trong `sway/config`): **5 phút** không hoạt động → khóa; **10 phút** → tắt màn hình; khi mở nắp/đánh thức → bật lại. Khi máy ngủ (suspend) cũng tự khóa.
 
-### Chụp màn hình (grim + slurp)
-- `Print`: lưu file PNG vào `~/Pictures`.
+### Chụp màn hình (grim + slurp + wayfreeze)
+- `Print`: lưu file PNG vào `~/Pictures` (chụp tức thời).
 - `Shift+Print`: kéo chọn vùng → vào clipboard, dán bằng `Ctrl+V`.
+- `Mod+Print`: kéo chọn vùng → lưu file. `Mod+Shift+s`: kéo chọn vùng → mở swappy để vẽ/sửa.
+
+**Đóng băng lúc bấm phím.** `slurp` chỉ vẽ khung chọn lên màn hình đang chạy thật, còn ảnh chỉ
+được chụp sau khi thả chuột — nên ảnh là khung hình lúc thả chuột, video/animation/chữ đang
+stream đã trôi đi mất. Ba phím chọn vùng vì vậy chạy qua `screenshot-freeze.sh`: `wayfreeze`
+chụp mọi màn hình ngay lúc bấm rồi phủ khung hình đó lên trên, `slurp` và `grim` chạy sau đó
+thấy màn hình đứng yên; chụp xong thì rã đông.
+
+- Bấm `Esc` (hoặc chuột phải) để huỷ chọn: màn hình tự rã đông. Bấm phím lần 2 khi lần 1 còn
+  chạy thì bị bỏ qua.
+- Lớp đóng băng che cả waybar và dock trong lúc chọn (bình thường); con trỏ được ẩn khỏi
+  khung hình đóng băng để ảnh không có "con trỏ ma".
+- `screenshot-edit.sh` (`Mod+Shift+s`) không còn hiện thông báo "Kéo chọn vùng..." như trước:
+  thông báo hiện lên màn hình sẽ lọt vào chính bức ảnh. Ảnh được chụp vào file tạm rồi mới mở
+  swappy sau khi rã đông (mở lúc đang đóng băng thì cửa sổ nằm dưới lớp đóng băng).
+- `wayfreeze` không có trên apt/crates.io; `install.sh` cài từ GitHub bằng
+  `cargo install --git https://github.com/Jappie3/wayfreeze --tag 0.2.1`. Chưa cài thì chụp
+  vùng vẫn chạy như cũ, chỉ là không đóng băng.
 
 ### Lịch sử clipboard (cliphist) — `Mod+Shift+v`
 Mọi nội dung bạn copy được lưu lại. Bấm `Mod+Shift+v` → rofi hiện danh sách đã copy → chọn để dán lại. Tiến trình ghi chạy nền (`wl-paste --watch`).
@@ -397,6 +416,8 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Volume/độ sáng không đổi | Audio: `wpctl status` + xem user có trong group `audio` không. Độ sáng: `/sys/class/backlight/intel_backlight/brightness` thuộc group `video` — nếu `brightnessctl set 5%+` báo "Permission denied" thì chạy `sudo usermod -aG video $USER` rồi **logout/login lại**. `install.sh` tự thêm bước này từ lần cài sau |
 | **App Electron (Discord, Postman...) giật khi cuộn/gõ** (máy Nvidia) | Electron chọn nhầm iGPU Intel làm render node → mỗi frame copy chéo GPU qua PCIe. `install.sh` tự quét và bọc desktop entry qua `sway/scripts/electron-gpu.sh` (ép render node Nvidia + ANGLE Vulkan). Cài app Electron mới thì chạy lại `./install.sh`. Kiểm tra: app phải xuất hiện trong `nvidia-smi` khi đang mở |
 | Mở app ở màn 1, rê chuột sang màn 2 thì app hiện ở màn 2 | Do `launch-pin.py` chưa chạy hoặc app không thuộc diện ghim. Kiểm tra `pgrep -af launch-pin.py` (không thấy thì `swaymsg reload`). Chỉ ghim app **vừa khởi động ≤ 45 giây**; app đã chạy sẵn mở thêm cửa sổ thì giữ hành vi cũ. Xem lý do từng cửa sổ: `LAUNCH_PIN_DEBUG=1 ~/.config/sway/scripts/launch-pin.py` (xem mục "App mở ở màn nào hiện ở màn đó") |
+| Chụp vùng không đóng băng màn hình | `command -v wayfreeze || ls ~/.cargo/bin/wayfreeze`: chưa cài thì chạy `./install.sh` (hoặc `cargo install --git https://github.com/Jappie3/wayfreeze --tag 0.2.1`). Không có nó thì chụp vùng vẫn chạy nhưng màn hình không đứng yên |
+| Màn hình kẹt ở trạng thái đóng băng | Bấm `Esc` hoặc click để thoát; nếu vẫn kẹt: `pkill -x wayfreeze; pkill -x slurp` |
 | Không share được màn hình (Zoom/Meet) | Cài thêm `xdg-desktop-portal-wlr` |
 | App GUI không xin được quyền admin | Kiểm tra polkit agent đang chạy: `pgrep -f polkit-gnome` |
 | Nautilus (hoặc app libadwaita) vẫn sáng dù đã set dark | Biến `environment.d` chỉ nạp ở session mới — **đăng xuất rồi đăng nhập lại**. Hoặc test ngay: `export GTK_THEME=Yaru-dark:dark && swaymsg reload` |
@@ -417,7 +438,7 @@ Mỗi dòng phải trỏ về `~/sway-config/.config/...`.
 sway-config/
 ├── .config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
-│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó), waybar-outputs.sh (chạy waybar + ẩn/hiện header từng màn)
+│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó), waybar-outputs.sh (chạy waybar + ẩn/hiện header từng màn), screenshot-freeze.sh (đóng băng màn hình lúc chụp vùng)
 │   ├── swaylock/config        # màn khóa (đồng hồ + theme)
 │   ├── wlogout/{layout,style.css}  # menu nguồn
 │   ├── kanshi/config          # bố cục đa màn hình

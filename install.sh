@@ -48,6 +48,7 @@ PACKAGES=(
     gtklock                  # màn khóa đẹp (ô nhập mật khẩu thật, theme CSS)
     grimshot                 # chụp màn hình tiện hơn (kèm thông báo)
     gettext                  # msgfmt/xgettext cho build swappy nếu apt chưa có package
+    pkg-config libxkbcommon-dev libwayland-dev   # build wayfreeze (đóng băng màn hình lúc chụp vùng)
     kanshi wdisplays         # đa màn hình: tự sắp xếp + GUI kéo thả
     # Phụ thuộc cho Eww (GTK3 layer shell, dbusmenu, cairo...)
     jq
@@ -206,6 +207,27 @@ install_nwg_dock() {
     cargo install nwg-dock
 }
 
+install_wayfreeze() {
+    local wf_bin
+
+    wf_bin="$(command -v wayfreeze 2>/dev/null || true)"
+    if [ -z "$wf_bin" ] && [ -x "$HOME/.cargo/bin/wayfreeze" ]; then
+        wf_bin="$HOME/.cargo/bin/wayfreeze"
+    fi
+
+    if [ -n "$wf_bin" ] && [ "${UPDATE_WAYFREEZE:-0}" != "1" ]; then
+        echo "==> wayfreeze đã có ($wf_bin), bỏ qua."
+        return
+    fi
+
+    # Không có trên apt lẫn crates.io nên cài thẳng từ GitHub (ghim tag để build lặp lại được).
+    # Thất bại (mất mạng...) thì KHÔNG dừng cả install.sh: phím chụp vùng vẫn chạy, chỉ là
+    # màn hình không đóng băng lúc chọn vùng (screenshot-freeze.sh tự chạy tiếp không có nó).
+    echo "==> Cài wayfreeze (đóng băng màn hình lúc chụp vùng)..."
+    cargo install --git https://github.com/Jappie3/wayfreeze --tag 0.2.1 --locked \
+        || echo "!! Không cài được wayfreeze: chụp vùng vẫn chạy nhưng màn hình không đóng băng."
+}
+
 ensure_wayscriber() {
     local wayscriber_bin configurator_bin
     local keyring="/usr/share/keyrings/wayscriber.gpg"
@@ -290,6 +312,7 @@ ensure_rust_toolchain
 ensure_eww
 ensure_gtk4_layer_shell
 install_nwg_dock
+install_wayfreeze
 
 echo "==> Cài JetBrainsMono Nerd Font (icon waybar)..."
 # apt không có sẵn Nerd Font -> tải bản release vào thư mục font của user (không cần sudo).
