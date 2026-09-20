@@ -329,6 +329,10 @@ exec rm -f $XDG_RUNTIME_DIR/wob.sock && mkfifo $XDG_RUNTIME_DIR/wob.sock && tail
 # lại bố cục, nếu không layout sẽ bị reset về mặc định khi reload.
 exec_always "pkill -x kanshi; kanshi"
 exec_always python3 ~/.config/sway/scripts/sway_workspace_daemon.py
+# Mở app ở màn nào thì cửa sổ hiện ở màn đó, kể cả khi app khởi động chậm và bạn
+# đã rê chuột sang màn khác trước lúc nó hiện ra (cách hoạt động: đầu file script).
+# Script tự tắt bản cũ nên reload không bị chạy nhân đôi.
+exec_always ~/.config/sway/scripts/launch-pin.py
 
 # Remap phím theo app: trong trình duyệt, Ctrl+Shift+C = copy thay vì mở DevTools.
 # Cần cài 1 lần: sudo ~/.config/sway/scripts/install-xremap.sh (xem config trong

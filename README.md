@@ -266,6 +266,33 @@ hỏi sway xem app nào đang focus (sway bind phím toàn cục nên không t�
   rồi **đăng xuất/đăng nhập lại** (để nhận group `input`). `install.sh` cũng tự gọi.
 - Kiểm tra đang chạy: `pgrep -a xremap`. Xem tên app để khớp: `swaymsg -t get_tree`.
 
+### App mở ở màn nào hiện ở màn đó (launch-pin)
+Sway đặt cửa sổ mới lên màn đang **focus vào lúc cửa sổ hiện ra**, không phải lúc bạn
+bấm mở. App khởi động chậm (Chrome, Discord, Electron...) hiện ra sau vài giây; nếu lúc
+đó bạn đã rê chuột sang màn khác thì app nhảy sang màn đó. Script `launch-pin.py` sửa
+việc này:
+
+- Nó nhớ "màn nào có focus vào lúc nào". Khi có cửa sổ mới, nó xem app **được khởi động
+  lúc nào** (chính là lúc bạn bấm mở) rồi chuyển cửa sổ về màn lúc đó. Mỗi app tự tra
+  theo tiến trình của chính nó, nên mở nhiều app ở nhiều màn cùng lúc vẫn về đúng màn
+  của từng app, dù app nào hiện ra trước.
+- Không cần móc vào launcher nào: rofi, dock, gõ lệnh trong terminal, phím tắt đều được.
+- Chuyển xong focus của bạn vẫn ở chỗ đang làm, app không cướp focus.
+- Chỉ áp dụng cho app **vừa khởi động (≤ 45 giây)**. App đã chạy sẵn mở thêm cửa sổ
+  (Chrome, nemo...) giữ hành vi cũ; loại này hiện ngay nên ít bị lệch màn. Đổi lại: nếu
+  bạn bấm Ctrl+N trong một Chrome mới bật chưa tới 45 giây, ở màn khác, cửa sổ đó cũng
+  bị kéo về màn lúc bật Chrome.
+- Cửa sổ có thể chớp ở màn sai khoảng 0,1 giây trước khi được chuyển.
+- Tự chạy nền qua `exec_always` trong `.config/sway/config`; script tự tắt bản cũ nên
+  reload không bị chạy nhân đôi.
+- Kiểm tra đang chạy: `pgrep -af launch-pin.py`. Xem nó quyết định gì:
+  `LAUNCH_PIN_DEBUG=1 ~/.config/sway/scripts/launch-pin.py` (chạy foreground, `Ctrl+C`
+  để dừng, rồi `swaymsg reload` để nó chạy nền lại).
+
+> App mở bằng `exec` của sway (phím tắt trong `config`) được sway gắn sẵn
+> `XDG_ACTIVATION_TOKEN`, nên app biết dùng token như `foot` tự nằm đúng màn. App do
+> rofi / dock / terminal spawn thì không có token, đó mới là chỗ cần script này.
+
 ### Dark theme cho toàn hệ thống
 - **GTK3/GTK4** (Thunar cũ, file-roller, ...): cấu hình trong `.config/gtk-3.0/settings.ini` và `.config/gtk-4.0/settings.ini` (đang dùng `Yaru-dark`, `gtk-application-prefer-dark-theme=1`).
 - **libadwaita** (Nautilus, app GNOME mới): biến `GTK_THEME=Yaru-dark:dark` trong `.config/environment.d/theme.conf` ép dark dù theme gốc là light.
@@ -342,6 +369,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Dock không hiện khi rê xuống đáy | Dock hiện **đang tắt autostart**. Chạy tay `~/.config/sway/scripts/dock.sh` để mở; nếu muốn bật lại vĩnh viễn, bỏ comment dòng `exec_always ~/.config/sway/scripts/dock.sh` trong `sway/config`. Nếu báo thiếu binary thì chạy `./install.sh` |
 | Volume/độ sáng không đổi | Audio: `wpctl status` + xem user có trong group `audio` không. Độ sáng: `/sys/class/backlight/intel_backlight/brightness` thuộc group `video` — nếu `brightnessctl set 5%+` báo "Permission denied" thì chạy `sudo usermod -aG video $USER` rồi **logout/login lại**. `install.sh` tự thêm bước này từ lần cài sau |
 | **App Electron (Discord, Postman...) giật khi cuộn/gõ** (máy Nvidia) | Electron chọn nhầm iGPU Intel làm render node → mỗi frame copy chéo GPU qua PCIe. `install.sh` tự quét và bọc desktop entry qua `sway/scripts/electron-gpu.sh` (ép render node Nvidia + ANGLE Vulkan). Cài app Electron mới thì chạy lại `./install.sh`. Kiểm tra: app phải xuất hiện trong `nvidia-smi` khi đang mở |
+| Mở app ở màn 1, rê chuột sang màn 2 thì app hiện ở màn 2 | Do `launch-pin.py` chưa chạy hoặc app không thuộc diện ghim. Kiểm tra `pgrep -af launch-pin.py` (không thấy thì `swaymsg reload`). Chỉ ghim app **vừa khởi động ≤ 45 giây**; app đã chạy sẵn mở thêm cửa sổ thì giữ hành vi cũ. Xem lý do từng cửa sổ: `LAUNCH_PIN_DEBUG=1 ~/.config/sway/scripts/launch-pin.py` (xem mục "App mở ở màn nào hiện ở màn đó") |
 | Không share được màn hình (Zoom/Meet) | Cài thêm `xdg-desktop-portal-wlr` |
 | App GUI không xin được quyền admin | Kiểm tra polkit agent đang chạy: `pgrep -f polkit-gnome` |
 | Nautilus (hoặc app libadwaita) vẫn sáng dù đã set dark | Biến `environment.d` chỉ nạp ở session mới — **đăng xuất rồi đăng nhập lại**. Hoặc test ngay: `export GTK_THEME=Yaru-dark:dark && swaymsg reload` |
@@ -362,7 +390,7 @@ Mỗi dòng phải trỏ về `~/sway-config/.config/...`.
 sway-config/
 ├── .config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
-│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi)
+│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó)
 │   ├── swaylock/config        # màn khóa (đồng hồ + theme)
 │   ├── wlogout/{layout,style.css}  # menu nguồn
 │   ├── kanshi/config          # bố cục đa màn hình
