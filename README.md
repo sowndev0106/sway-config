@@ -338,6 +338,28 @@ việc này:
 > `XDG_ACTIVATION_TOKEN`, nên app biết dùng token như `foot` tự nằm đúng màn. App do
 > rofi / dock / terminal spawn thì không có token, đó mới là chỗ cần script này.
 
+### Thanh tiêu đề / tab cửa sổ có icon từng app
+Thanh tiêu đề chỉ hiện khi cửa sổ nằm trong layout **tabbed** (`Mod+w`) hoặc **stacking**
+(`Mod+s`); layout thường dùng viền pixel (`default_border pixel 3`) nên không có thanh.
+
+Kiểu "thanh tối + icon màu" (Catppuccin Mocha), cao **25px** (chữ cỡ 9, đệm dọc 4; bản cũ 31px):
+cửa sổ đang focus = thanh sáng hơn (`#313244`) + viền xanh; cửa sổ khác = thanh tối, chữ mờ; cửa
+sổ đang chọn của màn/nhóm khác = nền `#1e1e2e` + viền xám. Phía trước tên có icon, màu riêng từng app.
+
+- Màu và cỡ chữ: các dòng `font`, `titlebar_padding`, `client.*` trong `.config/sway/config`.
+- Icon: `.config/sway/window-icons.conf` (`include` từ config). Sway không vẽ được ảnh trong
+  thanh tiêu đề nên đây là ký tự của JetBrainsMono Nerd Font, **không phải logo thật** (Claude
+  dùng tia sáng, Antigravity dùng tên lửa). App chưa có rule dùng icon mặc định màu xám.
+- Thêm app: mở app đó, xem `swaymsg -t get_tree | grep -E 'app_id|class'`, sao 1 khối trong
+  `window-icons.conf`, đổi regex + icon (bảng glyph: nerdfonts.com/cheat-sheet), rồi `Mod+Shift+c`.
+  Mỗi app cần 2 rule (`app_id` cho app Wayland, `class` cho app XWayland).
+- Sway chỉ chạy `for_window` cho cửa sổ **mới mở**, nên `scripts/apply-window-icons.sh` (chạy
+  bằng `exec_always`) áp lại rule icon lên cửa sổ đang mở mỗi lần reload: sửa icon xong
+  `Mod+Shift+c` là thấy ngay, khỏi đóng/mở lại app.
+- Cửa sổ nổi dùng viền pixel (`default_floating_border`) nên không có thanh tiêu đề, không có icon.
+- Font `Inter` khai trong config **chưa được cài** trên máy này, sway tự rơi về Noto Sans. Muốn
+  đúng ý gốc thì `sudo apt install fonts-inter`.
+
 ### Dark theme cho toàn hệ thống
 - **GTK3/GTK4** (Thunar cũ, file-roller, ...): cấu hình trong `.config/gtk-3.0/settings.ini` và `.config/gtk-4.0/settings.ini` (đang dùng `Yaru-dark`, `gtk-application-prefer-dark-theme=1`).
 - **libadwaita** (Nautilus, app GNOME mới): biến `GTK_THEME=Yaru-dark:dark` trong `.config/environment.d/theme.conf` ép dark dù theme gốc là light.
@@ -418,6 +440,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Mở app ở màn 1, rê chuột sang màn 2 thì app hiện ở màn 2 | Do `launch-pin.py` chưa chạy hoặc app không thuộc diện ghim. Kiểm tra `pgrep -af launch-pin.py` (không thấy thì `swaymsg reload`). Chỉ ghim app **vừa khởi động ≤ 45 giây**; app đã chạy sẵn mở thêm cửa sổ thì giữ hành vi cũ. Xem lý do từng cửa sổ: `LAUNCH_PIN_DEBUG=1 ~/.config/sway/scripts/launch-pin.py` (xem mục "App mở ở màn nào hiện ở màn đó") |
 | Chụp vùng không đóng băng màn hình | `command -v wayfreeze || ls ~/.cargo/bin/wayfreeze`: chưa cài thì chạy `./install.sh` (hoặc `cargo install --git https://github.com/Jappie3/wayfreeze --tag 0.2.1`). Không có nó thì chụp vùng vẫn chạy nhưng màn hình không đứng yên |
 | Màn hình kẹt ở trạng thái đóng băng | Bấm `Esc` hoặc click để thoát; nếu vẫn kẹt: `pkill -x wayfreeze; pkill -x slurp` |
+| Cửa sổ hiện icon mặc định (xám) hoặc không có icon | App đó chưa có rule: thêm vào `.config/sway/window-icons.conf` (xem mục "Thanh tiêu đề / tab cửa sổ có icon từng app"), rồi `Mod+Shift+c` là áp luôn lên cửa sổ đang mở |
 | Không share được màn hình (Zoom/Meet) | Cài thêm `xdg-desktop-portal-wlr` |
 | App GUI không xin được quyền admin | Kiểm tra polkit agent đang chạy: `pgrep -f polkit-gnome` |
 | Nautilus (hoặc app libadwaita) vẫn sáng dù đã set dark | Biến `environment.d` chỉ nạp ở session mới — **đăng xuất rồi đăng nhập lại**. Hoặc test ngay: `export GTK_THEME=Yaru-dark:dark && swaymsg reload` |
@@ -438,7 +461,8 @@ Mỗi dòng phải trỏ về `~/sway-config/.config/...`.
 sway-config/
 ├── .config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
-│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó), waybar-outputs.sh (chạy waybar + ẩn/hiện header từng màn), screenshot-freeze.sh (đóng băng màn hình lúc chụp vùng)
+│   ├── sway/window-icons.conf # icon từng app trên thanh tiêu đề/tab (include từ sway/config)
+│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó), waybar-outputs.sh (chạy waybar + ẩn/hiện header từng màn), screenshot-freeze.sh (đóng băng màn hình lúc chụp vùng), apply-window-icons.sh (áp icon tiêu đề lên cửa sổ đang mở)
 │   ├── swaylock/config        # màn khóa (đồng hồ + theme)
 │   ├── wlogout/{layout,style.css}  # menu nguồn
 │   ├── kanshi/config          # bố cục đa màn hình
