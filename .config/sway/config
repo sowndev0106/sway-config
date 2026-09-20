@@ -241,6 +241,11 @@ bindsym $mod+Shift+v exec cliphist list | ~/.config/sway/scripts/rofi-focused.sh
 ### Khóa màn hình thủ công (nền blur desktop)
 bindsym $mod+Shift+x exec ~/.config/sway/scripts/lock.sh
 
+### Ẩn/hiện header (waybar) — CHỈ màn hình đang focus, các màn khác giữ nguyên
+# Ẩn thì cửa sổ trên màn đó giãn kín màn hình; bấm lại để hiện. Mặc định hiện đủ khi đăng nhập.
+# --no-repeat: giữ phím lâu cũng chỉ tính 1 lần bấm (mặc định sway lặp lệnh khi giữ phím).
+bindsym --no-repeat $mod+Shift+b exec ~/.config/sway/scripts/waybar-outputs.sh toggle
+
 # Ctrl+Shift+C: Copy in Chrome instead of DevTools inspect-element toggle;
 # every other app keeps its own Ctrl+Shift+C behavior unchanged.
 bindsym Ctrl+Shift+c exec ~/.config/sway/scripts/ctrl-shift-c.sh
@@ -304,9 +309,12 @@ for_window [title="(?i)^(open|save|upload|select|choose)($| .*(file|folder|photo
 for_window [app_id="chrome-float"] floating enable, resize set 1280 800, move position center
 
 ### Bar
-bar {
-    swaybar_command waybar
-}
+# Header (waybar) chạy qua waybar-outputs.sh để bật/tắt riêng từng màn hình bằng Mod+Shift+b.
+# KHÔNG dùng khối `bar { swaybar_command ... }`: sway chỉ chạy được đúng 1 tên chương trình
+# trần (không nhận tham số, không mở rộng ~) nên không trỏ tới script trong repo được.
+# Phải nằm SAU dòng dbus-update-activation-environment ở đầu file (xem chú thích ở đó).
+# exec_always + kill cũ: mỗi lần reload chạy lại waybar, không bị nhân đôi.
+exec_always "pkill -x waybar; ~/.config/sway/scripts/waybar-outputs.sh"
 
 ### Autostart
 exec mako

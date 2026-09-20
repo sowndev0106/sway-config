@@ -37,7 +37,7 @@ chạy** — không cần copy. Một nguồn duy nhất.
 | File | Vai trò |
 |---|---|
 | `.config/sway/config` | Cấu hình chính + toàn bộ phím tắt |
-| `.config/sway/scripts/` | `vol.sh`, `bri.sh` (OSD), `lock.sh`, `record.sh`, `launch.sh` (Nvidia), `launch-pin.py` (cửa sổ mới về đúng màn lúc bấm mở app) |
+| `.config/sway/scripts/` | `vol.sh`, `bri.sh` (OSD), `lock.sh`, `record.sh`, `launch.sh` (Nvidia), `launch-pin.py` (cửa sổ mới về đúng màn lúc bấm mở app), `waybar-outputs.sh` (chạy waybar + ẩn/hiện header từng màn, `Mod+Shift+b`; waybar khởi động qua `exec_always` chứ không qua `bar {}`) |
 | `.config/kanshi/config` | Bố cục đa màn hình (auto theo số màn cắm) |
 | `.config/waybar/{config,style.css}` | Thanh trạng thái |
 | `.config/nwg-dock-hyprland/{config.toml,style.css}` | Dock app dưới màn hình, tự ẩn |

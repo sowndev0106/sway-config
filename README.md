@@ -110,6 +110,7 @@ Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `
 | `Mod+Shift+c` | Nạp lại config (reload) |
 | `Mod+e` | Đổi layout (splith) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
+| `Mod+Shift+b` | Ẩn/hiện header (waybar) của **màn hình đang focus** — cửa sổ giãn kín màn |
 | `Mod+Shift+v` | Lịch sử clipboard (cliphist) |
 | `Ctrl+Space` | Bật/tắt gõ tiếng Việt (fcitx5) |
 
@@ -219,6 +220,31 @@ Trình khởi chạy chính của hệ thống, được thiết kế lại theo
 
 ### waybar (thanh trạng thái)
 Hiện workspace (trái), tên cửa sổ (giữa), và bên phải: âm lượng, mạng, CPU, RAM, pin, đồng hồ, khay hệ thống (tray). Cấu hình: `.config/waybar/config` (nội dung) và `style.css` (giao diện).
+
+#### Ẩn/hiện header riêng từng màn hình — `Mod+Shift+b`
+Bấm `Mod+Shift+b` để ẩn header trên **màn đang focus** (các màn khác giữ nguyên); cửa
+sổ trên màn đó giãn ra chiếm luôn chỗ header. Bấm lại để hiện. Khác `Mod+f` (fullscreen
+một cửa sổ), phím này giữ nguyên bố cục tiling, chỉ lấy thêm chỗ.
+
+- Waybar chỉ có 1 tiến trình vẽ bar trên mọi màn, và tín hiệu ẩn/hiện có sẵn của nó
+  (`SIGUSR1`) tác động lên **tất cả** bar. Nên script `waybar-outputs.sh` giữ danh sách
+  "màn ẩn header", ghi thành 1 config tạm trong `$XDG_RUNTIME_DIR` (key `output` dạng
+  `["!DP-5", "*"]` + `include` config thật), rồi **khởi động lại waybar** với config đó.
+  Không nạp lại bằng `SIGUSR2` được: waybar 0.9.24 nạp lại nhưng giữ giá trị cũ của key
+  đã có, nên `output` chỉ đổi được đúng 1 lần.
+- Mỗi lần bấm, waybar khởi động lại nên header ở màn còn lại biến mất chừng 0,05 giây
+  rồi hiện lại (đo bằng vùng dành riêng của bar); các ô cảm biến có thể trống tới khoảng
+  1 giây cho đến khi script của chúng chạy xong. Icon tray của app tự đăng ký lại.
+- Trạng thái nằm ở `$XDG_RUNTIME_DIR` nên **đăng nhập lại là header hiện đủ** ở mọi màn;
+  reload sway (`Mod+Shift+c`) thì giữ nguyên màn đang ẩn.
+- Phím có `--no-repeat` (giữ phím lâu vẫn chỉ tính 1 lần) và script tự xếp hàng các lần
+  bấm liên tiếp, nên không bị nhân đôi waybar.
+- Waybar khởi động bằng `exec_always` trong `.config/sway/config` qua script này, **không**
+  dùng khối `bar { swaybar_command ... }` vì sway chỉ nhận đúng 1 tên chương trình trần
+  ở đó (không tham số, không mở rộng `~`). `.config/waybar/config` giữ nguyên, chạy tay
+  `waybar` để debug vẫn như cũ.
+- Cần `jq` (đã có trong `install.sh`). Tắt/bật một màn cụ thể từ terminal:
+  `~/.config/sway/scripts/waybar-outputs.sh toggle DP-5` (không đối số = màn đang focus).
 
 ### nwg-dock (dock app tự ẩn)
 Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện tích. Rê chuột xuống đáy màn hình để dock trồi lên; rời chuột thì dock tự ẩn lại. Cấu hình: `.config/nwg-dock-hyprland/config.toml` và `style.css`. Script khởi động: `.config/sway/scripts/dock.sh`.
@@ -366,6 +392,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | **Máy Nvidia: vào Sway bị văng về login** | Sway từ chối GPU Nvidia độc quyền nên thoát ngay. Chọn session **"Sway (Hybrid GPU)"** ở màn hình đăng nhập (install.sh tự tạo nếu có Nvidia — render bằng iGPU, vẫn dùng được màn hình nối qua Nvidia). Từ TTY: `WLR_DRM_DEVICES=<iGPU>:<Nvidia> sway --unsupported-gpu` |
 | Phím tắt không ăn | `Mod+Shift+c` reload; xem log: `journalctl --user -b -u sway` hoặc chạy `swaymsg -t get_config` |
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
+| Header (waybar) biến mất ở một màn hình | Có thể đã bấm `Mod+Shift+b` (ẩn header màn đó): bấm lại để hiện. Nếu mất ở mọi màn: `pgrep -a waybar` xem còn chạy không, không thì `swaymsg reload` |
 | Dock không hiện khi rê xuống đáy | Dock hiện **đang tắt autostart**. Chạy tay `~/.config/sway/scripts/dock.sh` để mở; nếu muốn bật lại vĩnh viễn, bỏ comment dòng `exec_always ~/.config/sway/scripts/dock.sh` trong `sway/config`. Nếu báo thiếu binary thì chạy `./install.sh` |
 | Volume/độ sáng không đổi | Audio: `wpctl status` + xem user có trong group `audio` không. Độ sáng: `/sys/class/backlight/intel_backlight/brightness` thuộc group `video` — nếu `brightnessctl set 5%+` báo "Permission denied" thì chạy `sudo usermod -aG video $USER` rồi **logout/login lại**. `install.sh` tự thêm bước này từ lần cài sau |
 | **App Electron (Discord, Postman...) giật khi cuộn/gõ** (máy Nvidia) | Electron chọn nhầm iGPU Intel làm render node → mỗi frame copy chéo GPU qua PCIe. `install.sh` tự quét và bọc desktop entry qua `sway/scripts/electron-gpu.sh` (ép render node Nvidia + ANGLE Vulkan). Cài app Electron mới thì chạy lại `./install.sh`. Kiểm tra: app phải xuất hiện trong `nvidia-smi` khi đang mở |
@@ -390,7 +417,7 @@ Mỗi dòng phải trỏ về `~/sway-config/.config/...`.
 sway-config/
 ├── .config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
-│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó)
+│   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó), waybar-outputs.sh (chạy waybar + ẩn/hiện header từng màn)
 │   ├── swaylock/config        # màn khóa (đồng hồ + theme)
 │   ├── wlogout/{layout,style.css}  # menu nguồn
 │   ├── kanshi/config          # bố cục đa màn hình
