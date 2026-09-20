@@ -277,6 +277,9 @@ for_window [app_id="blueman-manager"] floating enable
 for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="fcitx5-config-qt"] floating enable
 for_window [app_id="org.fcitx.fcitx5-config-qt"] floating enable
+# OpenRGB (chỉnh LED ARGB) — native Wayland nên rule window_role/window_type
+# bên dưới không khớp, phải bắt theo app_id.
+for_window [app_id="org.openrgb.OpenRGB"] floating enable, resize set 1100 750, move position center
 for_window [app_id="org.gnome.Calendar"] floating enable, resize set 1100 760, move position center
 for_window [app_id="nemo"] floating enable, resize set 70 ppt 70 ppt, move position center
 for_window [app_id="thunar" title="(?i)(properties|preferences|rename|file operation)"] floating enable
