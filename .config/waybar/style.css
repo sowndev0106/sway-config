@@ -61,12 +61,15 @@ window#waybar {
     border-radius: 16px;
 }
 
-/* ── Cụm cảm biến — container group bo góc pill, ô con không bo góc riêng ── */
+/* ── Sensor cluster — the group draws the rounded pill, children are flat ──
+   The group must have NO padding of its own: when every tile is turned off the
+   children hide but the group box stays, and any padding would leave a stray
+   empty pill. All horizontal spacing therefore lives on the children. */
 #sensors {
     background-color: #313244;
     border-radius: 16px;
     margin: 4px 6px;
-    padding: 0 4px;
+    padding: 0;
 }
 
 #custom-sensor-temp,
@@ -77,7 +80,7 @@ window#waybar {
 #custom-gpu-power,
 #custom-sensor-ram {
     background-color: transparent;
-    padding: 0 8px;
+    padding: 0 10px;
 }
 
 #custom-sensor-temp  { color: #fab387; }

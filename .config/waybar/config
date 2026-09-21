@@ -16,7 +16,8 @@
     "custom/power": {
         "format": "",
         "tooltip": false,
-        "on-click": "wlogout"
+        "on-click": "wlogout",
+        "on-click-right": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
 
     "sway/workspaces": {
@@ -30,7 +31,9 @@
         "format": "{}"
     },
 
-    // ── Cụm cảm biến — bọc trong group để pill bo góc đúng khi ẩn ô ──
+    // ── Sensor cluster — wrapped in a group so the pill is rounded correctly when tiles hide ──
+    // Right-clicking (almost) any module opens the sensor toggle menu, so the tiles can
+    // be brought back even after all of them are off and the cluster has no visible area.
     "group/sensors": {
         "orientation": "horizontal",
         "modules": [
@@ -97,7 +100,8 @@
     "clock": {
         "format": " {:%a %d-%m  %H:%M}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "on-click": "~/.config/waybar/scripts/toggle-calendar.sh"
+        "on-click": "~/.config/waybar/scripts/toggle-calendar.sh",
+        "on-click-right": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
 
     // ── Âm thanh / bluetooth / menu chung / pin (phải) ──
@@ -107,7 +111,8 @@
         "format-icons": { "default": ["", "", "", "", ""] },
         "tooltip-format": "{volume}%",
         "tooltip-format-muted": "Muted",
-        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh audio"
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh audio",
+        "on-click-right": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
     "bluetooth": {
         "format": "",
@@ -117,7 +122,8 @@
         "tooltip-format": "{controller_alias}\t{status}",
         "tooltip-format-connected": "{controller_alias}\t{status}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}",
-        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh bluetooth"
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh bluetooth",
+        "on-click-right": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
     "battery": {
         "states": { "warning": 30, "critical": 15, "full": 95 },
@@ -128,12 +134,14 @@
         "tooltip-format-charging": "Charging: {capacity}% ({time})",
         "tooltip-format-plugged": "Plugged: {capacity}%",
         "format-icons": ["", "", "", "", ""],
-        "interval": 2
+        "interval": 2,
+        "on-click-right": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
     "custom/control-center": {
         "format": "󰕮",
         "tooltip": false,
-        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh home"
+        "on-click": "~/.config/waybar/scripts/toggle-control-center.sh home",
+        "on-click-right": "~/.config/waybar/scripts/toggle-sensors-menu.sh"
     },
 
     "tray": {
