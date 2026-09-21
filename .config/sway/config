@@ -356,6 +356,10 @@ exec_always python3 ~/.config/sway/scripts/sway_workspace_daemon.py
 # Script tự tắt bản cũ nên reload không bị chạy nhân đôi.
 exec_always ~/.config/sway/scripts/launch-pin.py
 
+# Red dot on the Teams tab only when it has unread chats you have not looked at yet
+# (how it works: top of the script). It replaces the old copy itself on every reload.
+exec_always ~/.config/sway/scripts/teams-unread-dot.py
+
 # Remap phím theo app: trong trình duyệt, Ctrl+Shift+C = copy thay vì mở DevTools.
 # Cần cài 1 lần: sudo ~/.config/sway/scripts/install-xremap.sh (xem config trong
 # ~/.config/xremap/config.yml). Chỉ chạy khi đã cài xremap.
