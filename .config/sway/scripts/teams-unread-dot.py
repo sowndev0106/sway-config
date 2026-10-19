@@ -174,6 +174,7 @@ def main():
 
     tracker = SeenTracker(load_state(sock))
     dot_on = {}  # con_id -> True while the dot format is what is currently applied
+    last_title = {}
 
     def show(con_id, want):
         if want and not dot_on.get(con_id):
@@ -189,6 +190,7 @@ def main():
     tree = json.loads(swaymsg("-t", "get_tree", "-r") or "{}")
     for c in teams_containers(tree):
         count = unread_count(c.get("name"))
+        last_title[c["id"]] = c.get("name") or ""
         if c["id"] not in tracker.seen:
             tracker.adopt(c["id"], count)
         show(c["id"], tracker.observe(c["id"], count, bool(c.get("focused"))))
@@ -208,13 +210,27 @@ def main():
         if change == "close":
             tracker.forget(con_id)
             dot_on.pop(con_id, None)
-        elif change in ("new", "title", "focus"):
-            if change in ("new", "title"):
-                dot_on[con_id] = False  # the for_window rule just reset it to the plain icon
-            show(con_id, tracker.observe(con_id, unread_count(c.get("name")), bool(c.get("focused"))))
-        else:
+            last_title.pop(con_id, None)
+            save_state(sock, tracker)
             continue
-        save_state(sock, tracker)
+
+        cur_title = c.get("name") or ""
+        prev_title = last_title.get(con_id)
+        last_title[con_id] = cur_title
+
+        if change == "new":
+            dot_on[con_id] = False
+            show(con_id, tracker.observe(con_id, unread_count(cur_title), bool(c.get("focused"))))
+            save_state(sock, tracker)
+        elif change == "focus":
+            show(con_id, tracker.observe(con_id, unread_count(cur_title), bool(c.get("focused"))))
+            save_state(sock, tracker)
+        elif change == "title":
+            # If window title didn't actually change (e.g. triggered by title_format update), ignore
+            if cur_title == prev_title:
+                continue
+            show(con_id, tracker.observe(con_id, unread_count(cur_title), bool(c.get("focused"))))
+            save_state(sock, tracker)
 
 
 if __name__ == "__main__":
