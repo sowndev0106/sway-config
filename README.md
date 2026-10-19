@@ -357,8 +357,7 @@ sổ đang chọn của màn/nhóm khác = nền `#1e1e2e` + viền xám. Phía 
   bằng `exec_always`) áp lại rule icon lên cửa sổ đang mở mỗi lần reload: sửa icon xong
   `Mod+Shift+c` là thấy ngay, khỏi đóng/mở lại app.
 - Cửa sổ nổi dùng viền pixel (`default_floating_border`) nên không có thanh tiêu đề, không có icon.
-- Font `Inter` khai trong config **chưa được cài** trên máy này, sway tự rơi về Noto Sans. Muốn
-  đúng ý gốc thì `sudo apt install fonts-inter`.
+- Font chữ thanh tiêu đề/tab dùng mặc định của Sway (`pango:monospace 10`), không dùng font custom.
 
 ### Dark theme cho toàn hệ thống
 - **GTK3/GTK4** (Thunar cũ, file-roller, ...): cấu hình trong `.config/gtk-3.0/settings.ini` và `.config/gtk-4.0/settings.ini` (đang dùng `Yaru-dark`, `gtk-application-prefer-dark-theme=1`).
