@@ -31,47 +31,38 @@ WINDOW="calendar-popup"
 MONITOR="$(swaymsg -t get_outputs | jq -r '.[] | select(.focused).name' | head -n1)"
 MONITOR="${MONITOR:-0}"
 
-# 4. Khởi động daemon nếu chưa chạy và đợi kết nối sẵn sàng
-if ! "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1; then
-    "$EWW_BIN" --config "$CONFIG_DIR" daemon >/dev/null 2>&1 || true
-    # Chờ tối đa 3 giây cho daemon sẵn sàng kết nối IPC
-    for i in {1..30}; do
-        if "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1; then
-            break
-        fi
-        sleep 0.1
-    done
-fi
+# 4. Make sure exactly one healthy daemon is running (a deaf or duplicate daemon is
+#    replaced, otherwise its popup stays stuck on screen; see eww-daemon.sh)
+"$CONFIG_DIR/scripts/eww-daemon.sh" ensure
 
 CLOSER_WINDOW="calendar-popup-closer"
+POPUPS="$CONFIG_DIR/scripts/popups.sh"
 
-# Đóng control center nếu đang mở để tránh chồng chéo
-if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^control-center-popup"; then
-    "$EWW_BIN" --config "$CONFIG_DIR" close "control-center-popup" || true
-    "$EWW_BIN" --config "$CONFIG_DIR" close "control-center-popup-closer" || true
-fi
-
-# 5. Thực hiện Bật/Tắt cửa sổ lịch
-if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^$WINDOW"; then
-    # Nếu cửa sổ đang mở -> đóng cả hai
-    "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
-    "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER_WINDOW" || true
+# 5. Toggle the calendar. Read active-windows ONCE into a variable: piping it straight
+#    into `grep -q` under `set -o pipefail` always fails while the window is open (grep
+#    quits early, eww gets SIGPIPE), so a second click re-opened instead of closing.
+ACTIVE="$("$EWW_BIN" --config "$CONFIG_DIR" active-windows)"
+if grep -q "^$WINDOW:" <<<"$ACTIVE"; then
+    "$POPUPS" close-all
 else
-    # Nếu cửa sổ đang đóng -> khởi tạo lại biến tháng/năm về thực tại, cập nhật dữ liệu và mở
+    # Only one header popup at a time: close the control center / sensors menu if open
+    if grep -q -- '-popup' <<<"$ACTIVE"; then
+        "$POPUPS" close-all
+    fi
+
+    # Reset the shown month/year to today and load its data (one eww call)
     read -r current_year current_month < <(date "+%Y %m")
-    
-    # Cập nhật các biến trạng thái trong Eww về hiện tại
-    "$EWW_BIN" --config "$CONFIG_DIR" update calendar_month="$((10#$current_month))"
-    "$EWW_BIN" --config "$CONFIG_DIR" update calendar_year="$((10#$current_year))"
-    
     DATA_SCRIPT="$CONFIG_DIR/scripts/calendar-data.sh"
+    updates=(calendar_month="$((10#$current_month))" calendar_year="$((10#$current_year))")
     if [ -x "$DATA_SCRIPT" ]; then
-        "$EWW_BIN" --config "$CONFIG_DIR" update calendar_json="$("$DATA_SCRIPT" "$current_month" "$current_year")"
+        updates+=(calendar_json="$("$DATA_SCRIPT" "$current_month" "$current_year")")
     else
         echo "Warning: Không tìm thấy hoặc không có quyền chạy script dữ liệu lịch tại $DATA_SCRIPT" >&2
     fi
-    # Mở closer trước, sau đó mở popup chính để popup nằm trên cùng
-    "$EWW_BIN" --config "$CONFIG_DIR" open "$CLOSER_WINDOW" --arg monitor="$MONITOR"
-    "$EWW_BIN" --config "$CONFIG_DIR" open "$WINDOW" --arg monitor="$MONITOR"
-fi
+    "$EWW_BIN" --config "$CONFIG_DIR" update "${updates[@]}"
 
+    # Open the popup FIRST, then the closers. If a closer opens first it grabs every
+    # click (including clicks on the < > month/year buttons) and closes the popup.
+    "$EWW_BIN" --config "$CONFIG_DIR" open "$WINDOW" --arg monitor="$MONITOR"
+    "$POPUPS" open-closers "$CLOSER_WINDOW" || true
+fi

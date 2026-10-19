@@ -326,6 +326,10 @@ for_window [app_id="chrome-float"] floating enable, resize set 1280 800, move po
 # Phải nằm SAU dòng dbus-update-activation-environment ở đầu file (xem chú thích ở đó).
 # exec_always + kill cũ: mỗi lần reload chạy lại waybar, không bị nhân đôi.
 exec_always "pkill -x waybar; ~/.config/sway/scripts/waybar-outputs.sh"
+# Header popups (calendar, control center, sensors) are eww windows. Every reload
+# (Mod+Shift+c) kills ALL eww processes and starts one fresh daemon, so a stuck popup
+# left behind by a frozen daemon goes away (details at the top of eww-daemon.sh).
+exec_always ~/.config/eww/scripts/eww-daemon.sh restart
 
 ### Autostart
 exec mako

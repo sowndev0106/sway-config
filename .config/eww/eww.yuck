@@ -72,8 +72,11 @@
                   :text {day.label})))))))))
 
 ;; Widget closer làm nhiệm vụ click ra ngoài để đóng
-(defwidget closer [window]
-  (eventbox :class "closer" :onclick "/home/sown/.local/bin/eww --config ~/.config/eww close ${window} && /home/sown/.local/bin/eww --config ~/.config/eww close ${window}-closer"))
+;; One closer per monitor (popups.sh open-closers), so a click on ANY screen closes the
+;; popup. close-all closes every popup + every closer, so no invisible closer is left
+;; behind eating clicks even if the popup was already gone.
+(defwidget closer []
+  (eventbox :class "closer" :onclick "~/.config/eww/scripts/popups.sh close-all"))
 
 ;; Cửa sổ closer bao phủ toàn màn hình
 (defwindow calendar-popup-closer [monitor]
@@ -84,9 +87,10 @@
     :width "100%"
     :height "100%"
     :anchor "top left")
-  :stacking "overlay"
+  ;; "foreground" = below the popup ("overlay"), same as the control center closer
+  :stacking "foreground"
   :focusable false
-  (closer :window "calendar-popup"))
+  (closer))
 
 ;; ── Biến và Poll cho Control Center (Trung tâm điều khiển) ──
 ;; Tên mạng Wifi hiện tại hoặc trạng thái ngắt kết nối/tắt
@@ -165,7 +169,7 @@
   ;; để bắt click ngoài mà không đè lên popup
   :stacking "foreground"
   :focusable false
-  (closer :window "control-center-popup"))
+  (closer))
 
 ;; ── Widget chính của Control Center (Trung tâm điều khiển) ──
 ;; ── Panel: Wi-Fi ──
@@ -548,5 +552,5 @@
     :anchor "top left")
   :stacking "foreground"
   :focusable false
-  (closer :window "sensors-popup"))
+  (closer))
 

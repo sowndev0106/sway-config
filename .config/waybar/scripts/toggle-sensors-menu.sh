@@ -14,19 +14,23 @@ CLOSER="sensors-popup-closer"
 MONITOR="$(swaymsg -t get_outputs 2>/dev/null | jq -r '.[] | select(.focused).name' | head -n1)"
 MONITOR="${MONITOR:-0}"
 
-# Start daemon if not running
-if ! "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1; then
-    "$EWW_BIN" --config "$CONFIG_DIR" daemon >/dev/null 2>&1 || true
-    for i in {1..30}; do
-        "$EWW_BIN" --config "$CONFIG_DIR" active-windows >/dev/null 2>&1 && break
-        sleep 0.1
-    done
-fi
+# Make sure exactly one healthy daemon is running (a deaf or duplicate daemon is
+# replaced, otherwise its popup stays stuck on screen; see eww-daemon.sh)
+"$CONFIG_DIR/scripts/eww-daemon.sh" ensure
 
-if "$EWW_BIN" --config "$CONFIG_DIR" active-windows | grep -q "^${WINDOW}"; then
-    "$EWW_BIN" --config "$CONFIG_DIR" close "$WINDOW" || true
-    "$EWW_BIN" --config "$CONFIG_DIR" close "$CLOSER" || true
+POPUPS="$CONFIG_DIR/scripts/popups.sh"
+
+# Read active-windows ONCE: `eww active-windows | grep -q` under pipefail always fails
+# while the window is open (grep quits early -> SIGPIPE), so clicks never closed it.
+ACTIVE="$("$EWW_BIN" --config "$CONFIG_DIR" active-windows)"
+if grep -q "^${WINDOW}:" <<<"$ACTIVE"; then
+    "$POPUPS" close-all
 else
+    # Only one header popup at a time: close the calendar / control center if open
+    if grep -q -- '-popup' <<<"$ACTIVE"; then
+        "$POPUPS" close-all
+    fi
+
     # Sync eww vars from state file before opening (instant, no poll lag)
     "$EWW_BIN" --config "$CONFIG_DIR" update \
         sensor_temp_on="$("$TOGGLE" get temp)" \
@@ -38,7 +42,8 @@ else
         sensor_ram_on="$("$TOGGLE" get ram)" \
         2>/dev/null || true
 
-    # Open popup BEFORE closer (closer must not steal click from buttons)
+    # Open popup BEFORE closers (closer must not steal click from buttons);
+    # closers go on every monitor so a click on any other screen closes it too
     "$EWW_BIN" --config "$CONFIG_DIR" open "$WINDOW" --arg monitor="$MONITOR"
-    "$EWW_BIN" --config "$CONFIG_DIR" open "$CLOSER" --arg monitor="$MONITOR" || true
+    "$POPUPS" open-closers "$CLOSER" || true
 fi
