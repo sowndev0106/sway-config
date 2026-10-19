@@ -247,6 +247,24 @@ một cửa sổ), phím này giữ nguyên bố cục tiling, chỉ lấy thêm
 - Cần `jq` (đã có trong `install.sh`). Tắt/bật một màn cụ thể từ terminal:
   `~/.config/sway/scripts/waybar-outputs.sh toggle DP-5` (không đối số = màn đang focus).
 
+#### Wi-Fi and wired in the control center (eww-net)
+The Wi-Fi/Wired tiles and the Wi-Fi page get their state from **eww-net**, a small Rust
+program (`.config/eww/eww-net/`) that talks to NetworkManager over D-Bus instead of running
+`nmcli`. A request takes about 1 ms instead of 35 ms per `nmcli` call, and changes are
+pushed to the panel as they happen (no 3-second polling). A toggle shows up in well under
+0.1 s; joining a network still takes the few seconds the Wi-Fi hardware needs, and the
+list shows "Connecting…" meanwhile.
+
+- A saved network connects with one click, without asking for the password again. A wrong
+  or missing password reopens the password box with an error. Enter in the box connects.
+- The binary is built into `~/.local/bin/eww-net` by `install.sh`, and rebuilt by itself
+  the next time the control center opens after the Rust source changed (e.g. after a
+  `git pull`). Build by hand: `~/.config/eww/scripts/eww-net.sh build`.
+- Watch the live state from a terminal: `~/.config/eww/scripts/eww-net.sh watch`
+  (one JSON line per change, Ctrl+C to stop).
+- eww kills a click command after 200 ms unless the button sets `:timeout`. That is why the
+  old scripts' `sleep 1 && refresh` chains never refreshed anything.
+
 ### nwg-dock (dock app tự ẩn)
 Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện tích. Rê chuột xuống đáy màn hình để dock trồi lên; rời chuột thì dock tự ẩn lại. Cấu hình: `.config/nwg-dock-hyprland/config.toml` và `style.css`. Script khởi động: `.config/sway/scripts/dock.sh`.
 
@@ -433,6 +451,7 @@ Rồi `Mod+Shift+c` để nạp lại.
 | Phím tắt không ăn | `Mod+Shift+c` reload; xem log: `journalctl --user -b -u sway` hoặc chạy `swaymsg -t get_config` |
 | Waybar không hiện | Chạy tay `waybar` trong terminal để đọc lỗi cú pháp JSON |
 | Header popup (calendar / control center / sensors) stuck on screen, won't close | Press `Mod+Shift+c` (or `Mod+Ctrl+Escape`): it kills every eww process and starts one fresh daemon. Cause: a frozen daemon gets replaced by a second one and its popup is orphaned (`ss -xl \| grep eww-server_` shows 2 lines). Popup toggles now detect and fix this by themselves (`eww/scripts/eww-daemon.sh`). Clicking anywhere outside a popup, on any monitor, closes it |
+| Control center: Wi-Fi/Wired tiles blank, list empty, or clicks do nothing | eww-net is probably not built (a notification says so). Run `~/.config/eww/scripts/eww-net.sh build` and read its errors (needs `cargo`, which `install.sh` installs). Then check `~/.config/eww/scripts/eww-net.sh watch` prints a JSON line |
 | Header (waybar) biến mất ở một màn hình | Có thể đã bấm `Mod+Shift+b` (ẩn header màn đó): bấm lại để hiện. Nếu mất ở mọi màn: `pgrep -a waybar` xem còn chạy không, không thì `swaymsg reload` |
 | Dock không hiện khi rê xuống đáy | Dock hiện **đang tắt autostart**. Chạy tay `~/.config/sway/scripts/dock.sh` để mở; nếu muốn bật lại vĩnh viễn, bỏ comment dòng `exec_always ~/.config/sway/scripts/dock.sh` trong `sway/config`. Nếu báo thiếu binary thì chạy `./install.sh` |
 | Volume/độ sáng không đổi | Audio: `wpctl status` + xem user có trong group `audio` không. Độ sáng: `/sys/class/backlight/intel_backlight/brightness` thuộc group `video` — nếu `brightnessctl set 5%+` báo "Permission denied" thì chạy `sudo usermod -aG video $USER` rồi **logout/login lại**. `install.sh` tự thêm bước này từ lần cài sau |
@@ -476,6 +495,7 @@ sway-config/
 │   ├── foot/foot.ini          # terminal
 │   ├── mako/config            # thông báo
 │   ├── eww/                   # widget calendar/popup (CSS, yuck, scripts)
+│   │   └── eww-net/           # Rust: Wi-Fi/wired state and actions for the control center
 │   ├── environment.d/
 │   │   ├── im.conf            # biến môi trường bộ gõ tiếng Việt
 │   │   ├── cursor.conf        # theme con trỏ chuột

@@ -21,15 +21,6 @@ case "${1:-}" in
         speed=$(cat "/sys/class/net/${dev}/speed" 2>/dev/null || echo "")
         echo "{\"state\":\"${state:-disconnected}\",\"device\":\"${dev}\",\"ip\":\"${ip:-}\",\"gateway\":\"${gw:-}\",\"speed\":\"${speed:-}\"}"
         ;;
-    toggle)
-        dev=$(_get_dev)
-        [ -z "$dev" ] && exit 0
-        if nmcli -t -f DEVICE,STATE device | grep -q "^${dev}:connected"; then
-            nmcli device disconnect "$dev" >/dev/null 2>&1
-        else
-            nmcli device connect "$dev" >/dev/null 2>&1
-        fi
-        ;;
     *)
         echo "Unknown: ${1:-}" >&2; exit 1 ;;
 esac

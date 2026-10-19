@@ -41,6 +41,7 @@ chạy** — không cần copy. Một nguồn duy nhất.
 | `.config/sway/scripts/` | `vol.sh`, `bri.sh` (OSD), `lock.sh`, `record.sh`, `launch.sh` (Nvidia), `launch-pin.py` (cửa sổ mới về đúng màn lúc bấm mở app), `waybar-outputs.sh` (chạy waybar + ẩn/hiện header từng màn, `Mod+Shift+b`; waybar khởi động qua `exec_always` chứ không qua `bar {}`), `screenshot-freeze.sh` (đóng băng màn hình bằng `wayfreeze` lúc chụp vùng: `Shift+Print`, `Mod+Print`, `Mod+Shift+s`), `apply-window-icons.sh` (áp rule icon lên cửa sổ đang mở), `teams-unread-dot.py` (daemon: red dot on the Teams tab only for unread chats you haven't looked at since; base icon rule stays in `window-icons.conf`) |
 | `.config/kanshi/config` | Bố cục đa màn hình (auto theo số màn cắm) |
 | `.config/waybar/{config,style.css}` | Thanh trạng thái |
+| `.config/eww/eww-net/` | Rust helper for the control center's Wi-Fi/wired tiles and Wi-Fi page: NetworkManager over D-Bus, live state via `deflisten net`. Run/build only through `eww/scripts/eww-net.sh` (binary in `~/.local/bin`, build cache in `~/.cache/eww-net`; `watch` rebuilds when the source is newer). eww kills click commands after 200 ms unless the widget sets `:timeout` |
 | `.config/nwg-dock-hyprland/{config.toml,style.css}` | Dock app dưới màn hình, tự ẩn |
 | `.config/{rofi,wofi,foot,mako,swaylock,wlogout,gtklock}/` | Launcher, terminal, thông báo, khóa màn, menu nguồn |
 | `.config/environment.d/` | Biến môi trường (bộ gõ tiếng Việt, con trỏ) |

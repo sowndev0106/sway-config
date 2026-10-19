@@ -10,18 +10,14 @@ eww_bin() {
     printf '%s\n' "$eww"
 }
 
-wifi_device() {
-    nmcli -t -f DEVICE,TYPE dev | awk -F: '$2=="wifi"{print $1;exit}'
-}
-
 load_page_data() {
     local page="${1:-}" eww
     eww="$(eww_bin)"
 
     case "$page" in
         wifi)
-            "$eww" --config "$CONFIG_DIR" update \
-                wifi_list="$("$SCRIPT_DIR/cc/wifi.sh" list)"
+            # The list itself is live (net.networks from eww-net); just ask for fresh results.
+            "$SCRIPT_DIR/eww-net.sh" wifi rescan
             ;;
         bluetooth)
             "$eww" --config "$CONFIG_DIR" update \
@@ -45,35 +41,8 @@ load_page_data() {
     esac
 }
 
+# Wi-Fi and wired state/actions are in eww-net (scripts/eww-net.sh), not here.
 case "${1:-}" in
-    wifi-ssid)
-        if nmcli radio wifi | grep -q "disabled"; then
-            echo "Wifi Off"
-        else
-            dev="$(wifi_device)"
-            ssid=""
-            if [ -n "$dev" ]; then
-                ssid="$(nmcli -t -f GENERAL.CONNECTION device show "$dev" 2>/dev/null \
-                    | awk '$0 ~ /^GENERAL.CONNECTION:/ {sub(/^[^:]*:/, ""); print; exit}')"
-            fi
-            [ "$ssid" = "--" ] && ssid=""
-            echo "${ssid:-Disconnected}"
-        fi
-        ;;
-    wifi-state)
-        if nmcli radio wifi | grep -q "disabled"; then
-            echo "off"
-        else
-            echo "on"
-        fi
-        ;;
-    wifi-toggle)
-        if nmcli radio wifi | grep -q "disabled"; then
-            nmcli radio wifi on
-        else
-            nmcli radio wifi off
-        fi
-        ;;
     bt-state)
         if bluetoothctl show | grep -q 'Powered: yes'; then
             echo "on"
@@ -102,26 +71,6 @@ case "${1:-}" in
             rfkill block all
         else
             rfkill unblock all
-        fi
-        ;;
-    wired-state)
-        # Tìm thiết bị ethernet vật lý (bỏ qua veth ảo của docker và thiết bị unmanaged)
-        dev=$(nmcli -t -f DEVICE,TYPE,STATE device | awk -F: '$2=="ethernet" && $3!="unmanaged" && $1 !~ /^veth/ {print $1; exit}')
-        if [ -n "$dev" ] && nmcli -t -f DEVICE,STATE device | grep -q "^${dev}:connected"; then
-            echo "on"
-        else
-            echo "off"
-        fi
-        ;;
-    wired-toggle)
-        dev=$(nmcli -t -f DEVICE,TYPE,STATE device | awk -F: '$2=="ethernet" && $3!="unmanaged" && $1 !~ /^veth/ {print $1; exit}')
-        if [ -z "$dev" ]; then
-            exit 0
-        fi
-        if nmcli -t -f DEVICE,STATE device | grep -q "^${dev}:connected"; then
-            nmcli device disconnect "$dev"
-        else
-            nmcli device connect "$dev"
         fi
         ;;
     vol-level)
@@ -192,10 +141,7 @@ case "${1:-}" in
         # không phải đợi nhịp defpoll (1-3s) => hết cảm giác bật/tắt bị chậm.
         EWW="$(eww_bin)"
         "$EWW" --config "$CONFIG_DIR" update \
-            wifi_state="$("$0" wifi-state)" \
-            wifi_ssid="$("$0" wifi-ssid)" \
             bt_state="$("$0" bt-state)" \
-            wired_state="$("$0" wired-state)" \
             vol_muted="$("$0" vol-muted)" \
             vol_level="$("$0" vol-level)" \
             mic_muted="$("$0" mic-muted)" \

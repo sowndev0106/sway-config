@@ -442,6 +442,11 @@ for dir in "$REPO_DIR"/.config/*/; do
     echo "   linked ~/.config/$name -> $dir"
 done
 
+# Needs the ~/.config/eww symlink above and cargo (ensure_rust_toolchain).
+echo "==> Building eww-net (Wi-Fi/wired helper for the eww control center)..."
+"$HOME/.config/eww/scripts/eww-net.sh" build \
+    || echo "   (warning: eww-net build failed; run ~/.config/eww/scripts/eww-net.sh build to see why)"
+
 ### GPU lai Nvidia: Sway từ chối khởi động với driver độc quyền -> cần --unsupported-gpu.
 ### Chạy đa GPU: render bằng iGPU (Intel/AMD) làm chính, nhưng vẫn dùng được màn hình
 ### nối qua card Nvidia rời (liệt kê Nvidia thứ hai trong WLR_DRM_DEVICES).

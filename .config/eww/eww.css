@@ -464,6 +464,13 @@
   margin-left: 6px;
 }
 
+/* "Connecting…" next to the network being joined */
+.cc-net-status {
+  font-size: 11px;
+  color: #f9e2af;
+  margin-left: 6px;
+}
+
 /* Pin bluetooth */
 .cc-battery {
   font-size: 11px;
