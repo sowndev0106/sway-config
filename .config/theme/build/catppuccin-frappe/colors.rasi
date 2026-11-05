@@ -1,0 +1,10 @@
+/* Sinh tự động bởi ~/.config/theme/theme.sh — KHÔNG sửa tay. rofi @import file này. */
+* {
+    bg:           #303446e6;     /* nền 90% đục */
+    bg-alt:       #414559b3; /* ô nhập, nút: 70% đục */
+    fg:           #c6d0f5;
+    fg-alt:       #a5adce;
+    accent:       #ca9ee6;    /* khung + tab điều hướng */
+    accent-alt:   #8caaee;     /* mục đang chọn */
+    urgent:       #e78284;
+}

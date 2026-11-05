@@ -2,7 +2,7 @@
 
 Cấu hình **Sway** (trình quản lý cửa sổ tiling cho Wayland) của `sowndev0106`, quản lý bằng **git + symlink** để đồng bộ giữa nhiều máy.
 
-Theme màu: đổi được cho cả desktop bằng `Mod+Shift+t` (có sẵn **black** và **Catppuccin Mocha**, xem [Theme màu](#theme-màu-đổi-cả-desktop--modshiftt)) · Phím `Mod` = **Super** (phím Windows ⊞).
+Theme màu: đổi được cho cả desktop bằng `Mod+Shift+t` (mặc định **Everforest**, có thêm Nord, Catppuccin, Tokyo Night, Rosé Pine, Gruvbox…; xem [Theme màu](#theme-màu-đổi-cả-desktop--modshiftt)) · Phím `Mod` = **Super** (phím Windows ⊞).
 
 ---
 
@@ -386,8 +386,14 @@ wlogout, màn khóa (swaylock/gtklock), dock và terminal foot. Theme có sẵn:
 
 | Theme | Kiểu |
 |---|---|
-| `black` | Nền đen tuyền, khối xám rất tối, nhấn màu bạc (hợp hình nền metallic) |
+| `everforest` | **Mặc định.** Everforest Dark: xanh rêu ấm, chữ màu giấy cũ, tương phản thấp nhất, dịu mắt |
+| `nord` | Xanh xám lạnh, tương phản thấp |
+| `catppuccin-frappe` | Catppuccin bản dịu: nền sáng hơn Mocha một chút |
 | `catppuccin` | Catppuccin Mocha (theme gốc của repo) |
+| `tokyo-night` | Tokyo Night Storm: xanh đêm, nhấn xanh dương |
+| `rose-pine` | Rosé Pine Moon: tím hồng trầm |
+| `gruvbox` | Gruvbox Dark: nâu ấm, chữ kem, nhấn vàng (nổi nhất) |
+| `black` | Nền đen tuyền, khối xám rất tối, nhấn màu bạc (tương phản cao) |
 
 Dùng bằng lệnh (trong terminal):
 ```bash

@@ -10,8 +10,9 @@ Dotfiles cấu hình **Sway** (Wayland tiling WM) của `sowndev0106`, quản l�
 `~/.config/<tên>/`. Vì là symlink, **sửa file trong repo = sửa luôn config đang
 chạy** — không cần copy. Một nguồn duy nhất.
 
-- Theme màu: hệ theme trong `.config/theme/` (đang dùng `catppuccin` = Catppuccin Mocha,
-  có thêm `black`). Phím `Mod` = **Super** (Windows).
+- Theme màu: hệ theme trong `.config/theme/` (mặc định `everforest`; có thêm `catppuccin` =
+  Catppuccin Mocha gốc của repo, `catppuccin-frappe`, `nord`, `rose-pine`, `tokyo-night`,
+  `gruvbox`, `black`). Phím `Mod` = **Super** (Windows).
 - Config này dùng chung cho **2 máy**: một máy chỉ có iGPU Intel, một máy có
   thêm **Nvidia rời** (Intel Arrow Lake + Nvidia, màn hình cắm vào card Nvidia).
   Mọi thứ phải **tự dò GPU lúc chạy**, không hardcode. `launch.sh` lo việc này:
