@@ -48,14 +48,15 @@ window#waybar {
 #workspaces button {
     padding: 0 9px;
     margin: 2px;
-    color: @text;
+    color: @subtext0;   /* hơi mờ để ô đang chọn (chữ accent) vẫn dễ nhận ra */
     background-color: transparent;
     border-bottom: 2px solid transparent;
     border-radius: 14px;
 }
 #workspaces button:hover    { background-color: @surface1; box-shadow: none; }
-#workspaces button.focused  { background-color: @accent; color: @base; }
-#workspaces button.current_output { border-bottom-color: @accent; }  /* gạch chân = workspace của màn này */
+/* Ô đang chọn: nền accent rất nhạt + chữ accent (tương phản thấp, không chói như nền đặc) */
+#workspaces button.focused  { background-color: alpha(@accent, 0.18); color: @accent; }
+#workspaces button.current_output { border-bottom-color: alpha(@accent, 0.5); }  /* gạch chân mờ = workspace của màn này */
 #workspaces button.urgent   { background-color: @red; color: @base; }
 
 #mode {
