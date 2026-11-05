@@ -24,6 +24,7 @@ done
 wait
 
 style="$HOME/.config/gtklock/style.css"
+locked=0
 
 if command -v gtklock >/dev/null 2>&1; then
     style_temp="$dir/style.css"
@@ -41,8 +42,12 @@ if command -v gtklock >/dev/null 2>&1; then
         fi
     done
 
-    gtklock -s "$style_temp"
-else
+    # gtklock 2.x cần wlr-input-inhibitor, sway >= 1.9 đã bỏ giao thức này
+    # nên gtklock thoát ngay với mã 1 -> khi đó rơi xuống swaylock.
+    gtklock -s "$style_temp" && locked=1
+fi
+
+if [ "$locked" != 1 ]; then
     # Fallback: swaylock, nền blur từng màn hình
     args=""
     for out in $outputs; do
