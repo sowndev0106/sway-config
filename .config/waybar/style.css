@@ -1,4 +1,6 @@
-/* ── waybar — Catppuccin Mocha, kiểu "pill" gom nhóm ──
+@import url("../theme/current/colors.css");  /* màu theo theme: @base, @text, @accent... */
+
+/* ── waybar — kiểu "pill" gom nhóm, màu theo theme đang dùng ──
    Icon + chữ dùng chung JetBrains Mono Nerd Font (đã cài ở ~/.local/share/fonts).
    Để Nerd Font TRƯỚC để mọi glyph (wifi/bluetooth/pin/nhiệt độ…) vẽ bằng nó,
    không bị fallback thành ô trống. */
@@ -12,30 +14,33 @@
     min-height: 0;
 }
 
-/* Bảng màu Catppuccin Mocha:
-   base #1e1e2e · surface0 #313244 · text #cdd6f4 · blue #89b4fa · sky #89dceb
-   green #a6e3a1 · red #f38ba8 · yellow #f9e2af · peach #fab387 · mauve #cba6f7 */
+/* Kiểu thanh: không khung/nền cho từng cụm, chỉ giữ nền báo trạng thái (workspace đang
+   chọn, urgent, resize mode), gạch chân workspace của màn này và nền sáng khi rê chuột.
+   Màu lấy từ ~/.config/theme/current/colors.css (import ở đầu file). Vai trò:
+   @base nền thanh · @surface0 nền pill · @surface1 hover · @text chữ · @accent nhấn
+   + @sky @green @red @yellow @peach @mauve cho icon/trạng thái.
+   Đổi theme: Mod+Shift+t (hoặc ~/.config/theme/theme.sh set <tên>). */
 
 window#waybar {
-    background-color: #1e1e2e;
-    color: #cdd6f4;
+    background-color: @base;
+    color: @text;
 }
 
 /* ── Nút nguồn (trái cùng) ── */
 #custom-power {
-    color: #f38ba8;
-    background-color: #313244;
+    color: @red;
+    background-color: transparent;   /* không khung; chỉ sáng nền khi rê chuột */
     /* Glyph power có phần vẽ lệch phải trong ô advance, nên đệm phải lớn hơn
        trái để kéo icon về đúng tâm pill. */
     padding: 0 14px 0 10px;
     margin: 4px 6px;
     border-radius: 16px;
 }
-#custom-power:hover { background-color: #45475a; }
+#custom-power:hover { background-color: @surface1; }
 
 /* ── Workspaces ── */
 #workspaces {
-    background-color: #313244;
+    background-color: transparent;
     margin: 4px 6px;
     border-radius: 16px;
     padding: 0 2px;
@@ -43,19 +48,19 @@ window#waybar {
 #workspaces button {
     padding: 0 9px;
     margin: 2px;
-    color: #cdd6f4;
+    color: @text;
     background-color: transparent;
     border-bottom: 2px solid transparent;
     border-radius: 14px;
 }
-#workspaces button:hover    { background-color: #45475a; box-shadow: none; }
-#workspaces button.focused  { background-color: #89b4fa; color: #1e1e2e; }
-#workspaces button.current_output { border-bottom-color: #89b4fa; }
-#workspaces button.urgent   { background-color: #f38ba8; color: #1e1e2e; }
+#workspaces button:hover    { background-color: @surface1; box-shadow: none; }
+#workspaces button.focused  { background-color: @accent; color: @base; }
+#workspaces button.current_output { border-bottom-color: @accent; }  /* gạch chân = workspace của màn này */
+#workspaces button.urgent   { background-color: @red; color: @base; }
 
 #mode {
-    background-color: #f9e2af;
-    color: #1e1e2e;
+    background-color: @yellow;
+    color: @base;
     padding: 0 12px;
     margin: 4px 6px;
     border-radius: 16px;
@@ -66,9 +71,9 @@ window#waybar {
    children hide but the group box stays, and any padding would leave a stray
    empty pill. All horizontal spacing therefore lives on the children. */
 #sensors {
-    background-color: #313244;
+    background-color: transparent;
     border-radius: 16px;
-    margin: 4px 6px;
+    margin: 4px 6px 4px 0;   /* trái 0: khoảng hai bên vạch "|" của ô đầu bằng nhau */
     padding: 0;
 }
 
@@ -83,19 +88,19 @@ window#waybar {
     padding: 0 10px;
 }
 
-#custom-sensor-temp  { color: #fab387; }
-#custom-sensor-cpu   { color: #f9e2af; }
-#custom-sensor-freq  { color: #f9e2af; }
-#custom-cpu-power    { color: #a6e3a1; }
-#custom-sensor-gpu   { color: #89b4fa; }
-#custom-gpu-power    { color: #89b4fa; }
-#custom-sensor-ram   { color: #cba6f7; }
-#custom-sensor-temp.critical { color: #f38ba8; }
+#custom-sensor-temp  { color: @peach; }
+#custom-sensor-cpu   { color: @yellow; }
+#custom-sensor-freq  { color: @yellow; }
+#custom-cpu-power    { color: @green; }
+#custom-sensor-gpu   { color: @blue; }
+#custom-gpu-power    { color: @blue; }
+#custom-sensor-ram   { color: @mauve; }
+#custom-sensor-temp.critical { color: @red; }
 
 /* ── Đồng hồ (giữa) ── */
 #clock {
-    background-color: #313244;
-    color: #b4befe;
+    background-color: transparent;   /* không khung, chữ nằm thẳng trên thanh */
+    color: @accent2;
     padding: 0 16px;
     margin: 4px 6px;
     border-radius: 16px;
@@ -105,43 +110,43 @@ window#waybar {
 #pulseaudio,
 #bluetooth,
 #custom-control-center {
-    background-color: #313244;
+    background-color: transparent;
     padding: 0 10px;
     margin: 4px 0;
 }
-#pulseaudio { border-radius: 16px 0 0 16px; margin-left: 6px; color: #89dceb; }
+#pulseaudio { color: @sky; }
 #custom-control-center {
     border-radius: 0 16px 16px 0;
     margin-right: 6px;
-    color: #cba6f7;
+    color: @mauve;
 }
 
-#pulseaudio.muted     { color: #6c7086; }
-#bluetooth            { color: #89b4fa; }
-#bluetooth.connected  { color: #89b4fa; }
+#pulseaudio.muted     { color: @overlay0; }
+#bluetooth            { color: @accent; }
+#bluetooth.connected  { color: @accent; }
 #bluetooth.disabled,
-#bluetooth.off        { color: #6c7086; }
+#bluetooth.off        { color: @overlay0; }
 
 /* ── Pin (pill riêng) ── */
 #battery {
-    background-color: #313244;
-    color: #a6e3a1;
+    background-color: transparent;
+    color: @green;
     padding: 0 10px;
     margin: 4px 6px;
     border-radius: 16px;
 }
-#battery.warning      { color: #f9e2af; }
-#battery.critical     { color: #f38ba8; }
-#battery.charging     { color: #f9e2af; }
+#battery.warning      { color: @yellow; }
+#battery.critical     { color: @red; }
+#battery.charging     { color: @yellow; }
 #battery.plugged,
-#battery.full         { color: #a6e3a1; }
+#battery.full         { color: @green; }
 #battery.charging.full,
-#battery.plugged.full { color: #a6e3a1; }
-#custom-control-center:hover { background-color: #45475a; }
+#battery.plugged.full { color: @green; }
+#custom-control-center:hover { background-color: @surface1; }
 
 /* ── Tray (phải cùng, pill riêng) ── */
 #tray {
-    background-color: #313244;
+    background-color: transparent;
     padding: 0 10px;
     margin: 4px 6px;
     border-radius: 16px;
@@ -150,4 +155,39 @@ window#waybar {
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
 
 /* tiêu đề cửa sổ (nếu bật lại) */
-#window { color: #cdd6f4; }
+#window { color: @text; }
+
+/* ── Vạch ngăn "|" giữa các cụm ──
+   Vẽ bằng viền 1px thật mờ (10% màu chữ) thay cho ký tự "|": cụm nào bị ẩn (pin trên
+   máy bàn, sensors khi tắt hết, tray rỗng) thì vạch của nó ẩn theo, không bị dư 2 vạch liền
+   nhau. Thứ tự: nguồn | từng chỉ số sensor ... âm thanh+bluetooth+menu | pin | tray | đồng hồ.
+   Bên trái: vạch là viền TRÁI của mỗi ô sensor (ô đầu ngăn với nút nguồn).
+   Bên phải: vạch là viền PHẢI của menu, pin, tray (mọi thứ trước đồng hồ), nên ẩn cụm
+   nào cũng không để lại vạch thừa. margin dọc lớn để vạch ngắn lại giống dấu "|"; margin 0
+   + padding 16px phía có vạch để khoảng hai bên vạch bằng nhau (cụm kế bên có margin 6 +
+   padding 10). border-radius 0: còn bo góc thì viền vẽ thành dấu "(". */
+#custom-sensor-temp,
+#custom-sensor-cpu,
+#custom-sensor-freq,
+#custom-cpu-power,
+#custom-sensor-gpu,
+#custom-gpu-power,
+#custom-sensor-ram {
+    border-left: 1px solid alpha(@text, 0.10);
+    margin: 2px 0;
+    padding: 0 12px;
+}
+#custom-control-center,
+#battery,
+#tray {
+    border-right: 1px solid alpha(@text, 0.10);
+    border-radius: 0;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-right: 0;
+    padding-right: 16px;
+}
+#clock {
+    border-radius: 0;
+    margin-left: 0;
+}

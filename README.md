@@ -25,7 +25,7 @@ Theme màu: đổi được cho cả desktop bằng `Mod+Shift+t` (có sẵn **b
 | Công cụ | Vai trò | Phím / lệnh |
 |---|---|---|
 | **sway** | Quản lý cửa sổ tiling (Wayland) | — |
-| **waybar** | Thanh trạng thái trên cùng | tự chạy |
+| **waybar** | Thanh trạng thái dưới cùng (trái: nguồn + sensors · giữa: workspace · phải: âm thanh, bluetooth, menu, pin, tray, ngày giờ) | tự chạy |
 | **nwg-dock** | Dock app dưới màn hình (đang tắt autostart) | chạy tay `~/.config/sway/scripts/dock.sh` |
 | **rofi** | Trình khởi chạy ứng dụng & nút nguồn ghim trực tiếp (cải tiến) | `Mod+d` |
 | **wofi** | Launcher dự phòng (native Wayland) | `Mod+Shift+d` |
@@ -92,7 +92,7 @@ Sau đó bấm `Mod+Shift+c` trong Sway để nạp lại config.
   sway
   ```
 
-Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `Mod+Enter` mở terminal đầu tiên.
+Khi vào, bạn sẽ thấy hình nền + thanh waybar dưới cùng. Bấm `Mod+Enter` mở terminal đầu tiên.
 
 ---
 
@@ -222,7 +222,7 @@ Trình khởi chạy chính của hệ thống, được thiết kế lại theo
   * **Xác nhận an toàn**: Nhấn Khóa màn sẽ khóa máy ngay lập tức. Nhấn các nút khác sẽ hiển thị một cửa sổ pop-up nhỏ hỏi lại *Có / Huỷ* để đảm bảo an toàn.
 
 ### waybar (thanh trạng thái)
-Hiện workspace (trái), tên cửa sổ (giữa), và bên phải: âm lượng, mạng, CPU, RAM, pin, đồng hồ, khay hệ thống (tray). Cấu hình: `.config/waybar/config` (nội dung) và `style.css` (giao diện).
+Nằm **dưới cùng** màn hình. Trái: nút nguồn | các chỉ số sensor (bật/tắt từng cái, tắt hết được). Giữa: workspace (gạch chân = workspace thuộc màn này). Phải: âm thanh, bluetooth, menu chung | pin | khay hệ thống (tray) | ngày giờ. Không khung cho từng cụm, các cụm ngăn bằng vạch `|` rất mờ. Popup lịch / control center / sensors bật lên ngay trên icon tương ứng. Cấu hình: `.config/waybar/config` (nội dung) và `style.css` (giao diện, màu theo theme).
 
 #### Ẩn/hiện header riêng từng màn hình — `Mod+Shift+b`
 Bấm `Mod+Shift+b` để ẩn header trên **màn đang focus** (các màn khác giữ nguyên); cửa

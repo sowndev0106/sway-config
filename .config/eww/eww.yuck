@@ -14,11 +14,11 @@
 (defwindow calendar-popup [monitor]
   :monitor monitor
   :geometry (geometry
-    :x "0px"
+    :x "15px"
     :y "45px"
     :width "360px"
     :height "530px"
-    :anchor "top center")
+    :anchor "bottom right")
   :stacking "overlay"
   :exclusive false
   :focusable "none"
@@ -149,7 +149,7 @@
     :x "15px"
     :y "45px"
     :width "360px"
-    :anchor "top right")
+    :anchor "bottom right")
   :stacking "overlay"
   :exclusive false
   ;; "ondemand": takes the keyboard once clicked, so the Wi-Fi password box can be typed
@@ -559,7 +559,7 @@ EWW_PASSWORD_END")
     :x "15px"
     :y "45px"
     :width "220px"
-    :anchor "top left")
+    :anchor "bottom left")
   :stacking "overlay"
   :exclusive false
   :focusable false

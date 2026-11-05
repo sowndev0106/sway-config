@@ -1,16 +1,19 @@
 {
-    // ── Thanh trạng thái waybar (Catppuccin Mocha, pill gom nhóm) ──
-    // Bố cục: trái = nguồn + workspaces + cảm biến | giữa = đồng hồ |
-    //         phải = âm thanh + bluetooth + menu chung + pin + tray.
+    // ── Thanh trạng thái waybar (pill gom nhóm, màu theo theme ~/.config/theme) ──
+    // Bố cục: trái = nguồn | cảm biến
+    //         giữa = workspaces
+    //         phải = âm thanh + bluetooth + menu chung | pin | tray | đồng hồ
+    // Đồng hồ sát mép phải nên luôn đứng yên; tray đổi số icon theo app nên cụm
+    // âm thanh/bluetooth/menu (bên trái tray) xê dịch theo khi tray thêm/bớt icon.
     // Icon vẽ bằng JetBrainsMono Nerd Font (xem style.css). Bar hiện trên MỌI màn.
     "layer": "top",
-    "position": "top",
+    "position": "bottom",
     "height": 32,
     "spacing": 0,
 
-    "modules-left": ["custom/power", "sway/workspaces", "sway/mode", "group/sensors"],
-    "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "bluetooth", "custom/control-center", "battery", "tray"],
+    "modules-left": ["custom/power", "group/sensors"],
+    "modules-center": ["sway/workspaces", "sway/mode"],
+    "modules-right": ["pulseaudio", "bluetooth", "custom/control-center", "battery", "tray", "clock"],
 
     // ── Nút nguồn (mở menu wlogout) ──
     "custom/power": {
