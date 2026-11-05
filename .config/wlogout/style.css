@@ -1,3 +1,5 @@
+@import url("../theme/current/colors.css");  /* màu theo theme: @base, @text, @accent... */
+
 * {
     background-image: none;
     box-shadow: none;
@@ -6,12 +8,12 @@
 }
 
 window {
-    background-color: rgba(30, 30, 46, 0.92);
+    background-color: alpha(@base, 0.92);
 }
 
 button {
-    color: #cdd6f4;
-    background-color: #313244;
+    color: @text;
+    background-color: @surface0;
     border-radius: 14px;
     margin: 12px;
     border: 2px solid transparent;
@@ -23,9 +25,9 @@ button {
 button:focus,
 button:active,
 button:hover {
-    background-color: #45475a;
-    border-color: #89b4fa;
-    color: #89b4fa;
+    background-color: @surface1;
+    border-color: @accent;
+    color: @accent;
     outline: none;
 }
 

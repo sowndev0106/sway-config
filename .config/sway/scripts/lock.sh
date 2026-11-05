@@ -29,7 +29,9 @@ locked=0
 if command -v gtklock >/dev/null 2>&1; then
     style_temp="$dir/style.css"
     if [ -f "$style" ]; then
-        cp "$style" "$style_temp"
+        # Import (không copy): style.css import màu theme bằng đường dẫn tương đối
+        # (../theme/current/colors.css), copy sang thư mục tạm sẽ làm hỏng đường đó.
+        printf '@import url("file://%s");\n' "$style" > "$style_temp"
     else
         touch "$style_temp"
     fi

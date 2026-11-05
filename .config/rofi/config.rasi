@@ -12,16 +12,11 @@ configuration {
     terminal: "foot";
 }
 
-* {
-    /* Catppuccin Mocha theme colors */
-    bg:           #1e1e2ee6; /* 90% opacity for premium transparent feel */
-    bg-alt:       #313244b3; /* 70% opacity for inputs and buttons */
-    fg:           #cdd6f4;   /* Text */
-    fg-alt:       #a6adc8;   /* Dimmed text */
-    accent:       #cba6f7;   /* Mauve for navigation tabs */
-    accent-alt:   #89b4fa;   /* Blue for selected items */
-    urgent:       #f38ba8;   /* Red for urgent actions */
+/* Màu (bg, bg-alt, fg, fg-alt, accent, accent-alt, urgent) lấy theo theme đang dùng.
+   Sửa: ~/.config/theme/templates/colors.rasi. Đổi theme: Mod+Shift+t. */
+@import "~/.config/theme/current/colors.rasi"
 
+* {
     background-color: transparent;
     text-color: @fg;
     font: "JetBrainsMono Nerd Font 11";

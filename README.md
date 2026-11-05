@@ -2,7 +2,7 @@
 
 Cấu hình **Sway** (trình quản lý cửa sổ tiling cho Wayland) của `sowndev0106`, quản lý bằng **git + symlink** để đồng bộ giữa nhiều máy.
 
-Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
+Theme màu: đổi được cho cả desktop bằng `Mod+Shift+t` (có sẵn **black** và **Catppuccin Mocha**, xem [Theme màu](#theme-màu-đổi-cả-desktop--modshiftt)) · Phím `Mod` = **Super** (phím Windows ⊞).
 
 ---
 
@@ -33,6 +33,7 @@ Theme: **Catppuccin Mocha** · Phím `Mod` = **Super** (phím Windows ⊞).
 | **mako** | Thông báo (notification) | tự chạy |
 | **swaylock** | Khóa màn hình | `Mod+Shift+x` |
 | **swayidle** | Tự khóa / tắt màn hình khi rảnh | tự chạy |
+| **theme.sh** | Đổi theme màu cho toàn bộ desktop | `Mod+Shift+t` |
 | **grim + slurp** | Chụp màn hình | `Print` |
 | **wl-clipboard** | Copy/paste dòng lệnh (`wl-copy`/`wl-paste`) | — |
 | **brightnessctl** | Chỉnh độ sáng | phím độ sáng |
@@ -112,6 +113,7 @@ Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `
 | `Mod+e` | Đổi layout (splith) |
 | `Mod+Shift+x` | Khóa màn hình ngay |
 | `Mod+Shift+b` | Ẩn/hiện header (waybar) của **màn hình đang focus** — cửa sổ giãn kín màn |
+| `Mod+Shift+t` | Chọn theme màu (menu rofi) — đổi cả waybar, popup, viền cửa sổ, rofi, thông báo, terminal |
 | `Mod+Shift+v` | Lịch sử clipboard (cliphist) |
 | `Ctrl+Space` | Bật/tắt gõ tiếng Việt (fcitx5) |
 
@@ -206,7 +208,7 @@ Khi vào, bạn sẽ thấy nền màu trơn + thanh waybar trên cùng. Bấm `
 ## 6. Từng thành phần & cách dùng
 
 ### foot (terminal) — `Mod+Enter`
-Terminal nhẹ, native Wayland. Cấu hình: `.config/foot/foot.ini` (font JetBrains Mono cỡ 11, theme Catppuccin, cuộn 10.000 dòng).
+Terminal nhẹ, native Wayland. Cấu hình: `.config/foot/foot.ini` (font JetBrains Mono cỡ 11, cuộn 10.000 dòng). Màu lấy theo theme đang dùng (`include=` file màu của theme); cửa sổ foot đang mở giữ màu cũ, mở cửa sổ mới mới có màu mới.
 
 ### rofi (launcher cải tiến) — `Mod+d`
 Trình khởi chạy chính của hệ thống, được thiết kế lại theo phong cách kính mờ (glassmorphism) hiện đại:
@@ -273,7 +275,7 @@ Dock nằm dưới màn hình, mặc định ẩn để không chiếm diện t�
 - Hoặc chạy thủ công: `~/.config/sway/scripts/dock.sh`.
 
 ### mako (thông báo)
-Tự chạy. Thông báo hiện góc trên-phải, theme Catppuccin. Cấu hình: `.config/mako/config`. Lệnh hữu ích: `makoctl dismiss` (đóng), `makoctl restore`.
+Tự chạy. Thông báo hiện góc trên-phải, màu theo theme đang dùng. Cấu hình: `.config/theme/templates/mako.conf` (`.config/mako/config` là symlink tới bản sinh ra của theme hiện tại vì mako không hỗ trợ include — sửa template rồi chạy `~/.config/theme/theme.sh set <theme>`). Lệnh hữu ích: `makoctl dismiss` (đóng), `makoctl restore`.
 
 ### swaylock + swayidle (khóa màn hình)
 - Khóa thủ công: `Mod+Shift+x` hoặc click nút khóa ở góc dưới phải Rofi.
@@ -377,6 +379,40 @@ sổ đang chọn của màn/nhóm khác = nền `#1e1e2e` + viền xám. Phía 
 - Cửa sổ nổi dùng viền pixel (`default_floating_border`) nên không có thanh tiêu đề, không có icon.
 - Font chữ thanh tiêu đề/tab dùng mặc định của Sway (`pango:monospace 10`), không dùng font custom.
 
+### Theme màu (đổi cả desktop) — `Mod+Shift+t`
+Bấm `Mod+Shift+t` → menu rofi liệt kê các theme → chọn là đổi ngay màu của: waybar, popup eww
+(lịch, control center, sensors), viền/thanh tiêu đề cửa sổ sway, rofi, wofi, thông báo mako,
+wlogout, màn khóa (swaylock/gtklock), dock và terminal foot. Theme có sẵn:
+
+| Theme | Kiểu |
+|---|---|
+| `black` | Nền đen tuyền, khối xám rất tối, nhấn màu bạc (hợp hình nền metallic) |
+| `catppuccin` | Catppuccin Mocha (theme gốc của repo) |
+
+Dùng bằng lệnh (trong terminal):
+```bash
+~/.config/theme/theme.sh list            # liệt kê, dấu * = đang dùng
+~/.config/theme/theme.sh set black       # đổi theme
+```
+
+**Cách hoạt động** (`.config/theme/`):
+- `palettes/<tên>.conf` — bảng màu của một theme: mỗi dòng `vai_trò=hex` theo **vai trò** chứ
+  không theo tên màu: `base` (nền chính), `surface0` (nền khối/pill), `surface1` (hover),
+  `text`, `subtext0`, `accent` (màu nhấn: workspace đang chọn, viền cửa sổ focus)... cộng các
+  màu thật `blue`, `red`, `green`... (dùng cho trạng thái và màu ANSI của terminal).
+- `templates/` — khuôn file màu cho từng chương trình, chỗ cần màu ghi `{{vai_trò}}`.
+- `build/<tên>/` — file màu sinh ra (`theme.sh build`), `current` là symlink tới theme đang dùng.
+- Các config **import** màu từ `~/.config/theme/current/` thay vì ghi cứng mã hex: waybar/wofi/
+  wlogout/gtklock/dock dùng `@import` + `@base`, `@accent`...; eww dùng SCSS `$base`, `$accent`...;
+  rofi `@import`; sway và foot `include`. mako và swaylock không có include nên file config của
+  chúng là symlink tới bản sinh ra.
+
+**Thêm theme mới:** copy `palettes/black.conf` thành `palettes/<tên>.conf`, sửa mã màu, rồi
+`theme.sh set <tên>` (theme mới tự hiện trong menu). Commit cả `palettes/`, `build/` và `current`.
+
+Lưu ý: hình nền **không** đi theo theme (đặt riêng ở `output * bg` trong `sway/config`). App có
+bảng màu riêng (trình duyệt, VS Code, TUI như herdr) không bị đổi.
+
 ### Dark theme cho toàn hệ thống
 - **GTK3/GTK4** (Thunar cũ, file-roller, ...): cấu hình trong `.config/gtk-3.0/settings.ini` và `.config/gtk-4.0/settings.ini` (đang dùng `Yaru-dark`, `gtk-application-prefer-dark-theme=1`).
 - **libadwaita** (Nautilus, app GNOME mới): biến `GTK_THEME=Yaru-dark:dark` trong `.config/environment.d/theme.conf` ép dark dù theme gốc là light.
@@ -397,16 +433,18 @@ Mọi file nằm trong `~/sway-config/.config/` (đã symlink vào `~/.config`).
 
 | Muốn đổi | Sửa file |
 |---|---|
-| Phím tắt, layout, gaps, màu viền, autostart | `.config/sway/config` |
+| Phím tắt, layout, gaps, autostart | `.config/sway/config` |
+| Màu của theme (mọi thành phần) | `.config/theme/palettes/<theme>.conf` rồi `theme.sh set <theme>` |
+| Màu viền/thanh tiêu đề cửa sổ dùng vai trò nào | `.config/theme/templates/sway.conf` |
 | Hình nền | dòng `output * bg ...` trong `sway/config` (đổi `#1e1e2e` thành `~/anh.png fill`) |
 | Thời gian tự khóa màn hình | khối `exec swayidle ...` trong `sway/config` |
 | Bố cục / module thanh trạng thái | `.config/waybar/config` |
-| Màu sắc thanh trạng thái | `.config/waybar/style.css` |
+| Kiểu dáng thanh trạng thái (màu theo theme: `@base`, `@accent`...) | `.config/waybar/style.css` |
 | Dock app dưới màn hình | `.config/nwg-dock-hyprland/config.toml` |
-| Màu sắc dock app | `.config/nwg-dock-hyprland/style.css` |
+| Kiểu dáng dock app | `.config/nwg-dock-hyprland/style.css` |
 | Giao diện rofi | `.config/rofi/config.rasi` |
-| Font / màu terminal | `.config/foot/foot.ini` |
-| Kiểu thông báo | `.config/mako/config` |
+| Font terminal | `.config/foot/foot.ini` (màu: `.config/theme/templates/foot.ini`) |
+| Kiểu thông báo | `.config/theme/templates/mako.conf` (rồi `theme.sh set <theme>`) |
 
 **Đặt hình nền ảnh thật:** trong `sway/config` đổi dòng `output * bg #1e1e2e solid_color` thành:
 ```
@@ -482,7 +520,13 @@ sway-config/
 │   ├── sway/config            # cấu hình chính + toàn bộ phím tắt
 │   ├── sway/window-icons.conf # icon từng app trên thanh tiêu đề/tab (include từ sway/config)
 │   ├── sway/scripts/          # vol.sh, bri.sh (OSD), record.sh (quay màn hình), rofi-focused.sh (điều khiển rofi), launch-pin.py (app mở ở màn nào hiện ở màn đó), waybar-outputs.sh (chạy waybar + ẩn/hiện header từng màn), screenshot-freeze.sh (đóng băng màn hình lúc chụp vùng), apply-window-icons.sh (áp icon tiêu đề lên cửa sổ đang mở)
-│   ├── swaylock/config        # màn khóa (đồng hồ + theme)
+│   ├── theme/                 # theme màu toàn desktop (Mod+Shift+t)
+│   │   ├── theme.sh           # list / set <tên> / build / menu
+│   │   ├── palettes/          # bảng màu từng theme (vai_trò=hex)
+│   │   ├── templates/         # khuôn file màu cho từng chương trình
+│   │   ├── build/<tên>/       # file màu sinh ra (commit luôn)
+│   │   └── current -> build/<tên>  # theme đang dùng
+│   ├── swaylock/config        # màn khóa (symlink -> theme/current/swaylock.conf)
 │   ├── wlogout/{layout,style.css}  # menu nguồn
 │   ├── kanshi/config          # bố cục đa màn hình
 │   ├── xdg-desktop-portal/    # cấu hình portal (chia sẻ màn hình)
@@ -493,8 +537,8 @@ sway-config/
 │   ├── wofi/config            # launcher dự phòng
 │   ├── wofi/style.css
 │   ├── foot/foot.ini          # terminal
-│   ├── mako/config            # thông báo
-│   ├── eww/                   # widget calendar/popup (CSS, yuck, scripts)
+│   ├── mako/config            # thông báo (symlink -> theme/current/mako.conf)
+│   ├── eww/                   # widget calendar/popup (eww.scss, yuck, scripts)
 │   │   └── eww-net/           # Rust: Wi-Fi/wired state and actions for the control center
 │   ├── environment.d/
 │   │   ├── im.conf            # biến môi trường bộ gõ tiếng Việt

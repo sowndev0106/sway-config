@@ -1,0 +1,24 @@
+/* Sinh tự động bởi ~/.config/theme/theme.sh — KHÔNG sửa tay, sửa palettes/ rồi chạy lại.
+   Dùng cho waybar, wofi, wlogout, gtklock, nwg-dock: @import file này rồi gọi @tên. */
+@define-color crust    #{{crust}};
+@define-color mantle   #{{mantle}};
+@define-color base     #{{base}};
+@define-color surface0 #{{surface0}};
+@define-color surface1 #{{surface1}};
+@define-color surface2 #{{surface2}};
+@define-color overlay0 #{{overlay0}};
+@define-color subtext0 #{{subtext0}};
+@define-color subtext1 #{{subtext1}};
+@define-color text     #{{text}};
+@define-color accent   #{{accent}};
+@define-color accent2  #{{accent2}};
+@define-color accent3  #{{accent3}};
+@define-color blue     #{{blue}};
+@define-color sky      #{{sky}};
+@define-color teal     #{{teal}};
+@define-color green    #{{green}};
+@define-color yellow   #{{yellow}};
+@define-color peach    #{{peach}};
+@define-color red      #{{red}};
+@define-color mauve    #{{mauve}};
+@define-color pink     #{{pink}};

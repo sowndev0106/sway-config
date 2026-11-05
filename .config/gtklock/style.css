@@ -1,43 +1,45 @@
-/* gtklock — theme Catppuccin Mocha */
+@import url("../theme/current/colors.css");  /* màu theo theme: @base, @text, @accent... */
+
+/* gtklock — màu theo theme đang dùng */
 
 window {
-    background-color: #1e1e2e;
+    background-color: @base;
 }
 
 /* Lớp hộp chứa ô nhập */
 #window-box {
-    background-color: rgba(30, 30, 46, 0.55);
+    background-color: alpha(@base, 0.55);
     border-radius: 18px;
     padding: 28px;
 }
 
 label {
-    color: #cdd6f4;
+    color: @text;
     font-family: "JetBrains Mono", monospace;
     font-size: 14px;
 }
 
 /* Ô nhập mật khẩu */
 entry {
-    background-color: #313244;
-    color: #cdd6f4;
-    border: 2px solid #45475a;
+    background-color: @surface0;
+    color: @text;
+    border: 2px solid @surface1;
     border-radius: 12px;
     padding: 10px 16px;
     margin: 8px;
     font-size: 16px;
     min-width: 280px;
-    caret-color: #89b4fa;
+    caret-color: @accent;
 }
 
 entry:focus {
-    border-color: #89b4fa;
+    border-color: @accent;
 }
 
 /* Nút mở khóa */
 button {
-    background-color: #89b4fa;
-    color: #1e1e2e;
+    background-color: @accent;
+    color: @base;
     border: none;
     border-radius: 12px;
     padding: 8px 18px;
@@ -46,11 +48,11 @@ button {
 }
 
 button:hover {
-    background-color: #b4befe;
+    background-color: @accent2;
 }
 
 /* Báo sai mật khẩu */
 #error-label {
-    color: #f38ba8;
+    color: @red;
     font-weight: bold;
 }

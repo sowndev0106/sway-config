@@ -1,20 +1,27 @@
-/* Bảng màu Catppuccin Mocha đồng bộ với Waybar */
+// eww CSS viết bằng SCSS: eww dịch file này bằng grass rồi mới đưa cho GTK.
+// Màu theo theme đang dùng (đồng bộ với waybar): $base, $surface0, $text, $accent...
+// lấy từ ~/.config/theme/current/colors.scss. Đổi theme: Mod+Shift+t.
+//
+// QUAN TRỌNG: chỉ dùng comment `//`, KHÔNG dùng /* ... */. Comment /* */ được giữ
+// lại trong CSS đầu ra; có chữ tiếng Việt (ký tự ngoài ASCII) thì grass chèn thêm
+// `@charset "UTF-8";` mà GTK không hiểu -> eww bỏ TOÀN BỘ CSS (popup mất style).
+@import "../theme/current/colors";
 
 * {
   all: unset;
   font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", "DejaVu Sans Mono", monospace;
 }
 
-/* Thẻ bọc ngoài cùng */
+// Thẻ bọc ngoài cùng
 .calendar-card {
-  background: #1e1e2e; /* Catppuccin Base */
-  border: 2px solid #313244; /* Catppuccin Surface 0 */
+  background: $base;
+  border: 2px solid $surface0;
   border-radius: 16px;
   padding: 24px;
-  color: #cdd6f4;
+  color: $text;
 }
 
-/* ── 1. Phần Header (Đồng hồ & Ngày) ── */
+// ── 1. Phần Header (Đồng hồ & Ngày) ──
 .header-box {
   margin-bottom: 24px;
 }
@@ -26,12 +33,12 @@
 .clock-time {
   font-size: 48px;
   font-weight: 800;
-  color: #cdd6f4;
+  color: $text;
 }
 
-/* Đường separator đứng đổi màu gradient từ hồng sang xanh lam */
+// Đường separator đứng đổi màu gradient từ hồng sang xanh lam
 .clock-separator-line {
-  background-image: linear-gradient(to bottom, #f5c2e7, #89b4fa);
+  background-image: linear-gradient(to bottom, $pink, $accent);
   min-width: 2px;
   min-height: 44px;
   margin: 0 20px;
@@ -41,19 +48,19 @@
 .clock-date {
   font-size: 14px;
   font-weight: 600;
-  color: #a6adc8; /* Soft subtext color */
+  color: $subtext0; // Soft subtext color
 }
 
-/* ── 2. Thẻ nested chứa Lịch (Màu tối hơn) ── */
+// ── 2. Thẻ nested chứa Lịch (Màu tối hơn) ──
 .calendar-inner {
-  background: #181825; /* Catppuccin Mantle - tạo chiều sâu nhẹ */
+  background: $mantle; // tạo chiều sâu nhẹ
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid #313244; /* Subtle border */
+  border: 1px solid $surface0; // Subtle border
 }
 
 
-/* ── 3. Phần Điều hướng Lịch ── */
+// ── 3. Phần Điều hướng Lịch ──
 .nav-box {
   background: transparent;
   margin-bottom: 16px;
@@ -66,22 +73,22 @@
 .nav-btn {
   font-size: 16px;
   font-weight: bold;
-  color: #89b4fa;
+  color: $accent;
   padding: 4px 8px;
   border-radius: 6px;
 }
 
 .nav-btn:hover {
-  background: #313244;
+  background: $surface0;
 }
 
 .nav-label {
   font-size: 13px;
   font-weight: bold;
-  color: #cdd6f4;
+  color: $text;
 }
 
-/* ── 4. Phần Lưới Lịch ── */
+// ── 4. Phần Lưới Lịch ──
 .weekday-row {
   margin-bottom: 8px;
 }
@@ -89,7 +96,7 @@
 .weekday {
   font-size: 12px;
   font-weight: bold;
-  color: #89dceb; /* Soft sky blue */
+  color: $sky; // Soft sky blue
   min-width: 40px;
   min-height: 25px;
 }
@@ -98,7 +105,7 @@
   margin-bottom: 8px;
 }
 
-/* Box chứa ngày */
+// Box chứa ngày
 .day-box {
   min-width: 40px;
   min-height: 40px;
@@ -106,45 +113,45 @@
   background: transparent;
 }
 
-/* Text hiển thị ngày */
+// Text hiển thị ngày
 .day-text {
   font-size: 13px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: $text;
 }
 
-/* Ngày hiện tại */
+// Ngày hiện tại
 .day-box.today {
-  background: #89b4fa; /* Catppuccin Blue */
+  background: $accent;
 }
 
 .day-box.today .day-text {
-  color: #11111b; /* Crust for contrast */
+  color: $crust; // Crust for contrast
   font-weight: 800;
 }
 
-/* Ngày của tháng khác */
+// Ngày của tháng khác
 .day-box.muted .day-text {
-  color: #45475a; /* Surface 1 - tối hơn */
+  color: $surface1; // Surface 1 - tối hơn
 }
 
-/* Hiệu ứng hover cho các ngày thường */
+// Hiệu ứng hover cho các ngày thường
 .day-box:hover:not(.today):not(.muted) {
-  background: #313244;
+  background: $surface0;
 }
 
-/* Lớp phủ nhấp chuột ra ngoài để đóng */
+// Lớp phủ nhấp chuột ra ngoài để đóng
 .closer {
   background: transparent;
 }
 
-/* ── Trung tâm điều khiển (Control Center) ── */
+// ── Trung tâm điều khiển (Control Center) ──
 .control-center-card {
-  background: rgba(30, 30, 46, 0.95); /* Nền bán trong suốt (Base) */
-  border: 2px solid #313244; /* Surface 0 */
+  background: rgba($base, 0.95); // Nền bán trong suốt (Base)
+  border: 2px solid $surface0; // Surface 0
   border-radius: 20px;
   padding: 24px;
-  color: #cdd6f4; /* Text */
+  color: $text; // Text
 }
 
 .cc-header {
@@ -158,30 +165,30 @@
 .cc-time {
   font-size: 32px;
   font-weight: 800;
-  color: #cdd6f4; /* Text */
+  color: $text; // Text
 }
 
 .cc-sep {
   font-size: 30px;
   font-weight: 300;
-  color: #45475a; /* Surface 1 */
+  color: $surface1; // Surface 1
   margin: 0 10px;
 }
 
 .cc-date {
   font-size: 14px;
-  color: #a6adc8; /* Subtext 0 */
+  color: $subtext0; // Subtext 0
 }
 
 .cc-moon {
   font-size: 24px;
-  color: #45475a; /* Surface 1 */
+  color: $surface1; // Surface 1
   padding: 8px;
   border-radius: 50%;
 }
 
 .cc-moon.active {
-  color: #89b4fa; /* Blue */
+  color: $accent; // Blue
 }
 
 .cc-grid {
@@ -194,7 +201,7 @@
 }
 
 .toggle-btn {
-  background: #313244; /* Surface 0 */
+  background: $surface0; // Surface 0
   border-radius: 24px;
   padding: 10px 8px;
   margin-bottom: 8px;
@@ -202,42 +209,42 @@
 }
 
 .toggle-btn.active {
-  background: #89b4fa; /* Blue */
-  color: #1e1e2e; /* Base */
+  background: $accent; // Blue
+  color: $base; // Base
 }
 
 .toggle-btn.active .toggle-divider {
-  background: rgba(30, 30, 46, 0.2);
+  background: rgba($base, 0.2);
 }
 
 .toggle-btn.active .toggle-main,
 .toggle-btn.active .toggle-arrow {
-  color: #1e1e2e; /* Base */
+  color: $base; // Base
 }
 
 .toggle-main {
   font-size: 18px;
-  color: #cdd6f4; /* Text */
+  color: $text; // Text
   margin-right: 6px;
   min-width: 28px;
 }
 
 .toggle-divider {
   min-width: 1px;
-  background: rgba(205, 214, 244, 0.15);
+  background: rgba($text, 0.15);
   margin: 0 4px;
 }
 
 .toggle-arrow {
   font-size: 16px;
-  color: #a6adc8; /* Subtext 0 */
+  color: $subtext0; // Subtext 0
   margin-left: 6px;
   min-width: 18px;
 }
 
 .toggle-label {
   font-size: 12px;
-  color: #a6adc8; /* Subtext 0 */
+  color: $subtext0; // Subtext 0
 }
 
 .cc-sliders {
@@ -247,7 +254,7 @@
 
 .slider-row {
   margin-bottom: 16px;
-  background: #313244; /* Surface 0 */
+  background: $surface0; // Surface 0
   border-radius: 16px;
   padding: 10px 16px;
 }
@@ -259,11 +266,11 @@
 }
 
 .slider-icon.vol {
-  color: #89b4fa; /* Blue */
+  color: $accent; // Blue
 }
 
 .slider-icon.bri {
-  color: #f9e2af; /* Yellow */
+  color: $yellow; // Yellow
 }
 
 .slider {
@@ -271,7 +278,7 @@
 }
 
 .slider trough {
-  background: #45475a; /* Surface 1 */
+  background: $surface1; // Surface 1
   border-radius: 6px;
   min-height: 8px;
 }
@@ -281,52 +288,52 @@
 }
 
 .slider.vol highlight {
-  background: #89b4fa; /* Blue */
+  background: $accent; // Blue
 }
 
 .slider.bri highlight {
-  background: #f9e2af; /* Yellow */
+  background: $yellow; // Yellow
 }
 
 .cc-footer {
   padding-top: 12px;
-  border-top: 1px solid #313244; /* Surface 0 */
+  border-top: 1px solid $surface0; // Surface 0
 }
 
 .power-btn {
   font-size: 16px;
   min-width: 38px;
   min-height: 38px;
-  /* Bỏ padding/border mặc định của GTK button: đệm ngang > đệm dọc khiến
-     khung rộng hơn cao, làm border-radius:50% ra hình elip và icon lệch tâm */
+  // Bỏ padding/border mặc định của GTK button: đệm ngang > đệm dọc khiến
+     // khung rộng hơn cao, làm border-radius:50% ra hình elip và icon lệch tâm
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: #313244; /* Surface 0 */
-  color: #cdd6f4; /* Text */
+  background: $surface0; // Surface 0
+  color: $text; // Text
   margin-left: 12px;
 }
 
 .power-btn:hover {
-  background: #45475a; /* Surface 1 */
+  background: $surface1; // Surface 1
 }
 
 .power-btn.shutdown:hover {
-  background: #f38ba8; /* Red */
-  color: #1e1e2e; /* Base */
+  background: $red; // Red
+  color: $base; // Base
 }
 
 .power-btn.reboot:hover {
-  background: #b4befe; /* Lavender */
-  color: #1e1e2e; /* Base */
+  background: $accent2; // Lavender
+  color: $base; // Base
 }
 
 .power-btn.logout:hover {
-  background: #89b4fa; /* Blue */
-  color: #1e1e2e; /* Base */
+  background: $accent; // Blue
+  color: $base; // Base
 }
 
-/* ── Panel chi tiết (router-view pages) ── */
+// ── Panel chi tiết (router-view pages) ──
 
 .cc-page {
   padding: 4px 0;
@@ -334,42 +341,42 @@
 
 .cc-page-header {
   padding: 8px 4px 16px 4px;
-  border-bottom: 1px solid #313244;
+  border-bottom: 1px solid $surface0;
   margin-bottom: 12px;
 }
 
 .cc-back-btn {
   font-size: 13px;
-  color: #89b4fa;
+  color: $accent;
   padding: 4px 10px;
   border-radius: 8px;
   min-width: 80px;
 }
 
 .cc-back-btn:hover {
-  background: #313244;
+  background: $surface0;
 }
 
 .cc-page-title {
   font-size: 16px;
   font-weight: 700;
-  color: #cdd6f4;
+  color: $text;
 }
 
 .cc-rescan-btn {
   font-size: 16px;
-  color: #a6adc8;
+  color: $subtext0;
   padding: 4px 8px;
   border-radius: 8px;
   min-width: 32px;
 }
 
 .cc-rescan-btn:hover {
-  background: #313244;
-  color: #89b4fa;
+  background: $surface0;
+  color: $accent;
 }
 
-/* Hàng công tắc on/off trong panel */
+// Hàng công tắc on/off trong panel
 .cc-section-row {
   padding: 8px 4px;
   margin-bottom: 8px;
@@ -378,17 +385,17 @@
 .cc-section-label {
   font-size: 14px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: $text;
 }
 
 .cc-subsection-label {
   font-size: 12px;
   font-weight: 600;
-  color: #a6adc8;
+  color: $subtext0;
   padding: 8px 4px 4px 4px;
 }
 
-/* Nút switch on/off nhỏ */
+// Nút switch on/off nhỏ
 .cc-switch {
   font-size: 12px;
   font-weight: 600;
@@ -397,16 +404,16 @@
 }
 
 .cc-switch.on {
-  background: #89b4fa;
-  color: #1e1e2e;
+  background: $accent;
+  color: $base;
 }
 
 .cc-switch.off {
-  background: #313244;
-  color: #a6adc8;
+  background: $surface0;
+  color: $subtext0;
 }
 
-/* Danh sách cuộn */
+// Danh sách cuộn
 .cc-list {
   min-height: 160px;
   margin-bottom: 8px;
@@ -416,7 +423,7 @@
   min-height: 80px;
 }
 
-/* Từng hàng trong danh sách */
+// Từng hàng trong danh sách
 .cc-list-row {
   padding: 10px 12px;
   border-radius: 12px;
@@ -424,81 +431,81 @@
 }
 
 .cc-list-row:hover {
-  background: #313244;
+  background: $surface0;
 }
 
 .cc-list-row.active {
-  background: rgba(137, 180, 250, 0.15);
-  border: 1px solid #89b4fa;
+  background: rgba($accent, 0.15);
+  border: 1px solid $accent;
 }
 
-/* Icon sóng wifi */
+// Icon sóng wifi
 .cc-signal {
   font-size: 16px;
-  color: #a6adc8;
+  color: $subtext0;
   margin-right: 10px;
   min-width: 20px;
 }
 
 .cc-list-row.active .cc-signal {
-  color: #89b4fa;
+  color: $accent;
 }
 
-/* Tên mạng / thiết bị */
+// Tên mạng / thiết bị
 .cc-net-name {
   font-size: 13px;
-  color: #cdd6f4;
+  color: $text;
 }
 
-/* Icon khóa */
+// Icon khóa
 .cc-lock {
   font-size: 12px;
-  color: #a6adc8;
+  color: $subtext0;
   margin-left: 6px;
 }
 
-/* Dấu chấm active */
+// Dấu chấm active
 .cc-active-dot {
   font-size: 10px;
-  color: #a6e3a1;
+  color: $green;
   margin-left: 6px;
 }
 
-/* "Connecting…" next to the network being joined */
+// "Connecting…" next to the network being joined
 .cc-net-status {
   font-size: 11px;
-  color: #f9e2af;
+  color: $yellow;
   margin-left: 6px;
 }
 
-/* Pin bluetooth */
+// Pin bluetooth
 .cc-battery {
   font-size: 11px;
-  color: #a6adc8;
+  color: $subtext0;
   margin-left: 6px;
 }
 
-/* Bluetooth icon */
+// Bluetooth icon
 .cc-bt-icon {
   font-size: 16px;
-  color: #89b4fa;
+  color: $accent;
   margin-right: 10px;
   min-width: 20px;
 }
 
-/* Ô nhập mật khẩu */
+// Ô nhập mật khẩu
 .cc-pass-row {
   padding: 8px 12px;
-  background: #181825;
+  background: $mantle;
   border-radius: 10px;
   margin-bottom: 4px;
 }
 
 .cc-pass-input {
   font-size: 13px;
-  color: #cdd6f4;
+  color: $text;
   background: transparent;
-  border-bottom: 1px solid #45475a;
+  border-bottom: 1px solid $surface1;
   padding: 4px;
   min-width: 160px;
 }
@@ -506,27 +513,27 @@
 .cc-connect-btn {
   font-size: 12px;
   font-weight: 600;
-  color: #1e1e2e;
-  background: #89b4fa;
+  color: $base;
+  background: $accent;
   border-radius: 8px;
   padding: 4px 12px;
   margin-left: 8px;
 }
 
 .cc-connect-btn:hover {
-  background: #b4befe;
+  background: $accent2;
 }
 
-/* Nhãn lỗi */
+// Nhãn lỗi
 .cc-error-label {
   font-size: 12px;
-  color: #f38ba8;
+  color: $red;
   padding: 4px 12px;
 }
 
-/* Card thông tin mạng dây */
+// Card thông tin mạng dây
 .cc-info-card {
-  background: #181825;
+  background: $mantle;
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 12px;
@@ -534,22 +541,22 @@
 
 .cc-info-row {
   padding: 6px 0;
-  border-bottom: 1px solid #313244;
+  border-bottom: 1px solid $surface0;
 }
 
 .cc-info-key {
   font-size: 12px;
-  color: #a6adc8;
+  color: $subtext0;
   min-width: 80px;
 }
 
 .cc-info-val {
   font-size: 13px;
-  color: #cdd6f4;
+  color: $text;
   font-weight: 600;
 }
 
-/* Nút connect/disconnect mạng dây */
+// Nút connect/disconnect mạng dây
 .cc-wired-btn {
   font-size: 13px;
   font-weight: 600;
@@ -559,34 +566,34 @@
 }
 
 .cc-wired-btn.connect {
-  background: #89b4fa;
-  color: #1e1e2e;
+  background: $accent;
+  color: $base;
 }
 
 .cc-wired-btn.disconnect {
-  background: #f38ba8;
-  color: #1e1e2e;
+  background: $red;
+  color: $base;
 }
 
 .cc-wired-btn:hover {
   opacity: 0.85;
 }
 
-/* Nút nâng cao ở chân panel */
+// Nút nâng cao ở chân panel
 .cc-advanced-btn {
   font-size: 12px;
-  color: #6c7086;
+  color: $overlay0;
   padding: 6px 12px;
   border-radius: 8px;
   margin-top: 8px;
 }
 
 .cc-advanced-btn:hover {
-  background: #313244;
-  color: #a6adc8;
+  background: $surface0;
+  color: $subtext0;
 }
 
-/* Slider âm lượng từng app */
+// Slider âm lượng từng app
 .app-vol-row {
   padding: 6px 4px;
   border-radius: 8px;
@@ -594,7 +601,7 @@
 }
 
 .app-vol-row:hover {
-  background: #313244;
+  background: $surface0;
 }
 
 .slider.app-vol {
@@ -602,26 +609,26 @@
 }
 
 .slider.app-vol highlight {
-  background: #a6e3a1;
+  background: $green;
 }
 
-/* Mic volume slider */
+// Mic volume slider
 .slider.mic-vol highlight {
-  background: #cba6f7;
+  background: $mauve;
 }
 
-/* Nút mute mic nhỏ */
+// Nút mute mic nhỏ
 .cc-mute-btn {
   font-size: 18px;
-  color: #cdd6f4;
+  color: $text;
   min-width: 28px;
   margin-right: 12px;
 }
 
-/* ── Alt+Tab Switcher — Workspace Style ── */
+// ── Alt+Tab Switcher — Workspace Style ──
 
 .switcher-card {
-  background: rgba(30, 30, 46, 0.85);
+  background: rgba($base, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 20px;
   padding: 24px;
@@ -646,31 +653,31 @@
 
 .switcher-item.active {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(137, 180, 250, 0.60); /* Catppuccin Blue */
-  box-shadow: 0 0 15px rgba(137, 180, 250, 0.15);
+  border-color: rgba($accent, 0.60);
+  box-shadow: 0 0 15px rgba($accent, 0.15);
 }
 
-/* Tên Workspace ở trên cùng */
+// Tên Workspace ở trên cùng
 .switcher-ws-name {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(205, 214, 244, 0.6); /* Subtext */
+  color: rgba($text, 0.6); // Subtext
   margin-bottom: 8px;
   transition: color 120ms ease;
 }
 
 .switcher-item.active .switcher-ws-name {
-  color: #89b4fa; /* Catppuccin Blue */
+  color: $accent;
 }
 
-/* Khung chứa ảnh preview */
+// Khung chứa ảnh preview
 .switcher-preview-wrap {
   min-width: 160px;
   min-height: 90px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 10px;
-  background: #181825;
+  background: $mantle;
 }
 
 .switcher-preview-img {
@@ -680,7 +687,7 @@
 .switcher-preview-empty {
   min-width: 160px;
   min-height: 90px;
-  background: linear-gradient(135deg, #1e1e2e, #313244);
+  background: linear-gradient(135deg, $base, $surface0);
   border-radius: 10px;
 }
 
@@ -690,23 +697,23 @@
   font-weight: 500;
 }
 
-/* Hàng icon ứng dụng nhỏ bên dưới preview */
+// Hàng icon ứng dụng nhỏ bên dưới preview
 .switcher-apps-row {
   margin-top: 2px;
   min-height: 24px;
 }
 
 .switcher-mini-icon-wrap {
-  background: rgba(17, 17, 27, 0.6); /* Catppuccin mantle */
+  background: rgba($crust, 0.6);
   padding: 4px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* ── Sensors popup ── */
+// ── Sensors popup ──
 .sensors-card {
-  background: #181825;
-  border: 1px solid #313244;
+  background: $mantle;
+  border: 1px solid $surface0;
   border-radius: 14px;
   padding: 12px 14px;
   min-width: 210px;
@@ -715,22 +722,22 @@
 .sensors-title {
   font-size: 11px;
   font-weight: 700;
-  color: #6c7086;
+  color: $overlay0;
   margin-bottom: 10px;
 }
 
 .sensor-row {
   padding: 5px 0;
-  border-bottom: 1px solid #1e1e2e;
+  border-bottom: 1px solid $base;
 }
 
 .sensor-row-label {
   font-size: 13px;
-  color: #cdd6f4;
+  color: $text;
   font-weight: 500;
 }
 
-/* Toggle switch track */
+// Toggle switch track
 .sensor-switch {
   min-width: 40px;
   min-height: 22px;
@@ -738,15 +745,15 @@
   padding: 2px;
 }
 
-.sensor-switch.on  { background: #89b4fa; }
-.sensor-switch.off { background: #45475a; }
+.sensor-switch.on  { background: $accent; }
+.sensor-switch.off { background: $surface1; }
 
-/* Toggle thumb — positioned left (off) or right (on) via class */
+// Toggle thumb — positioned left (off) or right (on) via class
 .switch-thumb {
   min-width: 18px;
   min-height: 18px;
   border-radius: 9px;
-  background: #1e1e2e;
+  background: $base;
 }
 
 .switch-thumb.right { margin-left: 18px; }

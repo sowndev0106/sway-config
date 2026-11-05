@@ -10,7 +10,8 @@ Dotfiles cấu hình **Sway** (Wayland tiling WM) của `sowndev0106`, quản l�
 `~/.config/<tên>/`. Vì là symlink, **sửa file trong repo = sửa luôn config đang
 chạy** — không cần copy. Một nguồn duy nhất.
 
-- Theme: **Catppuccin Mocha**. Phím `Mod` = **Super** (Windows).
+- Theme màu: hệ theme trong `.config/theme/` (đang dùng `catppuccin` = Catppuccin Mocha,
+  có thêm `black`). Phím `Mod` = **Super** (Windows).
 - Config này dùng chung cho **2 máy**: một máy chỉ có iGPU Intel, một máy có
   thêm **Nvidia rời** (Intel Arrow Lake + Nvidia, màn hình cắm vào card Nvidia).
   Mọi thứ phải **tự dò GPU lúc chạy**, không hardcode. `launch.sh` lo việc này:
@@ -31,6 +32,13 @@ chạy** — không cần copy. Một nguồn duy nhất.
 - File config là dotfiles thuần (không build, không test suite). "Kiểm thử" =
   áp dụng thật rồi quan sát.
 - `*.bak` bị `.gitignore` bỏ qua (bản sao lưu config cũ lúc cài).
+- **Màu: KHÔNG ghi cứng mã hex** trong config. Dùng vai trò của theme: GTK CSS (waybar,
+  wofi, wlogout, gtklock, dock) `@base`, `@surface0`, `@text`, `@accent`... và
+  `alpha(@base, 0.9)`; eww `$base`, `rgba($base, 0.9)`. Cần vai trò mới → thêm vào
+  MỌI file `theme/palettes/*.conf` + template liên quan, rồi `theme.sh build`.
+  Ngoại lệ có chủ đích: màu nhận diện app trong `window-icons.conf`, chấm đỏ Teams.
+- **eww.scss chỉ dùng comment `//`**: comment `/* */` có chữ tiếng Việt làm grass chèn
+  `@charset "UTF-8";`, GTK không hiểu → eww bỏ toàn bộ CSS.
 
 ## Bố cục thư mục
 
@@ -41,9 +49,11 @@ chạy** — không cần copy. Một nguồn duy nhất.
 | `.config/sway/scripts/` | `vol.sh`, `bri.sh` (OSD), `lock.sh`, `record.sh`, `launch.sh` (Nvidia), `launch-pin.py` (cửa sổ mới về đúng màn lúc bấm mở app), `waybar-outputs.sh` (chạy waybar + ẩn/hiện header từng màn, `Mod+Shift+b`; waybar khởi động qua `exec_always` chứ không qua `bar {}`), `screenshot-freeze.sh` (đóng băng màn hình bằng `wayfreeze` lúc chụp vùng: `Shift+Print`, `Mod+Print`, `Mod+Shift+s`), `apply-window-icons.sh` (áp rule icon lên cửa sổ đang mở), `teams-unread-dot.py` (daemon: red dot on the Teams tab only for unread chats you haven't looked at since; base icon rule stays in `window-icons.conf`) |
 | `.config/kanshi/config` | Bố cục đa màn hình (auto theo số màn cắm) |
 | `.config/waybar/{config,style.css}` | Thanh trạng thái |
+| `.config/theme/` | Theme màu toàn desktop: `palettes/<tên>.conf` (vai_trò=hex) + `templates/*` → `theme.sh build` sinh `build/<tên>/`; `current` = symlink theme đang dùng, mọi config import từ đây. `theme.sh set <tên>` đổi + reload; `Mod+Shift+t` = menu rofi. mako/swaylock config là symlink tới bản sinh ra (không có include) |
 | `.config/eww/eww-net/` | Rust helper for the control center's Wi-Fi/wired tiles and Wi-Fi page: NetworkManager over D-Bus, live state via `deflisten net`. Run/build only through `eww/scripts/eww-net.sh` (binary in `~/.local/bin`, build cache in `~/.cache/eww-net`; `watch` rebuilds when the source is newer). eww kills click commands after 200 ms unless the widget sets `:timeout` |
 | `.config/nwg-dock-hyprland/{config.toml,style.css}` | Dock app dưới màn hình, tự ẩn |
 | `.config/{rofi,wofi,foot,mako,swaylock,wlogout,gtklock}/` | Launcher, terminal, thông báo, khóa màn, menu nguồn |
+| `.config/eww/eww.scss` | Style popup eww (SCSS, eww dịch bằng grass) |
 | `.config/environment.d/` | Biến môi trường (bộ gõ tiếng Việt, con trỏ) |
 | `install.sh` | `apt install` package + tạo symlink (apt update lỗi repo bên thứ ba không làm dừng script) |
 

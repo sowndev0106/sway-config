@@ -244,6 +244,10 @@ bindsym $mod+Shift+v exec cliphist list | ~/.config/sway/scripts/rofi-focused.sh
 ### Khóa màn hình thủ công (nền blur desktop)
 bindsym $mod+Shift+x exec ~/.config/sway/scripts/lock.sh
 
+### Đổi theme màu toàn bộ desktop (waybar, eww, rofi, viền cửa sổ, terminal...)
+# Menu rofi liệt kê các theme trong ~/.config/theme/palettes/. Xem ~/.config/theme/theme.sh.
+bindsym $mod+Shift+t exec ~/.config/theme/theme.sh menu
+
 ### Ẩn/hiện header (waybar) — CHỈ màn hình đang focus, các màn khác giữ nguyên
 # Ẩn thì cửa sổ trên màn đó giãn kín màn hình; bấm lại để hiện. Mặc định hiện đủ khi đăng nhập.
 # --no-repeat: giữ phím lâu cũng chỉ tính 1 lần bấm (mặc định sway lặp lệnh khi giữ phím).
@@ -271,14 +275,10 @@ font pango:monospace 10
 titlebar_border_thickness 1
 titlebar_padding 8 4
 
-# Màu sắc cho tab/cửa sổ (Catppuccin Mocha)
-# Cấu trúc: class border backgr text indicator child_border
-# Focus = thanh sáng hơn (surface0) + viền xanh; không focus = thanh tối, chữ mờ.
-# Màu thứ 4 (indicator) = #f38ba8 (đỏ) để thấy được hướng split: cạnh đỏ là nơi window mới sẽ mở
-client.focused          #89b4fa #313244 #cdd6f4 #f38ba8 #89b4fa
-client.unfocused        #181825 #181825 #6c7086 #181825 #181825
-client.focused_inactive #45475a #1e1e2e #a6adc8 #1e1e2e #45475a
-client.urgent           #f38ba8 #f38ba8 #1e1e2e #f38ba8 #f38ba8
+# Màu sắc cho tab/cửa sổ: lấy theo theme đang dùng (client.focused/unfocused/...).
+# Focus = thanh sáng hơn (surface0) + viền màu nhấn; không focus = thanh tối, chữ mờ.
+# Sửa màu: ~/.config/theme/templates/sway.conf. Đổi theme: Mod+Shift+t.
+include ~/.config/theme/current/sway.conf
 
 # Icon phía trước tên cửa sổ trên thanh tiêu đề
 include ~/.config/sway/window-icons.conf

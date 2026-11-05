@@ -1,7 +1,9 @@
-/* nwg-dock — Catppuccin Mocha, dock nổi dưới màn hình */
+@import url("../theme/current/colors.css");  /* màu theo theme: @base, @text, @accent... */
+
+/* nwg-dock — dock nổi dưới màn hình, màu theo theme đang dùng */
 window {
-    background: rgba(30, 30, 46, 0.82);
-    border: 1px solid rgba(137, 180, 250, 0.35);
+    background: alpha(@base, 0.82);
+    border: 1px solid alpha(@accent, 0.35);
     border-radius: 14px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
@@ -15,7 +17,7 @@ image {
     background: none;
     border: none;
     box-shadow: none;
-    color: #cdd6f4;
+    color: @text;
 }
 
 button {
@@ -27,7 +29,7 @@ button {
 }
 
 button:hover {
-    background: rgba(137, 180, 250, 0.18);
+    background: alpha(@accent, 0.18);
 }
 
 button:focus {
@@ -35,7 +37,7 @@ button:focus {
 }
 
 #active {
-    border-bottom: 2px solid #89b4fa;
+    border-bottom: 2px solid @accent;
 }
 
 .dock-workspace-row {
@@ -47,12 +49,12 @@ button:focus {
     min-height: 24px;
     padding: 2px 7px;
     margin: 0 1px;
-    color: #cdd6f4;
-    background: rgba(49, 50, 68, 0.75);
+    color: @text;
+    background: alpha(@surface0, 0.75);
     border-radius: 999px;
 }
 
 .dock-workspace-active {
-    color: #1e1e2e;
-    background: #89b4fa;
+    color: @base;
+    background: @accent;
 }
